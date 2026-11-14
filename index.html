@@ -16,7 +16,7 @@ button{font:inherit;color:inherit}
 body.pan #map{width:calc(100vw - var(--rail) - var(--gut) - 420px)}
 #map.drag{cursor:grabbing}
 #map #chrome,#map #gut text{display:none}
-#map .fm{cursor:pointer} #map .lk,#map #evlayer path,#map #lens path{pointer-events:none}
+#map .fm{cursor:pointer} #map .crown{transition:opacity .25s} #map .lk,#map #evlayer path,#map #lens path{pointer-events:none}
 #map .fm text{transition:opacity .25s}
 #map.far .fm:not(.soil) text{opacity:0}
 #map.far .fm.on:not(.soil) text,#map.far .fm.me:not(.soil) text,#map.far .fm.rtn:not(.soil) text{opacity:1}
@@ -219,7 +219,7 @@ aside .reach-note{font-size:12.5px;color:var(--muted)} aside .reach{list-style:n
 #map #stars .stn{font:500 1.55px Outfit,sans-serif;fill:var(--ivory);fill-opacity:.75;display:none;pointer-events:none;dominant-baseline:central}
 #map.closer #stars .stn{display:block} #map.closer #stars .stn.hid{display:none} #map #stars .st.me .stn{fill:var(--goldhi);fill-opacity:1;display:block}
 #map.focus #stars .st:not(.me){opacity:.35}
-#foot{position:absolute;left:calc(var(--rail) + var(--gut) + 12px);bottom:6px;font-size:11px;color:var(--muted);z-index:4;max-width:calc(100vw - var(--rail) - var(--gut) - 220px);line-height:1.4}
+#foot{position:absolute;left:calc(var(--rail) + var(--gut) + 12px);bottom:6px;font-size:11px;color:var(--muted);z-index:4;background:#0b0906d9;border-radius:6px;padding:2px 8px;max-width:calc(100vw - var(--rail) - var(--gut) - 220px);line-height:1.4}
 #foot a{color:var(--gold)} #foot a:hover{color:var(--goldhi)} body.pan #foot{max-width:calc(100vw - var(--rail) - var(--gut) - 640px)}
 aside .living{font-size:12px;color:var(--muted);margin-top:6px} aside .living a{color:var(--goldhi)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -2016,6 +2016,8 @@ function apply() {
   const s = Math.max(1, 2.3 / view.k);
   document.querySelectorAll('#map .fm.on:not(.soil),#map .fm.me:not(.soil),#map .fm.rtn:not(.soil)').forEach(g => { const p = LAY.nodes[g.dataset.id]; g.setAttribute('transform', s > 1 ? `translate(${p.x},${p.y}) scale(${s}) translate(${-p.x},${-p.y})` : ''); });
   const sb = Math.max(1, 3.6 / view.k); document.querySelectorAll('#lens .rt-b,#reachspots .sunspot').forEach(g => { const x = +g.dataset.x, y = +g.dataset.y; g.setAttribute('transform', sb > 1 ? `translate(${x},${y}) scale(${sb}) translate(${-x},${-y})` : ''); });
+  const co = Math.max(.06, Math.min(1, 1 - (view.k / fitK - 1.3) / 2.4));      // the crowns fade as you zoom in, so the lanterns beneath them come forward
+  if (co !== apply._co) { apply._co = co; document.querySelectorAll('#map .crown').forEach(g => { g.style.opacity = co; g.style.pointerEvents = co < .5 ? 'none' : ''; }); }
   svg.classList.toggle('closer', view.k > 5); const ss = Math.min(1, 6.5 / view.k);      // stars stay small when the view is very close
   if (ss !== apply._ss) { apply._ss = ss; document.querySelectorAll('#stars .st').forEach(g => { const x = +g.dataset.x, y = +g.dataset.y; g.setAttribute('transform', ss < 1 ? `translate(${x},${y}) scale(${ss}) translate(${-x},${-y})` : ''); }); } clearTimeout(apply._t); apply._t = setTimeout(() => typeof starNames === 'function' && starNames(), 120);
   declutter(); chrome(); }
