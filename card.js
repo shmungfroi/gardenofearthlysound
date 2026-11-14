@@ -170,6 +170,11 @@ function render(panel, id, ctx) {
   if (n.brief) rich(h('p', 'brief', panel), n.brief); else if (F.note) h('p', 'brief', panel, F.note);
   if (!(n.works || []).length && !n.brief) h('p', 'status', panel, 'This form is still being researched.');
 
+  // F5: the course route chosen in the lenses, as a stop on that route (threads below show for every card)
+  if (ctx.route && COURSES[ctx.route] && COURSES[ctx.route].group !== 'Threads') { const c = COURSES[ctx.route], i = c.stops.findIndex(s => s.id === id);
+    if (i >= 0) { const s = c.stops[i], p = h('div', 'thread route', panel); h('small', '', p, `Course route · stop ${i + 1} of ${c.stops.length}`); h('p', 'rname', p, c.name.replace('HSC Preliminary year · ', ''));
+      h('p', '', p, `${s.week}${s.pages ? ' · ' + s.pages : ''}. ${s.role}: ${s.works.join('; ')}.`);
+      const nv = h('p', 'thread-nav', p); if (i > 0 && N[c.stops[i - 1].id]) nav(nv, c.stops[i - 1].id, '‹ ' + N[c.stops[i - 1].id].t); if (i < c.stops.length - 1 && N[c.stops[i + 1].id]) nav(nv, c.stops[i + 1].id, N[c.stops[i + 1].id].t + ' ›'); } }
   // G3 Listen: every work, with its recording, score and a Spotify search
   if ((n.works || []).length) { h('h3', '', panel, 'Listen'); const ol = h('ol', 'plist', panel);
     n.works.forEach((w, i) => { const m = (F.media || [])[i] || [], nr = m[2] === 'NO_RECORDING', li = h('li', '', ol), b = h('b', '', li, w[0]);
@@ -292,5 +297,5 @@ function renderEvent(panel, eid, ctx) {
     to.slice().sort((a, b) => N[a].y - N[b].y).forEach(i => { const li = h('li', '', ul), b = h('button', 'lk-b', li, N[i].t); b.type = 'button'; b.addEventListener('click', () => ctx.go(i)); h('small', '', li, ` ${N[i].d} · ${cap(ctx.famName(i))} spire`); }); }
   h('p', 'respect', panel, 'This Garden is presented with respect for every musician and culture it includes. To raise a cultural concern or report an incorrect link, contact Justin Ossher, the creator of this Garden, at any time.');
 }
-window.GardenCard = {render, renderComposer, renderEvent, VOICES, voiceTags, EVENTS: E};
+window.GardenCard = {render, renderComposer, renderEvent, VOICES, voiceTags, EVENTS: E, NSW, STRAND, COURSES, WINS};
 })();

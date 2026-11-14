@@ -19,7 +19,8 @@ body.pan #map{width:calc(100vw - var(--rail) - var(--gut) - 420px)}
 #map .fm{cursor:pointer}
 #map .fm text{transition:opacity .25s}
 #map.far .fm:not(.soil) text{opacity:0}
-#map.far .fm.on:not(.soil) text,#map.far .fm.me:not(.soil) text{opacity:1}
+#map.far .fm.on:not(.soil) text,#map.far .fm.me:not(.soil) text,#map.far .fm.rtn:not(.soil) text{opacity:1}
+#map .fm.rtn text{fill:var(--ivory);fill-opacity:1}
 #map.near .famname{opacity:0;transition:opacity .3s}
 #map.near .fm .moundname,#map.near .fm.on .moundname{opacity:0}
 #map .famname{transition:opacity .3s}
@@ -175,6 +176,26 @@ aside .thr-w{margin:6px 0 0 2px;font-size:13.5px} aside .thr-w b{font-weight:500
 #map #evlayer .ev-link{fill:none;stroke:var(--goldhi);stroke-opacity:.5;stroke-width:.45;stroke-dasharray:1 1.6}
 #map #evlayer .ev-ring{fill:none;stroke:var(--goldhi);stroke-width:.6}
 aside .ev-b{color:#e8c46a} aside .evto{list-style:none;padding:0} aside .evto li{margin-bottom:8px} aside .evto small{color:var(--muted)}
+/* F5 lenses: matching lanterns keep their light and wear a ring; the rest fall quiet */
+#map.lensed:not(.focus) .fm:not(.ln):not(.soil){opacity:.22}
+#map #lens circle{fill:none;stroke-width:.55;pointer-events:none} #map.focus #lens{opacity:.4}
+#map #lens .rt-line{fill:none;stroke:var(--goldhi);stroke-width:.6;stroke-dasharray:2.2 1.6;stroke-opacity:.85}
+#map #lens .rt-dot{fill:#0b0906;stroke:var(--goldhi);stroke-width:.5} #map #lens .rt-n{font:700 2.1px Outfit,sans-serif;fill:var(--goldhi);text-anchor:middle;dominant-baseline:central;pointer-events:none}
+#lensbar{position:absolute;right:18px;top:calc(var(--top) + 34px);display:none;flex-wrap:wrap;justify-content:flex-end;gap:6px;max-width:calc(100vw - var(--rail) - var(--gut) - 360px);z-index:5}
+body.pan #lensbar{right:438px;max-width:calc(100vw - var(--rail) - var(--gut) - 780px)}
+#lensbar span{display:inline-flex;align-items:center;gap:6px;font-size:12px;background:#0f0d09ee;border:1px solid #3a3222;border-radius:13px;padding:2px 4px 2px 10px}
+#lensbar span i{width:9px;height:9px;border-radius:50%;border:1.6px solid var(--lc)} #lensbar small{color:var(--muted)}
+#lensbar button{all:unset;cursor:pointer;width:18px;height:18px;border-radius:50%;text-align:center;line-height:17px;color:var(--muted)} #lensbar button:hover{color:var(--goldhi);background:#221d13}
+.sheet .lz{display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:7px;cursor:pointer;font-size:14px}
+.sheet .lz:hover{background:#221d13} .sheet .lz input{accent-color:#c9a24a;margin:0} .sheet .lz i{width:11px;height:11px;border-radius:50%;border:2px solid var(--lc);flex:none}
+.sheet .lz small{margin-left:auto;color:var(--muted);font-size:12px}
+.sheet h4{font-size:10.5px;letter-spacing:2px;color:var(--gold);font-weight:500;margin:16px 6px 6px;text-transform:uppercase}
+.sheet select{width:100%;height:34px;border-radius:8px;border:1px solid #3a3222;background:#14110b;color:var(--ivory);font:13px Outfit,sans-serif;padding:0 8px;outline:none} .sheet select:focus{border-color:var(--gold)}
+.sheet select option,.sheet select optgroup{background:#14110b;color:var(--ivory)}
+.sheet .nres{font-size:12.5px;color:var(--muted);margin:8px 6px} .sheet .nres b{color:var(--goldhi);font-weight:500}
+.sheet .stops button{font-size:13px;padding:5px 8px} .sheet .stops button em{font-style:normal;color:var(--gold);margin-right:8px;font-size:11.5px}
+.sheet .lnote{font-size:12px;color:var(--muted);margin:12px 6px 0;line-height:1.5}
+aside .route{border-color:var(--gold)} aside .route .rname{font-size:12.5px;color:var(--muted);margin:2px 0 6px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style></head>
 <body>
@@ -187,6 +208,7 @@ aside .ev-b{color:#e8c46a} aside .evto{list-style:none;padding:0} aside .evto li
   <button data-sheet="eras">☰<small>Storeys</small></button>
   <button data-sheet="voices">♪<small>Voices</small></button>
   <button data-sheet="events">◆<small>Events</small></button>
+  <button data-sheet="lenses">◎<small>Lenses</small></button>
   <button data-sheet="az">Az<small>A–Z</small></button>
   <button data-sheet="guide">?<small>Guide</small></button>
 </nav>
@@ -196,7 +218,7 @@ aside .ev-b{color:#e8c46a} aside .evto{list-style:none;padding:0} aside .evto li
   <nav class="crumbs" id="crumbs" aria-label="Where you are"></nav>
   <div class="search"><input id="q" type="search" placeholder="Find a lantern (any form)…" autocomplete="off" aria-label="Find a form"><div id="res" role="listbox"></div></div>
 </header>
-<div class="gut"></div><div id="eras"></div><div id="evs" aria-label="Events in time"></div><div id="tmark" aria-hidden="true"></div><div id="fams"></div>
+<div class="gut"></div><div id="eras"></div><div id="evs" aria-label="Events in time"></div><div id="tmark" aria-hidden="true"></div><div id="fams"></div><div id="lensbar" aria-label="Lenses on"></div>
 <div class="mm" id="mm" title="The whole garden: click to go there"></div>
 <div class="ladder" aria-label="Zoom levels">
   <div class="pm"><button id="zin" aria-label="Zoom in">+</button><button id="zout" aria-label="Zoom out">−</button></div>
@@ -236,10 +258,11 @@ function apply() {
   const fs = 3.4 * view.k; svg.classList.toggle('far', fs < 7.5); svg.classList.toggle('near', view.k > fitK * 2.6);
   // names in a lit web stay readable when the view is wide
   const s = Math.max(1, 2.3 / view.k);
-  document.querySelectorAll('#map .fm.on:not(.soil),#map .fm.me:not(.soil)').forEach(g => { const p = LAY.nodes[g.dataset.id]; g.setAttribute('transform', s > 1 ? `translate(${p.x},${p.y}) scale(${s}) translate(${-p.x},${-p.y})` : ''); });
+  document.querySelectorAll('#map .fm.on:not(.soil),#map .fm.me:not(.soil),#map .fm.rtn:not(.soil)').forEach(g => { const p = LAY.nodes[g.dataset.id]; g.setAttribute('transform', s > 1 ? `translate(${p.x},${p.y}) scale(${s}) translate(${-p.x},${-p.y})` : ''); });
+  const sb = Math.max(1, 3.6 / view.k); document.querySelectorAll('#lens .rt-b').forEach(g => { const x = +g.dataset.x, y = +g.dataset.y; g.setAttribute('transform', sb > 1 ? `translate(${x},${y}) scale(${sb}) translate(${-x},${-y})` : ''); });
   declutter(); chrome(); }
 function declutter() {      // among lit names, any that would touch an earlier one hides its words (its point stays) until zooming makes room
-  const gs = [...document.querySelectorAll('#map .fm.me:not(.soil),#map .fm.on:not(.soil)')]; gs.forEach(g => g.classList.remove('hid')); if (!gs.length || gs.length > 60) return;
+  const gs = [...document.querySelectorAll('#map .fm.me:not(.soil),#map .fm.on:not(.soil),#map .fm.rtn:not(.soil)')]; gs.forEach(g => g.classList.remove('hid')); if (!gs.length || gs.length > 60) return;
   gs.sort((a, b) => b.classList.contains('me') - a.classList.contains('me')); const placed = [];
   gs.forEach(g => { const ts = g.querySelectorAll('text'); if (!ts.length) return; let r = null; ts.forEach(t => { const q = t.getBoundingClientRect(); r = r ? {l: Math.min(r.l, q.left), t: Math.min(r.t, q.top), r: Math.max(r.r, q.right), b: Math.max(r.b, q.bottom)} : {l: q.left, t: q.top, r: q.right, b: q.bottom}; });
     if (placed.some(p => r.l < p.r + 3 && r.r > p.l - 3 && r.t < p.b + 2 && r.b > p.t - 2)) g.classList.add('hid'); else placed.push(r); }); }
@@ -300,7 +323,7 @@ const MINARET = {}; G.MIN.genres.forEach(g => g.lanterns.forEach(id => MINARET[i
 function card(id) {
   const f = famAt(LAY.nodes[id].x), n = N[id];
   const fams = [famOf(id), ...(n.also || [])].filter((x, i, a) => LAY.fams[x] && a.indexOf(x) === i).map(x => ({name: FN(x), c: FC(x)}));
-  window.GardenCard.render(panel, id, {go: o => choose(o, true), close: () => { closePanel(); light(null); }, thread: k => showThread(k), event: e => showEvent(e), famName: FN(f), eraName: (ERA[n.period] || {}).name || '', fams, minaret: MINARET[id] || ''});
+  window.GardenCard.render(panel, id, {go: o => choose(o, true), close: () => { closePanel(); light(null); }, thread: k => showThread(k), event: e => showEvent(e), route: lens.n && lens.n.startsWith('r-') ? lens.n.slice(2) : null, famName: FN(f), eraName: (ERA[n.period] || {}).name || '', fams, minaret: MINARET[id] || ''});
 }
 
 /* ---------- F2 voices: a composer's gold thread through every lantern they wrote in ---------- */
@@ -356,6 +379,40 @@ function showEvent(id) {
 function clearEvent() { if (!ekey) return; ekey = null; gEvent.innerHTML = ''; if (nav === 3) nav = null; }
 svg.addEventListener('mousemove', e => { if (ekey || drag) return; const r = svg.getBoundingClientRect(), wy = (e.clientY - r.top - view.ty) / view.k, yr = yearOfY(wy); if (yr == null) return previewYear(null); previewYear(wy, 'c.' + yr); });
 svg.addEventListener('mouseleave', () => { if (!ekey) previewYear(null); });
+
+/* ---------- F5 lenses: who wrote it, where it came from, and the NSW course it serves ---------- */
+const GC = window.GardenCard, gLens = document.createElementNS(SVGNS, 'g'); gLens.setAttribute('id', 'lens'); cam.insertBefore(gLens, gEvent);
+const mapIds = ids => new Set([...ids].filter(i => LAY.nodes[i]));
+const formsOf = test => { const s = new Set(); Object.values(VOICES).forEach(V => { if (test(V)) V.forms.forEach(f => s.add(f.id)); }); return mapIds(s); };
+const LENSES = [
+  {k: 'w', t: 'Women composers', c: '#e3796d', set: formsOf(V => V.woman), d: 'lanterns with at least one woman composer'},
+  {k: 'a', t: 'The Americas & Australia', c: '#8fbf6a', set: formsOf(V => V.region === 'A' || V.region === 'U'), d: 'lanterns with a composer from the Americas or Australia'},
+  {k: 'o', t: 'Oral & folk sources', c: '#ece2c8', set: mapIds(['commons', ...D.links.filter(l => l[0] === 'commons').map(l => l[1])]), d: 'the commons and the lanterns it feeds'},
+  {k: 'i', t: 'Aboriginal and Torres Strait Islander music', c: '#d9a441', set: mapIds(GC.STRAND), d: 'the lanterns of the strand'}];
+const lens = {on: new Set(), n: '', nset: new Set()}; const NSWC = '#f0d48a';
+const nswName = key => (GC.NSW.A.find(a => a.key === key) || {}).t || '';
+function drawLens() {
+  const any = lens.on.size || lens.n; svg.classList.toggle('lensed', !!any); gLens.innerHTML = '';
+  document.querySelectorAll('#map .fm.ln,#map .fm.rtn').forEach(g => { g.classList.remove('ln', 'rtn'); g.removeAttribute('transform'); });
+  const mk = (t, a, parent = gLens) => { const z = document.createElementNS(SVGNS, t); for (const k in a) z.setAttribute(k, a[k]); parent.appendChild(z); return z; };
+  const rings = [...LENSES.filter(L => lens.on.has(L.k)).map(L => [L.c, L.set]), ...(lens.n ? [[NSWC, lens.nset]] : [])];
+  const count = {}; rings.forEach(([c, set]) => set.forEach(id => { const p = LAY.nodes[id]; if (!p) return; NODE[id] && NODE[id].classList.add('ln'); const i = count[id] = (count[id] || 0) + 1;
+    mk('circle', {cx: p.x, cy: p.y, r: 1.9 + i * .75, stroke: c}); }));
+  if (lens.n.startsWith('r-')) { const c = GC.COURSES[lens.n.slice(2)], pts = c.stops.map(s => LAY.nodes[s.id]).filter(Boolean);      // a route walks its stops in teaching order
+    c.stops.forEach(s => NODE[s.id] && NODE[s.id].classList.add('rtn'));
+    if (pts.length > 1) mk('path', {class: 'rt-line', d: smooth(pts.map(p => [p.x, p.y]))});
+    c.stops.forEach((s, i) => { const p = LAY.nodes[s.id]; if (!p) return; const g = mk('g', {class: 'rt-b'}); g.dataset.x = p.x; g.dataset.y = p.y; mk('circle', {class: 'rt-dot', cx: p.x, cy: p.y, r: 1.6}, g); mk('text', {class: 'rt-n', x: p.x, y: p.y + .05}, g).textContent = i + 1; }); }
+  apply();
+  const bar = $('#lensbar'); bar.innerHTML = ''; bar.style.display = any ? 'flex' : 'none';
+  const chip = (c, t, n, off) => { const sp = el('span', '', bar); sp.style.setProperty('--lc', c); el('i', '', sp); sp.append(t + ' '); el('small', '', sp, n + ''); const x = el('button', '', sp, '×'); x.title = 'Turn this lens off'; x.setAttribute('aria-label', 'Turn off ' + t); x.onclick = off; };
+  LENSES.filter(L => lens.on.has(L.k)).forEach(L => chip(L.c, L.t, L.set.size, () => setLens(L.k, false)));
+  if (lens.n) chip(NSWC, nswName(lens.n).replace(/^Y1[12] /, ''), lens.nset.size, () => setCourse(''));
+  if (sel) card(sel); }
+function setLens(k, on) { on ? lens.on.add(k) : lens.on.delete(k); drawLens(); if (sheet.dataset.kind === 'lenses' && sheet.classList.contains('open')) { const c = sheet.querySelector(`input[data-k="${k}"]`); if (c) c.checked = on; } }
+function setCourse(key) { lens.n = key; lens.nset = key ? mapIds(GC.NSW.set(key)) : new Set(); drawLens();
+  if (sheet.dataset.kind === 'lenses' && sheet.classList.contains('open')) lensSheetCourse();
+  if (key && lens.nset.size) { const xs = [...lens.nset].map(i => LAY.nodes[i].x), ys = [...lens.nset].map(i => LAY.nodes[i].y); if (!sel && !tkey && !ekey) fitBox(Math.min(...xs) - 70, Math.min(...ys) - 30, Math.max(...xs) + 70, Math.max(...ys) + 20, 6); } }
+let lensSheetCourse = () => {};
 
 /* ---------- the frame: breadcrumb, eras, family strip, minimap, ladder ---------- */
 const ERAEL = {}, FAMEL = {};
@@ -458,11 +515,26 @@ function openSheet(kind, btn) {
       if (!list.childNodes.length) el('p', '', list, 'No composer matches.'); };
     [f, cW, cR, cM].forEach(x => x.addEventListener('input', draw)); draw(); setTimeout(() => f.focus(), 30); }
   if (kind === 'events') { el('h3', '', sheet, 'EVENTS IN TIME · ' + EVL.length); EVL.forEach(e => { const b = el('button', '', sheet, e.t); el('small', '', b, e.d + (e.place ? ' · ' + e.place : '')); b.onclick = () => { closeSheet(); showEvent(e.id); }; }); }
+  if (kind === 'lenses') { el('h3', '', sheet, 'LENSES');
+    el('p', 'lnote', sheet, 'A lens lights every lantern that answers a question and quiets the rest. Turn on as many as you like; each wears its own ring.');
+    LENSES.forEach(L => { const lb = el('label', 'lz', sheet); lb.style.setProperty('--lc', L.c); const c = el('input', '', lb); c.type = 'checkbox'; c.dataset.k = L.k; c.checked = lens.on.has(L.k); el('i', '', lb); lb.append(L.t); el('small', '', lb, L.set.size + ''); lb.title = L.set.size + ' ' + L.d; c.onchange = () => setLens(L.k, c.checked); });
+    el('h4', '', sheet, 'NSW course · for teachers'); const s = el('select', '', sheet); s.setAttribute('aria-label', 'NSW course focus area, topic or route'); el('option', '', s, 'Choose a focus area, topic or route…').value = '';
+    let og = null, last = ''; GC.NSW.A.forEach(a => { if (a.grp !== last) { og = el('optgroup', '', s); og.label = a.grp; last = a.grp; } const o = el('option', '', og, a.t); o.value = a.key; });
+    s.value = lens.n; s.onchange = () => setCourse(s.value); const out = el('div', '', sheet);
+    lensSheetCourse = () => { s.value = lens.n; out.innerHTML = ''; if (!lens.n) return; const r = el('p', 'nres', out); el('b', '', r, lens.nset.size + ' lantern' + (lens.nset.size === 1 ? '' : 's')); r.append(' light for this ' + (lens.n.startsWith('r-') ? 'route.' : 'course.'));
+      if (lens.n.startsWith('r-')) { const c = GC.COURSES[lens.n.slice(2)], box = el('div', 'stops', out);
+        c.stops.forEach((st, i) => { if (!LAY.nodes[st.id]) return; const b = el('button', '', box); el('em', '', b, (i + 1) + ' · ' + st.week); b.append(N[st.id].t); b.title = st.works.join('; '); b.onclick = () => choose(st.id, true); });
+        (c.extra || []).forEach(x => { const p = el('p', 'lnote', out); el('b', '', p, x.week + '. '); p.append(x.note); }); }
+      else { const box = el('div', 'stops', out); [...lens.nset].sort((a, b) => N[a].y - N[b].y || N[a].t.localeCompare(N[b].t)).slice(0, 60).forEach(i => { const b = el('button', '', box, N[i].t); el('small', '', b, N[i].d || ''); b.onclick = () => choose(i, true); }); }
+      el('p', 'lnote', out, 'Matches are the Garden’s suggestions from each form’s period, family, kind and dates: check them against the syllabus.'); };
+    lensSheetCourse();
+    const cl = el('button', '', sheet, 'Turn every lens off'); cl.style.marginTop = '12px'; cl.style.color = 'var(--muted)'; cl.onclick = () => { lens.on.clear(); sheet.querySelectorAll('input').forEach(c => c.checked = false); setCourse(''); }; }
   if (kind === 'az') { el('h3', '', sheet, 'EVERY LANTERN, A–Z'); D.nodes.filter(n => LAY.nodes[n.id]).sort((a, b) => a.t.localeCompare(b.t)).forEach(n => { const b = el('button', '', sheet, n.t); el('small', '', b, n.d || ''); b.onclick = () => { closeSheet(); spotlight(n.id); }; }); }
   if (kind === 'guide') { el('h3', '', sheet, 'HOW TO READ THE GARDEN');
     [['Storeys rise.', ' The ground is the year 800; the top is today. Each storey (period) is named on the left.'], ['The commons is the central spire.', ' Folk song, dance and work song rises from one seed at the bottom: the origin. From it, roots fan out to every spire, and its green branches reach the lanterns it fed.'],
      ['Spires are the families.', ' Each grows from a root in the ground and blooms where its oldest form begins. Inside, its minarets (genres) stand side by side.'], ['Lanterns are the forms.', ' A small gold point with its name. Click one to light its links and open its card.'],
      ['Links:', ' solid gold = grew from, dotted gold = influenced, red = reacted against, green = from the commons.'],
+     ['Lenses ◎:', ' light the lanterns that answer one question (women composers, the Americas & Australia, oral & folk sources, Aboriginal and Torres Strait Islander music) or serve one NSW course, topic or route. Each wears its own ring; a route also shows its stops in teaching order.'],
      ['Move:', ' drag, scroll or pinch; + and − or the ladder step Garden › Spire › Storey › Lantern; arrow keys move to the next spire or storey; / searches.']]
       .forEach(([b, t]) => { const p = el('p', '', sheet); el('b', '', p, b); p.append(t); }); }
 }
@@ -470,7 +542,7 @@ document.querySelectorAll('.rail button').forEach(b => b.onclick = () => openShe
 
 addEventListener('resize', () => { measure(); clamp(view); apply(); });
 measure(); view.k = fitK; clamp(view); apply();
-window.__map = {view, home, goFamily, goEra, goLevel, spotlight, choose, level, LAY, frameNet, showThread, tkey: () => tkey, showEvent, ekey: () => ekey};
+window.__map = {lens, setLens, setCourse, view, home, goFamily, goEra, goLevel, spotlight, choose, level, LAY, frameNet, showThread, tkey: () => tkey, showEvent, ekey: () => ekey};
 })();
 </script>
 </body></html>
