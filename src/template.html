@@ -242,10 +242,43 @@ body.pan #trail{max-width:calc(100vw - var(--rail) - var(--gut) - 640px)} body.t
 #trail .tc:hover{border-color:var(--gold)} #trail .tc em{font-style:normal;color:var(--gold);font-size:11px} #trail .tc.new{border-color:var(--goldhi);box-shadow:0 0 0 2px #f0d48a44}
 #trail .tc i{font-style:normal;color:var(--muted);padding:0 3px;border-radius:50%} #trail .tc i:hover{color:var(--goldhi)} #trail .tsep{color:#5a4f38}
 #trail .tclr{all:unset;cursor:pointer;font-size:11.5px;color:var(--muted);white-space:nowrap;padding:2px 6px} #trail .tclr:hover{color:var(--ivory)}
+/* F6: sharing, access, touch, phone */
+.vh{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip{position:absolute;left:8px;top:-60px;z-index:30;background:var(--goldhi);color:#111;padding:8px 14px;border-radius:8px;text-decoration:none;font-size:14px} .skip:focus{top:8px}
+button:focus-visible,a:focus-visible,.sheet .lz:focus-within{outline:2px solid var(--goldhi);outline-offset:2px} #map:focus-visible{outline:2px solid var(--gold);outline-offset:-3px}
+aside > .k{padding-right:150px} aside .share{all:unset;position:absolute;right:56px;top:14px;height:30px;padding:0 12px;border-radius:15px;border:1px solid #3a3222;font-size:12px;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:6px;z-index:2} aside .share:hover{color:var(--goldhi);border-color:var(--gold)}
+#trail .tsh{all:unset;cursor:pointer;font-size:11.5px;color:var(--gold);white-space:nowrap;padding:2px 6px} #trail .tsh:hover{color:var(--goldhi)}
+#trail.shared{border-color:var(--gold)} #trail.shared .tl{color:var(--goldhi)}
+#toast{position:fixed;left:50%;top:calc(var(--top) + 14px);transform:translateX(-50%);background:#15120b;border:1px solid var(--gold);border-radius:14px;padding:6px 14px;font-size:13px;z-index:30;display:none;max-width:92vw}
+#toast input{width:min(520px,80vw);background:#0b0906;border:1px solid #3a3222;border-radius:6px;color:var(--ivory);font:12px Outfit,sans-serif;padding:4px 6px;margin-top:6px;display:block}
+.sheet .gfoot{font-size:12px;color:var(--muted);border-top:1px solid #2a2418;padding-top:10px;margin-top:14px} .sheet .gfoot a{color:var(--gold)}
+@media (max-width:760px){
+  :root{--rail:0px;--gut:0px;--top:50px;--bar:58px}
+  .rail{top:auto;bottom:0;right:0;width:auto;height:var(--bar);padding:0 2px;display:flex;overflow-x:auto;border-right:0;border-top:1px solid var(--line);z-index:9;scrollbar-width:none}
+  .rail .logo{display:none} .rail button{width:auto;min-width:40px;padding:8px 0 6px;font-size:16px;flex:1 1 0} .rail button small{font-size:7.5px;letter-spacing:.3px}
+  body.trailing .ladder{bottom:calc(var(--bar) + 52px)} aside > .k{padding-right:130px}
+  .top{gap:8px;padding:0 8px} .top .t{font-size:10.5px;letter-spacing:1.6px;white-space:normal;width:84px;line-height:1.2} .crumbs{display:none}
+  .search{flex:1;min-width:0} .search input{width:100%;font-size:16px}
+  #res{position:fixed;left:6px;right:6px;top:calc(var(--top) + 2px);width:auto;max-height:calc(100dvh - var(--top) - var(--bar) - 12px)}
+  #map{left:0;width:100vw;height:calc(100dvh - var(--top) - var(--bar))}
+  body.pan #map{width:100vw;height:calc(40dvh - var(--top))}
+  aside{top:40dvh;bottom:var(--bar);width:100%;border-left:0;border-top:1px solid var(--gold);border-radius:16px 16px 0 0;padding:18px 18px 30px}
+  .gut,#eras,#evs,#tmark,.mm,.tick{display:none!important}
+  .ladder{right:8px;bottom:calc(var(--bar) + 10px);padding:5px;border-radius:12px} .ladder .rung{display:none} .ladder .pm{margin:0} body.pan .ladder{display:none}
+  .sheet{left:0;right:0;top:auto;bottom:var(--bar);width:auto;max-height:72dvh;border-radius:16px 16px 0 0;border:1px solid #3a3222;border-bottom:0}
+  #hint{bottom:calc(var(--bar) + 12px);left:calc(50% - 26px);white-space:normal;text-align:center;max-width:calc(100vw - 80px);font-size:13px;padding:7px 12px}
+  #hint .esc{display:block;border:0;margin:3px 0 0;padding:0}
+  #trail{left:6px;bottom:calc(var(--bar) + 8px);max-width:calc(100vw - 70px)} body.pan #trail{display:none} body.pinned.trailing #hint{bottom:calc(var(--bar) + 50px)}
+  #foot{display:none}
+  #lensbar{left:8px;right:8px;max-width:none;justify-content:flex-start;top:calc(var(--top) + 30px)}
+  #cpop{width:min(340px,calc(100vw - 20px))} #tip{max-width:78vw}
+  aside .share{right:52px}
+}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style></head>
 <body>
-<svg id="map" role="img" aria-label="The Garden of Earthly Sounds: eight spires growing from the commons, storeys rising from 800 at the ground to today at the top, lanterns for the forms"><g id="cam">%%MAP%%</g></svg>
+<a class="skip" href="#q">Skip to search</a>
+<svg id="map" tabindex="0" role="application" aria-roledescription="map" aria-describedby="mapkeys" aria-label="The Garden of Earthly Sounds: eight spires growing from the commons, storeys rising from 800 at the ground to today at the top, lanterns for the forms"><g id="cam">%%MAP%%</g></svg>
 
 <nav class="rail" aria-label="Tools">
   <div class="logo" aria-hidden="true">❦</div>
@@ -259,7 +292,7 @@ body.pan #trail{max-width:calc(100vw - var(--rail) - var(--gut) - 640px)} body.t
   <button data-sheet="az">Az<small>A–Z</small></button>
   <button data-sheet="guide">?<small>Guide</small></button>
 </nav>
-<div class="sheet" id="sheet" role="dialog"></div>
+<div class="sheet" id="sheet" role="dialog" aria-label="Tools"></div>
 <header class="top">
   <span class="t disp">THE GARDEN OF EARTHLY SOUNDS</span>
   <nav class="crumbs" id="crumbs" aria-label="Where you are"></nav>
@@ -273,7 +306,9 @@ body.pan #trail{max-width:calc(100vw - var(--rail) - var(--gut) - 640px)} body.t
 </div>
 <div id="hint" role="status"></div><div id="cpop" role="tooltip" aria-hidden="true"></div><div id="tip" role="tooltip"></div>
 <aside id="panel" aria-live="polite"></aside>
-<div id="trail" aria-label="Your trail"></div>
+<div id="trail" role="region" aria-label="Your trail"></div>
+<div id="toast" role="status"></div><div id="say" class="vh" aria-live="polite"></div>
+<p id="mapkeys" class="vh">Keyboard: / searches. Arrow keys move to the next spire or storey; plus and minus zoom. When a lantern is pinned or open, the right and left square brackets step through its connections, Enter follows the one chosen, and Escape steps back.</p>
 <p id="foot">This is a living document in the form of an interactive page. Please e-mail <a href="mailto:shmungfroi@gmail.com">shmungfroi@gmail.com</a> to make any suggestions, comments or corrections.</p>
 
 <script src="gx_data.js"></script>
@@ -291,6 +326,9 @@ const famOf = id => (LAY.nodes[id] || {}).f || 'commons';
 const eraOf = id => N[id].period;
 const ERA = {}; LAY.eras.forEach(e => ERA[e.id] = e);
 const B = LAY.bounds;     // the sheet's edges: the view never leaves them
+const COARSE = () => matchMedia('(pointer: coarse)').matches;
+const say = t => { const s = document.getElementById('say'); s.textContent = ''; setTimeout(() => s.textContent = t, 30); };
+function nearFm(cx, cy) { const r0 = svg.getBoundingClientRect(); let best = null, bd = 24; for (const id in LAY.nodes) { const q = LAY.nodes[id], d = Math.hypot(r0.left + view.tx + q.x * view.k - cx, r0.top + view.ty + q.y * view.k - cy); if (d < bd && NODE[id]) { bd = d; best = NODE[id]; } } return best; }
 
 /* ---------- camera: map units to screen ---------- */
 const view = {k: 1, tx: 0, ty: 0}; let aw = 0, ah = 0, fitK = 1, anim = null;
@@ -376,7 +414,7 @@ function pinPill() {      // the pill names what is pinned, offers the card, and
   else if (tkey && VOICES[tkey]) { name = VOICES[tkey].name; const n = VOICES[tkey].forms.length; what = `${n} lantern${n === 1 ? '' : 's'}`; }
   else if (ekey && EVENTS[ekey]) { name = EVENTS[ekey].t; const n = (EVENTS[ekey].to || []).length; what = `${EVENTS[ekey].d} · ${n} lantern${n === 1 ? '' : 's'}`; }
   const show = !!name && !document.body.classList.contains('pan'); document.body.classList.toggle('pinned', show); if (!show) { h.style.display = 'none'; return; }
-  el('b', '', h, name); h.append(` · ${what} ·`); el('span', 'open', h, 'Open card ›'); el('span', 'esc', h, 'Pinned · Esc to release'); h.style.display = 'block'; }
+  el('b', '', h, name); h.append(` · ${what} ·`); el('span', 'open', h, 'Open card ›'); el('span', 'esc', h, COARSE() ? 'Pinned · tap the map to let go' : 'Pinned · Esc to release'); h.style.display = 'block'; }
 function hidePill() { $('#hint').style.display = 'none'; document.body.classList.remove('pinned'); }
 function openPinned() { if (spot) return choose(spot, view.k < 2.2); if (tkey) return showThread(tkey); if (ekey) return showEvent(ekey); }
 function releasePin() { clearTrace(); clearThread(); clearEvent(); spot = null; hidePill(); if (!sel) light(null); }
@@ -386,7 +424,7 @@ function stepBack() {      // Esc and the card's close button step back one laye
 function clearSpot() { clearTrace(); spot = null; hidePill(); if (!sel) light(null); }
 function choose(id, frame) { $("#cpop") && $("#cpop").classList.remove("show");
   clearThread(); clearEvent(); hidePill(); spot = null; sel = id; curFam = famAt(LAY.nodes[id].x); curEra = eraOf(id);
-  light(id); card(id); document.body.classList.add('pan'); measure(); clamp(view); if (frame) frameNet(id, true); else apply(); }
+  light(id); card(id); addShare(); document.body.classList.add('pan'); measure(); clamp(view); if (frame) frameNet(id, true); else apply(); }
 function closePanel() { if (!sel && !tkey && !ekey && !document.body.classList.contains('pan')) return; if (tkey || ekey) { clearThread(); clearEvent(); light(null); } sel = null; document.body.classList.remove('pan'); measure(); clamp(view); light(spot); }
 
 /* ---------- the card ---------- */
@@ -421,7 +459,7 @@ function showThread(key, quiet) {
   pts.forEach((p, i) => mk('circle', {cx: p[0], cy: p[1], r: 2.4, class: 'thr-ring' + (i === 0 ? ' first' : '')}));
   if (quiet) { apply(); pinPill(); return; }      // pinned from the map: the thread shows, the card waits
   window.GardenCard.renderComposer(panel, key, {go: o => { clearThread(); choose(o, true); }, close: () => stepBack(),
-    famOf: id => famAt(LAY.nodes[id].x), famName: id => FN(famAt(LAY.nodes[id].x)), eraName: id => (ERA[N[id].period] || {}).name || ''});
+    famOf: id => famAt(LAY.nodes[id].x), famName: id => FN(famAt(LAY.nodes[id].x)), eraName: id => (ERA[N[id].period] || {}).name || ''}); addShare();
   document.body.classList.add('pan'); measure(); clamp(view);
   const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]), x0 = Math.min(...xs) - 50, x1 = Math.max(...xs) + 50, y0 = Math.min(...ys) - 22, y1 = Math.max(...ys) + 16;
   flyTo(Math.max(KMIN(), Math.min(6, aw / (x1 - x0), (ah - 60) / (y1 - y0))), (x0 + x1) / 2, (y0 + y1) / 2 + 6); apply(); }
@@ -448,7 +486,7 @@ function showEvent(id, quiet) {
   mk('line', {x1: B[0], x2: B[2], y1: e.wy, y2: e.wy, class: 'ev-line'});
   to.forEach(i => { const p = LAY.nodes[i], mx = (B[0] + p.x) / 2; mk('path', {d: `M${B[0] + 4},${e.wy} Q${p.x},${e.wy} ${p.x},${p.y}`, class: 'ev-link'}).dataset.to = i; mk('circle', {cx: p.x, cy: p.y, r: 2.4, class: 'ev-ring'}); });
   if (quiet) { hits(); apply(); pinPill(); return; }
-  window.GardenCard.renderEvent(panel, id, {go: o => { clearEvent(); choose(o, true); }, close: () => stepBack(), famName: i => FN(famAt(LAY.nodes[i].x))});
+  window.GardenCard.renderEvent(panel, id, {go: o => { clearEvent(); choose(o, true); }, close: () => stepBack(), famName: i => FN(famAt(LAY.nodes[i].x))}); addShare();
   document.body.classList.add('pan'); measure(); clamp(view);
   const xs = to.map(i => LAY.nodes[i].x).concat([B[0] + 20]), ys = to.map(i => LAY.nodes[i].y).concat([e.wy]);
   const x0 = Math.min(...xs) - 40, x1 = Math.max(...xs) + 50, y0 = Math.min(...ys) - 22, y1 = Math.max(...ys) + 16;
@@ -626,10 +664,11 @@ addEventListener('pointerup', () => { drag = null; svg.classList.remove('drag');
 svg.addEventListener('wheel', e => { e.preventDefault(); cancelAnimationFrame(anim); const r = svg.getBoundingClientRect(), px = e.clientX - r.left, py = e.clientY - r.top;
   const k = Math.max(KMIN(), Math.min(KMAX, view.k * Math.exp(-e.deltaY * (e.ctrlKey ? .01 : .0016)))), q = k / view.k;
   view.tx = px - (px - view.tx) * q; view.ty = py - (py - view.ty) * q; view.k = k; nav = null; curEra = null; clamp(view); apply(); }, {passive: false});
-svg.addEventListener('click', e => { if (moved) return; const g = e.target.closest('.fm'); commonsNote(false);
+svg.addEventListener('click', e => { if (moved) return; const g = e.target.closest('.fm') || (COARSE() ? nearFm(e.clientX, e.clientY) : null); commonsNote(false);
   if (g) { e.stopPropagation(); const id = g.dataset.id;
     if (e.shiftKey) { collect(id); if (!spot && !sel && !tkey && !ekey) pin(id); return; }      // Shift-click drops a lantern straight into the trail
     if (sel === id) return; if (spot === id && !tkey && !ekey) return choose(id, view.k < 2.2); return pin(id); }
+  if (!trace && (spot || sel) && !tkey && !ekey) traceAt(e, COARSE() ? 22 : 14);      // a tap on a line (no hover on touch) finds it here
   if (trace && (spot || sel)) return travel(trace.to);      // a click on a traced line travels to its far lantern
   if (sel || tkey || ekey) closePanel(); light(null); clearSpot(); });
 svg.addEventListener('dblclick', e => { const g = e.target.closest('.fm'); if (!g) return; e.preventDefault(); choose(g.dataset.id, view.k < 2.2); });
@@ -653,7 +692,9 @@ addEventListener('keydown', e => {
   if (e.key === '+' || e.key === '=') return goLevel(level() + 1);
   if (e.key === '-' || e.key === '_') return $('#zout').click();
   if (e.key === 'Escape') { if ($('#sheet').classList.contains('open')) return closeSheet(); if (stepBack()) return; return goLevel(level() - 1); }
-  if (e.key === 'Enter' && (spot || tkey || ekey) && !document.body.classList.contains('pan')) return openPinned();
+  if ((e.key === ']' || e.key === '[') && (spot || sel) && !tkey && !ekey) { e.preventDefault(); return keyTrace(e.key === ']' ? 1 : -1); }
+  if (e.key === 'Enter' && trace && (spot || sel) && !e.target.closest('button,a')) { e.preventDefault(); return travel(trace.to); }
+  if (e.key === 'Enter' && (spot || tkey || ekey) && !document.body.classList.contains('pan') && !e.target.closest('button,a')) { openPinned(); return setTimeout(() => { const h = panel.querySelector('h1,h2'); if (h) { h.tabIndex = -1; h.focus(); } }, 60); }
   if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { e.preventDefault(); const f = curFam || famAt(centre()[0]), i = FAMS.indexOf(f) + (e.key === 'ArrowRight' ? 1 : -1); if (i < 0 || i >= FAMS.length) return; closePanel(); clearSpot();
     return level() >= 2 ? goEra(FAMS[i], curEra || eraAt(centre()[1])) : goFamily(FAMS[i], centre()[1]); }
   if (e.key === 'ArrowUp' || e.key === 'ArrowDown') { e.preventDefault(); const ids = LAY.eras.map(x => x.id), cur = curEra || eraAt(centre()[1]), i = ids.indexOf(cur) + (e.key === 'ArrowUp' ? 1 : -1); if (i < 0 || i >= ids.length) return; closePanel(); clearSpot(); return goEra(curFam || famAt(centre()[0]), ids[i]); } });
@@ -663,9 +704,9 @@ let trace = null; const SAMP = new Map();
 function samples(p) { if (!SAMP.has(p)) { const L = p.getTotalLength(), a = []; for (let i = 0; i <= 48; i++) { const q = p.getPointAtLength(L * i / 48); a.push([q.x, q.y]); } SAMP.set(p, a); } return SAMP.get(p); }
 function nearOn(p, wx, wy) { let d = 1e9, t = 0; samples(p).forEach((q, i) => { const dd = Math.hypot(q[0] - wx, q[1] - wy); if (dd < d) { d = dd; t = i / 48; } }); return {d, t}; }
 function clearTrace() { if (!trace) return; trace.p.classList.remove('trace'); NODE[trace.to] && NODE[trace.to].classList.remove('traced'); trace = null; tip.style.display = 'none'; }
-function traceAt(e) {
+function traceAt(e, px = 14) {
   const here = sel || spot; if (!here || tkey || ekey || e.target.closest('.fm') || e.target.closest('#stars') || e.target.closest('#reachspots')) return clearTrace();
-  const r0 = svg.getBoundingClientRect(), wx = (e.clientX - r0.left - view.tx) / view.k, wy = (e.clientY - r0.top - view.ty) / view.k, tol = 14 / view.k;
+  const r0 = svg.getBoundingClientRect(), wx = (e.clientX - r0.left - view.tx) / view.k, wy = (e.clientY - r0.top - view.ty) / view.k, tol = px / view.k;
   let best = null; (BY[here] || []).forEach(p => { const m = nearOn(p, wx, wy); if (!best || m.d < best.d) best = {p, ...m}; });
   if (trace && best && best.p !== trace.p) { const cur = nearOn(trace.p, wx, wy); if (cur.d < tol && best.d > cur.d * .55) best = {p: trace.p, ...cur}; }      // stay on the line being followed until the pointer clearly leaves it
   if (!best || best.d > tol) return clearTrace();
@@ -675,7 +716,7 @@ function traceAt(e) {
   const toward = (to === b) === startsAtA ? best.t : 1 - best.t, got = trail.includes(to);
   if (toward > .82 && !got) collect(to);
   const t = [...p.classList].find(c => VERB[c]) || 'p';
-  tip.innerHTML = `<b>${N[here].t}</b> ${VERB[t][fwd ? 0 : 1]} <b>${N[to].t}</b><small>${N[to].d || ''}</small><small>${trail.includes(to) ? 'in your trail · click to travel there' : 'trace to the end to pick it up · click to travel there'}</small>`;
+  tip.innerHTML = `<b>${N[here].t}</b> ${VERB[t][fwd ? 0 : 1]} <b>${N[to].t}</b><small>${N[to].d || ''}</small><small>${trail.includes(to) ? 'in your trail' : 'trace to the end to pick it up'} · ${COARSE() ? 'tap' : 'click'} to travel there</small>`;
   tip.style.display = 'block'; tip.style.left = Math.min(innerWidth - 310, e.clientX + 14) + 'px'; tip.style.top = (e.clientY + 16) + 'px'; }
 svg.addEventListener('mousemove', e => { if (!drag) traceAt(e); });
 svg.addEventListener('mouseleave', () => clearTrace());
@@ -696,21 +737,24 @@ addEventListener('keyup', e => { if (e.key !== 'Shift' || !shiftAt || (e.target.
 
 // the trail: lanterns picked up by tracing or Shift-click, in the order you reached them; kept in this browser
 const gTrail = document.createElementNS(SVGNS, 'g'); gTrail.setAttribute('id', 'trailg'); cam.insertBefore(gTrail, gThread);
-let trail = []; try { trail = (JSON.parse(localStorage.getItem('garden.trail') || '[]') || []).filter(i => N[i] && LAY.nodes[i]); } catch (err) { trail = []; }
+let trail = [], shared = null;      // shared: a trail opened from someone's link, shown until kept or closed
+try { trail = (JSON.parse(localStorage.getItem('garden.trail') || '[]') || []).filter(i => N[i] && LAY.nodes[i]); } catch (err) { trail = []; }
 function saveTrail() { try { localStorage.setItem('garden.trail', JSON.stringify(trail)); } catch (err) {} drawTrail(); }
-function collect(id) { if (!N[id] || !LAY.nodes[id] || id === 'commons') return; if (!trail.includes(id)) { trail.push(id); saveTrail(); } drawTrail(id); }
+function collect(id) { if (!N[id] || !LAY.nodes[id] || id === 'commons') return; if (shared) shared = null; if (!trail.includes(id)) { trail.push(id); saveTrail(); } drawTrail(id); }
 function drawTrail(fresh) {
-  const box = $('#trail'); box.innerHTML = ''; gTrail.innerHTML = ''; document.body.classList.toggle('trailing', trail.length > 0); if (!trail.length) return;
-  el('span', 'tl', box, 'Your trail');
-  trail.forEach((id, i) => { if (i) el('span', 'tsep', box, '›'); const c = el('button', 'tc' + (id === fresh ? ' new' : ''), box); el('em', '', c, String(i + 1)); c.append(N[id].t); c.title = 'Pin this lantern';
-    const x = el('i', '', c, '×'); x.title = 'Take it out of the trail'; x.onclick = ev => { ev.stopPropagation(); trail = trail.filter(j => j !== id); saveTrail(); }; c.onclick = () => { clearThread(); clearEvent(); pin(id); const p = LAY.nodes[id]; flyTo(Math.max(view.k, fitK * 2.2), p.x, p.y); };
+  const box = $('#trail'), T = shared || trail; box.innerHTML = ''; gTrail.innerHTML = ''; box.classList.toggle('shared', !!shared); document.body.classList.toggle('trailing', T.length > 0); if (!T.length) return;
+  el('span', 'tl', box, shared ? 'A shared trail' : 'Your trail');
+  T.forEach((id, i) => { if (i) el('span', 'tsep', box, '›'); const c = el('button', 'tc' + (id === fresh ? ' new' : ''), box); el('em', '', c, String(i + 1)); c.append(N[id].t); c.title = 'Pin this lantern';
+    if (!shared) { const x = el('i', '', c, '×'); x.title = 'Take it out of the trail'; x.setAttribute('role', 'button'); x.setAttribute('aria-label', 'Take ' + N[id].t + ' out of the trail'); x.onclick = ev => { ev.stopPropagation(); trail = trail.filter(j => j !== id); saveTrail(); }; } c.onclick = () => { clearThread(); clearEvent(); pin(id); const p = LAY.nodes[id]; flyTo(Math.max(view.k, fitK * 2.2), p.x, p.y); };
     if (id === fresh) setTimeout(() => c.scrollIntoView({block: 'nearest', inline: 'nearest'}), 0); });
-  const clr = el('button', 'tclr', box, 'Clear'); clr.onclick = () => { trail = []; saveTrail(); };
-  const pts = trail.map(i => LAY.nodes[i]).map(p => [p.x, p.y]), mk = (t, a, par = gTrail) => { const z = document.createElementNS(SVGNS, t); for (const k in a) z.setAttribute(k, a[k]); par.appendChild(z); return z; };
+  if (shared) { const keep = el('button', 'tsh', box, 'Keep as my trail'); keep.onclick = () => { trail = shared.slice(); shared = null; saveTrail(); toast('This trail is now yours, kept in this browser'); };
+    const cl = el('button', 'tclr', box, 'Close'); cl.onclick = () => { shared = null; drawTrail(); }; }
+  else { const sh = el('button', 'tsh', box, '⧉ Share'); sh.title = 'Copy a link that shows this trail'; sh.onclick = () => shareLink(HOME + '#trail=' + trail.join(','), `a trail of ${trail.length} lantern${trail.length === 1 ? '' : 's'}`);
+    const clr = el('button', 'tclr', box, 'Clear'); clr.onclick = () => { trail = []; saveTrail(); }; }
+  const pts = T.map(i => LAY.nodes[i]).map(p => [p.x, p.y]), mk = (t, a, par = gTrail) => { const z = document.createElementNS(SVGNS, t); for (const k in a) z.setAttribute(k, a[k]); par.appendChild(z); return z; };
   if (pts.length > 1) mk('path', {class: 'tr-line', d: smooth(pts)});
   pts.forEach(([x, y], i) => { const g = mk('g', {class: 'tr-b'}); g.dataset.x = x + 3.4; g.dataset.y = y + 3.4; mk('circle', {class: 'tr-dot', cx: x + 3.4, cy: y + 3.4, r: 1.5}, g); mk('text', {class: 'tr-n', x: x + 3.4, y: y + 3.45}, g).textContent = i + 1; });
   apply(); }
-drawTrail();
 
 /* ---------- search: find, highlight, connect, then choose ---------- */
 const q = $('#q'), res = $('#res');
@@ -786,13 +830,81 @@ function openSheet(kind, btn) {
      ['Styles ☼:', ' a style is light that falls across every minaret it reached, over its years; a form such as the fugue is a gold band tying together the minarets that use it. Hover a ☼ or a knot to read the example; click to open the nearest lantern.'],
      ['Stars in the Now storey:', ' every maker of music since 1980 in the Garden is a small star beside their lantern. Hover a star to meet them; click to follow their thread through every lantern they wrote in.'],
      ['Lenses ◎:', ' light the lanterns that answer one question (women composers, the Americas & Australia, oral & folk sources, Aboriginal and Torres Strait Islander music) or serve one NSW course, topic or route. Each wears its own ring; a route also shows its stops in teaching order.'],
-     ['Move:', ' drag, scroll or pinch; + and − or the ladder step Garden › Spire › Storey › Lantern; arrow keys move to the next spire or storey; / searches.']]
-      .forEach(([b, t]) => { const p = el('p', '', sheet); el('b', '', p, b); p.append(t); }); }
+     ['Move:', ' drag, scroll or pinch; + and − or the ladder step Garden › Spire › Storey › Lantern; arrow keys move to the next spire or storey; / searches.'],
+     ['On a phone or tablet:', ' tap a lantern to pin its web and tap it again for its card. Touch and hold a lantern (or anywhere on a pinned web) to trace: keep your finger down and run it along the lines. Pinch to zoom; tap the map to let go.'],
+     ['Keyboard:', ' with a web pinned or a card open, ] and [ step through its connections, Enter follows the one chosen, Esc steps back.'],
+     ['Share:', ' the address bar always holds where you are: the open card or pinned web, any lenses and the course or route. Share on a card copies that link; Share on your trail copies a link that shows your trail to whoever opens it.']]
+      .forEach(([b, t]) => { const p = el('p', '', sheet); el('b', '', p, b); p.append(t); });
+    const gf = el('p', 'gfoot', sheet); gf.innerHTML = 'This is a living document in the form of an interactive page. Please e-mail <a href="mailto:shmungfroi@gmail.com">shmungfroi@gmail.com</a> to make any suggestions, comments or corrections.'; }
 }
 document.querySelectorAll('.rail button').forEach(b => b.onclick = () => openSheet(b.dataset.sheet, b));
 
 addEventListener('resize', () => { measure(); clamp(view); apply(); });
 measure(); view.k = fitK; clamp(view); apply();
+
+/* ---------- F6: deep links and sharing ---------- */
+const HOME = /github\.io$|^localhost$|^127\./.test(location.hostname) ? location.origin + location.pathname : 'https://shmungfroi.github.io/gardenofearthlysound/';
+function hashOf() { const P = [], pan = document.body.classList.contains('pan');
+  if (tkey) P.push((pan ? 'v=' : 'vp=') + tkey); else if (ekey) P.push((pan ? 'e=' : 'ep=') + ekey); else if (sel && pan) P.push('l=' + sel); else if (spot) P.push('p=' + spot);
+  if (lens.on.size) P.push('lens=' + [...lens.on].join(',')); if (lens.n) P.push('n=' + encodeURIComponent(lens.n)); return P.join('&'); }
+let lastHash = null;
+function syncHash() { const h = hashOf(); if (h === lastHash) return; lastHash = h; try { history.replaceState(null, '', h ? '#' + h : location.pathname + location.search); } catch (err) {} }
+setInterval(syncHash, 400);
+function linkFor(extra) { const h = [hashOf(), extra].filter(Boolean).join('&'); return HOME + (h ? '#' + h : ''); }
+function toast(html, ms = 2200) { const t = $('#toast'); t.innerHTML = html; t.style.display = 'block'; clearTimeout(toast.t); toast.t = setTimeout(() => t.style.display = 'none', ms); }
+async function shareLink(url, what) {
+  if (COARSE() && navigator.share) { try { await navigator.share({title: 'The Garden of Earthly Sounds', text: what, url}); return; } catch (err) { if (err && err.name === 'AbortError') return; } }
+  try { await navigator.clipboard.writeText(url); toast(`Link copied · ${what}`); say('Link copied'); }
+  catch (err) { toast(`Copy this link · ${what}<input readonly value="${url.replace(/"/g, '&quot;')}">`, 9000); const i = $('#toast input'); i.focus(); i.select(); } }
+function addShare() { const b = el('button', 'share', null, '⧉ Share'); b.title = 'Copy a link to this card'; b.setAttribute('aria-label', 'Share a link to this card');
+  b.onclick = () => shareLink(linkFor(), (panel.querySelector('h1,h2') || {}).textContent || 'this card'); panel.prepend(b); }
+function readHash(h) {
+  const Q = {}; (h || '').replace(/^#/, '').split('&').filter(Boolean).forEach(kv => { const i = kv.indexOf('='); Q[kv.slice(0, i)] = decodeURIComponent(kv.slice(i + 1)); });
+  if (!Object.keys(Q).length) return false;
+  (Q.lens || '').split(',').filter(k => LENSES.some(L => L.k === k)).forEach(k => setLens(k, true));
+  if (Q.n) { let ok = false; try { const S = GC.NSW.set(Q.n); ok = !!S && (S.size || S.length) > 0; } catch (err) {} if (ok) setCourse(Q.n); }
+  if (Q.trail) { const t = Q.trail.split(',').filter(i => N[i] && LAY.nodes[i]); if (t.length) { shared = t; drawTrail(); } }
+  if (Q.l && N[Q.l] && LAY.nodes[Q.l]) choose(Q.l, true);
+  else if (Q.p && N[Q.p] && LAY.nodes[Q.p]) spotlight(Q.p);
+  else if (Q.v && VOICES[Q.v]) showThread(Q.v);
+  else if (Q.vp && VOICES[Q.vp]) { showThread(Q.vp, true); }
+  else if (Q.e && EVENTS[Q.e]) showEvent(Q.e);
+  else if (Q.ep && EVENTS[Q.ep]) showEvent(Q.ep, true);
+  else if (shared) { const ps = shared.map(i => LAY.nodes[i]); fitBox(Math.min(...ps.map(p => p.x)) - 40, Math.min(...ps.map(p => p.y)) - 30, Math.max(...ps.map(p => p.x)) + 40, Math.max(...ps.map(p => p.y)) + 30, 6); }
+  return true; }
+addEventListener('hashchange', () => { if (location.hash.replace(/^#/, '') !== lastHash) readHash(location.hash); });
+
+/* ---------- F6: keyboard tracing ---------- */
+let kIdx = -1;
+function keyTrace(step) {
+  const here = sel || spot, ls = (BY[here] || []).filter(p => { const o = p.dataset.a === here ? p.dataset.b : p.dataset.a; return N[o] && LAY.nodes[o]; })
+    .sort((a, b) => { const oa = a.dataset.a === here ? a.dataset.b : a.dataset.a, ob = b.dataset.a === here ? b.dataset.b : b.dataset.a; return (N[oa].y - N[ob].y) || N[oa].t.localeCompare(N[ob].t); });
+  if (!ls.length) return; kIdx = trace ? ls.indexOf(trace.p) : -1; kIdx = (kIdx + step + ls.length) % ls.length;
+  const p = ls[kIdx], fwd = p.dataset.a === here, to = fwd ? p.dataset.b : p.dataset.a;
+  clearTrace(); trace = {p, to}; p.classList.add('trace'); NODE[to] && NODE[to].classList.add('traced');
+  const t = [...p.classList].find(c => VERB[c]) || 'p', r0 = svg.getBoundingClientRect(), q = LAY.nodes[to], sx = r0.left + view.tx + q.x * view.k, sy = r0.top + view.ty + q.y * view.k;
+  tip.innerHTML = `<b>${N[here].t}</b> ${VERB[t][fwd ? 0 : 1]} <b>${N[to].t}</b><small>${N[to].d || ''}</small><small>${kIdx + 1} of ${ls.length} · Enter to go there</small>`;
+  tip.style.display = 'block'; tip.style.left = Math.max(8, Math.min(innerWidth - 310, sx + 12)) + 'px'; tip.style.top = Math.max(60, Math.min(innerHeight - 90, sy + 12)) + 'px';
+  say(`${kIdx + 1} of ${ls.length}: ${N[here].t} ${VERB[t][fwd ? 0 : 1]} ${N[to].t}, ${N[to].d || ''}. Enter to go there.`); }
+
+/* ---------- F6: touch: pinch to zoom, touch and hold to trace ---------- */
+const PT = new Map(); let pinch = null, holdT = 0, fingerTrace = false;
+svg.addEventListener('contextmenu', e => { if (COARSE()) e.preventDefault(); });
+svg.addEventListener('pointerdown', e => { if (e.pointerType === 'mouse') return; PT.set(e.pointerId, {x: e.clientX, y: e.clientY}); clearTimeout(holdT);
+  if (PT.size === 2) { const [a, b] = [...PT.values()], r0 = svg.getBoundingClientRect(); pinch = {d: Math.hypot(a.x - b.x, a.y - b.y) || 1, k: view.k, wx: ((a.x + b.x) / 2 - r0.left - view.tx) / view.k, wy: ((a.y + b.y) / 2 - r0.top - view.ty) / view.k}; drag = null; moved = true; fingerTrace = false; clearTrace(); return; }
+  const x = e.clientX, y = e.clientY;
+  holdT = setTimeout(() => { if (moved || PT.size !== 1) return; const g = (document.elementFromPoint(x, y) || svg).closest('.fm') || nearFm(x, y);
+    if (g && spot !== g.dataset.id && sel !== g.dataset.id) pin(g.dataset.id); if (!(spot || sel)) return;
+    fingerTrace = true; drag = null; moved = true; navigator.vibrate && navigator.vibrate(12); say('Tracing. Run your finger along a line.'); }, 460); });
+svg.addEventListener('pointermove', e => { if (!PT.has(e.pointerId)) return; PT.set(e.pointerId, {x: e.clientX, y: e.clientY});
+  if (pinch && PT.size >= 2) { const [a, b] = [...PT.values()], r0 = svg.getBoundingClientRect(), d = Math.hypot(a.x - b.x, a.y - b.y) || 1;
+    const k = Math.max(KMIN(), Math.min(KMAX, pinch.k * d / pinch.d)); view.k = k; view.tx = (a.x + b.x) / 2 - r0.left - pinch.wx * k; view.ty = (a.y + b.y) / 2 - r0.top - pinch.wy * k; nav = null; curEra = null; clamp(view); apply(); return; }
+  if (fingerTrace) traceAt({clientX: e.clientX, clientY: e.clientY, target: svg}, 26); });      // a finger covers labels: trace through them, with a wider catch
+const lift = e => { if (!PT.has(e.pointerId)) return; PT.delete(e.pointerId); clearTimeout(holdT); if (PT.size < 2) pinch = null;
+  if (fingerTrace && !PT.size) { fingerTrace = false; setTimeout(clearTrace, 900); } };
+svg.addEventListener('pointerup', lift); svg.addEventListener('pointercancel', lift);
+
+readHash(location.hash); drawTrail();
 window.__map = {spot: () => spot, trail: () => trail, pin, STAR, reachOf, drawReach, fitBox, LENSES, drawLens, lens, setLens, setCourse, view, home, goFamily, goEra, goLevel, spotlight, choose, level, LAY, frameNet, showThread, tkey: () => tkey, showEvent, ekey: () => ekey};
 })();
 </script>
