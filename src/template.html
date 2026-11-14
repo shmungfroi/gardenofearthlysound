@@ -188,7 +188,7 @@ body.pan #lensbar{right:438px;max-width:calc(100vw - var(--rail) - var(--gut) - 
 #lensbar button{all:unset;cursor:pointer;width:18px;height:18px;border-radius:50%;text-align:center;line-height:17px;color:var(--muted)} #lensbar button:hover{color:var(--goldhi);background:#221d13}
 .sheet .lz{display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:7px;cursor:pointer;font-size:14px}
 .sheet .lz:hover{background:#221d13} .sheet .lz input{accent-color:#c9a24a;margin:0} .sheet .lz i{width:11px;height:11px;border-radius:50%;border:2px solid var(--lc);flex:none}
-.sheet .lz small{margin-left:auto;color:var(--muted);font-size:12px}
+.sheet .lz small{margin-left:auto;color:var(--muted);font-size:12px;white-space:nowrap}
 .sheet h4{font-size:10.5px;letter-spacing:2px;color:var(--gold);font-weight:500;margin:16px 6px 6px;text-transform:uppercase}
 .sheet select{width:100%;height:34px;border-radius:8px;border:1px solid #3a3222;background:#14110b;color:var(--ivory);font:13px Outfit,sans-serif;padding:0 8px;outline:none} .sheet select:focus{border-color:var(--gold)}
 .sheet select option,.sheet select optgroup{background:#14110b;color:var(--ivory)}
@@ -414,7 +414,8 @@ const LENSES = [
   {k: 'w', t: 'Women composers', c: '#e3796d', set: formsOf(V => V.woman), d: 'lanterns with at least one woman composer'},
   {k: 'a', t: 'The Americas & Australia', c: '#8fbf6a', set: formsOf(V => V.region === 'A' || V.region === 'U'), d: 'lanterns with a composer from the Americas or Australia'},
   {k: 'o', t: 'Oral & folk sources', c: '#ece2c8', set: mapIds(['commons', ...D.links.filter(l => l[0] === 'commons').map(l => l[1])]), d: 'the commons and the lanterns it feeds'},
-  {k: 'i', t: 'Aboriginal and Torres Strait Islander music', c: '#d9a441', set: mapIds(GC.STRAND), d: 'the lanterns of the strand'}];
+  {k: 'i', t: 'Aboriginal and Torres Strait Islander music', c: '#d9a441', set: mapIds([...GC.STRAND, 'conopera', 'artjazz']), d: 'lanterns led by Aboriginal and Torres Strait Islander artists',
+    dash: mapIds(['newaus', 'pwballet', 'pwopera', 'folksong', 'quartetnow', 'holymin', 'ausorch']), dd: 'drawn from Aboriginal culture by others, now questioned'}];      // option C, approved by Justin 14 Nov 20:49
 const lens = {on: new Set(), n: '', nset: new Set()}; const NSWC = '#f0d48a';
 const nswName = key => (GC.NSW.A.find(a => a.key === key) || {}).t || '';
 function drawLens() {
@@ -424,6 +425,8 @@ function drawLens() {
   const rings = [...LENSES.filter(L => lens.on.has(L.k)).map(L => [L.c, L.set]), ...(lens.n ? [[NSWC, lens.nset]] : [])];
   const count = {}; rings.forEach(([c, set]) => set.forEach(id => { const p = LAY.nodes[id]; if (!p) return; NODE[id] && NODE[id].classList.add('ln'); const i = count[id] = (count[id] || 0) + 1;
     mk('circle', {cx: p.x, cy: p.y, r: 1.9 + i * .75, stroke: c}); }));
+  LENSES.filter(L => lens.on.has(L.k) && L.dash).forEach(L => L.dash.forEach(id => { const p = LAY.nodes[id]; if (!p) return; NODE[id] && NODE[id].classList.add('ln'); const i = count[id] = (count[id] || 0) + 1;      // a dashed ring: about this music, made without its people
+    mk('circle', {cx: p.x, cy: p.y, r: 1.9 + i * .75, stroke: L.c, 'stroke-dasharray': '.9 .7'}); }));
   if (lens.n.startsWith('r-')) { const c = GC.COURSES[lens.n.slice(2)], pts = c.stops.map(s => LAY.nodes[s.id]).filter(Boolean);      // a route walks its stops in teaching order
     c.stops.forEach(s => NODE[s.id] && NODE[s.id].classList.add('rtn'));
     const sp = c.stops.map((st, i) => [st, i]).filter(([st]) => LAY.nodes[st.id]); segs(sp.map(([st]) => [LAY.nodes[st.id].x, LAY.nodes[st.id].y])).forEach((d, j) => { const z = mk('path', {class: 'rt-line', d}); z.dataset.a = sp[j][0].id; z.dataset.b = sp[j + 1][0].id; z.dataset.ia = sp[j][1]; z.dataset.ib = sp[j + 1][1]; });
@@ -431,7 +434,7 @@ function drawLens() {
   hits(); apply();
   const bar = $('#lensbar'); bar.innerHTML = ''; bar.style.display = any ? 'flex' : 'none';
   const chip = (c, t, n, off) => { const sp = el('span', '', bar); sp.style.setProperty('--lc', c); el('i', '', sp); sp.append(t + ' '); el('small', '', sp, n + ''); const x = el('button', '', sp, '×'); x.title = 'Turn this lens off'; x.setAttribute('aria-label', 'Turn off ' + t); x.onclick = off; };
-  LENSES.filter(L => lens.on.has(L.k)).forEach(L => chip(L.c, L.t, L.set.size, () => setLens(L.k, false)));
+  LENSES.filter(L => lens.on.has(L.k)).forEach(L => chip(L.c, L.t, L.dash ? `${L.set.size} + ${L.dash.size} dashed` : L.set.size, () => setLens(L.k, false)));
   if (lens.n) chip(NSWC, nswName(lens.n).replace(/^Y1[12] /, ''), lens.nset.size, () => setCourse(''));
   if (sel) card(sel); }
 function setLens(k, on) { on ? lens.on.add(k) : lens.on.delete(k); drawLens(); if (sheet.dataset.kind === 'lenses' && sheet.classList.contains('open')) { const c = sheet.querySelector(`input[data-k="${k}"]`); if (c) c.checked = on; } }
@@ -545,7 +548,8 @@ function openSheet(kind, btn) {
   if (kind === 'events') { el('h3', '', sheet, 'EVENTS IN TIME · ' + EVL.length); EVL.forEach(e => { const b = el('button', '', sheet, e.t); el('small', '', b, e.d + (e.place ? ' · ' + e.place : '')); b.onclick = () => { closeSheet(); showEvent(e.id); }; }); }
   if (kind === 'lenses') { el('h3', '', sheet, 'LENSES');
     el('p', 'lnote', sheet, 'A lens lights every lantern that answers a question and quiets the rest. Turn on as many as you like; each wears its own ring.');
-    LENSES.forEach(L => { const lb = el('label', 'lz', sheet); lb.style.setProperty('--lc', L.c); const c = el('input', '', lb); c.type = 'checkbox'; c.dataset.k = L.k; c.checked = lens.on.has(L.k); el('i', '', lb); lb.append(L.t); el('small', '', lb, L.set.size + ''); lb.title = L.set.size + ' ' + L.d; c.onchange = () => setLens(L.k, c.checked); });
+    LENSES.forEach(L => { const lb = el('label', 'lz', sheet); lb.style.setProperty('--lc', L.c); const c = el('input', '', lb); c.type = 'checkbox'; c.dataset.k = L.k; c.checked = lens.on.has(L.k); el('i', '', lb); lb.append(L.t); el('small', '', lb, L.dash ? `${L.set.size} + ${L.dash.size}` : L.set.size + ''); lb.title = L.set.size + ' ' + L.d + (L.dash ? `; dashed ring: ${L.dash.size} ${L.dd}` : ''); c.onchange = () => setLens(L.k, c.checked); });
+    el('p', 'lnote', sheet, 'Aboriginal and Torres Strait Islander music: a solid ring marks music led by Aboriginal and Torres Strait Islander artists. A dashed ring marks music others made from Aboriginal culture, which its card now questions.');
     el('h4', '', sheet, 'NSW course · for teachers'); const s = el('select', '', sheet); s.setAttribute('aria-label', 'NSW course focus area, topic or route'); el('option', '', s, 'Choose a focus area, topic or route…').value = '';
     let og = null, last = ''; GC.NSW.A.forEach(a => { if (a.grp !== last) { og = el('optgroup', '', s); og.label = a.grp; last = a.grp; } const o = el('option', '', og, a.t); o.value = a.key; });
     s.value = lens.n; s.onchange = () => setCourse(s.value); const out = el('div', '', sheet);
