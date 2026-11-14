@@ -252,7 +252,7 @@ function render(panel, id, ctx) {
   if (Lg.direct + k.ev.length) { const sec = h('details', 'sec', panel); sec.open = true; h('summary', '', sec, 'Connections');
     [['Grew from', k.pf, 'n'], ['Borrowed from', k.if, 'n'], ['Pushed against', k.rf, 'n'], ['Gave rise to', k.pt, 'n'], ['Influenced', k.it, 'n'], ['Provoked a reaction in', k.rt, 'n'], ['Made possible by', k.ev, 'e']].forEach(([label, ids, kind]) => {
       ids = ids.filter(z => kind === 'e' ? E[z] : N[z]); if (!ids.length) return; const g = h('div', 'conn-g', sec); h('small', '', g, label); const ul = h('ul', '', g);
-      ids.forEach(z => { const li = h('li', '', ul); if (kind === 'n') nav(li, z, N[z].t); else h('b', 'ev', li, `${E[z].t} (${E[z].d})`);
+      ids.forEach(z => { const li = h('li', '', ul); if (kind === 'n') nav(li, z, N[z].t); else if (ctx.event) { const eb = h('button', 'lk-b ev-b', li, `◆ ${E[z].t}`); eb.type = 'button'; eb.addEventListener('click', () => ctx.event(z)); li.append(` (${E[z].d})`); } else h('b', 'ev', li, `${E[z].t} (${E[z].d})`);
         const why = kind === 'e' ? (E[z].why || '') : (WHY[z + '>' + id] || WHY[id + '>' + z] || ''); if (why) h('span', 'why', li, why); }); }); }
 
   // G9 Sources
@@ -279,5 +279,18 @@ function renderComposer(panel, key, ctx) {
   h('p', 'pnote', panel, 'Links open in a new tab. Recordings and scores belong to their owners and are linked, not copied.');
   h('p', 'respect', panel, 'This Garden is presented with respect for every musician and culture it includes. To raise a cultural concern or report an incorrect link, contact Justin Ossher, the creator of this Garden, at any time.');
 }
-window.GardenCard = {render, renderComposer, VOICES, voiceTags};
+function renderEvent(panel, eid, ctx) {
+  card = panel; panel.textContent = ''; panel.scrollTop = 0; const e = E[eid]; if (!e) return;
+  const x = h('button', 'x', panel, '×'); x.setAttribute('aria-label', 'Close'); x.addEventListener('click', ctx.close);
+  h('div', 'k', panel, 'Event · history & technology');
+  h('h1', '', panel, e.t); h('p', 'd', panel, [e.d, e.place].filter(Boolean).join(' · '));
+  const to = (e.to || []).filter(i => N[i]); h('p', 'lin', panel, `made possible ${to.length} lantern${to.length === 1 ? '' : 's'}`);
+  if ((e.deceased || []).length) dnotice(panel, e.deceased);
+  if (e.what) rich(h('p', 'brief', panel), e.what);
+  if (e.why) { h('h3', '', panel, 'Why it matters for music'); rich(h('p', '', panel), e.why); }
+  if (to.length) { h('h3', '', panel, 'Made possible'); const ul = h('ul', 'evto', panel);
+    to.slice().sort((a, b) => N[a].y - N[b].y).forEach(i => { const li = h('li', '', ul), b = h('button', 'lk-b', li, N[i].t); b.type = 'button'; b.addEventListener('click', () => ctx.go(i)); h('small', '', li, ` ${N[i].d} · ${cap(ctx.famName(i))} spire`); }); }
+  h('p', 'respect', panel, 'This Garden is presented with respect for every musician and culture it includes. To raise a cultural concern or report an incorrect link, contact Justin Ossher, the creator of this Garden, at any time.');
+}
+window.GardenCard = {render, renderComposer, renderEvent, VOICES, voiceTags, EVENTS: E};
 })();

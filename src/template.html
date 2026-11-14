@@ -5,7 +5,7 @@
 @font-face{font-family:Outfit;src:url(fonts/Outfit-Regular.ttf)}
 @font-face{font-family:Outfit;font-weight:700;src:url(fonts/Outfit-Bold.ttf)}
 @font-face{font-family:"Poiret One";src:url(fonts/PoiretOne-Regular.ttf)}
-:root{--ink:#0b0906;--panel:#12100b;--line:#2a2418;--gold:#c9a24a;--goldhi:#f0d48a;--ivory:#ece2c8;--muted:#9c927c;--red:#c8473b;--green:#8fbf6a;--rail:64px;--gut:118px;--top:56px}
+:root{--ink:#0b0906;--panel:#12100b;--line:#2a2418;--gold:#c9a24a;--goldhi:#f0d48a;--ivory:#ece2c8;--muted:#9c927c;--red:#c8473b;--green:#8fbf6a;--rail:64px;--gut:146px;--top:56px}
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;overflow:hidden;background:var(--ink);color:var(--ivory);font-family:Outfit,system-ui,sans-serif}
 button{font:inherit;color:inherit}
@@ -43,7 +43,7 @@ body.pan #map{width:calc(100vw - var(--rail) - var(--gut) - 420px)}
 .rail button{all:unset;display:flex;flex-direction:column;align-items:center;gap:4px;width:100%;padding:12px 0;cursor:pointer;color:var(--ivory);font-size:18px}
 .rail button small{font-size:9px;letter-spacing:.9px;color:var(--muted);text-transform:uppercase}
 .rail button:hover,.rail button.on{color:var(--goldhi)} .rail button:focus-visible{outline:1px solid var(--gold)}
-.top{position:absolute;left:var(--rail);right:0;top:0;height:var(--top);display:flex;align-items:center;gap:24px;padding:0 20px;background:#0d0b07;border-bottom:1px solid var(--line);z-index:5}
+.top{position:absolute;left:var(--rail);right:0;top:0;height:var(--top);display:flex;align-items:center;gap:24px;padding:0 20px;background:#0d0b07;border-bottom:1px solid var(--line);z-index:8}
 .top .t{letter-spacing:4px;font-size:15px;white-space:nowrap;color:var(--ivory)}
 .crumbs{display:flex;align-items:center;gap:2px;font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden}
 .crumbs button{all:unset;cursor:pointer;padding:3px 5px;border-radius:5px} .crumbs button:hover{color:var(--ivory);background:#1d1910}
@@ -51,12 +51,12 @@ body.pan #map{width:calc(100vw - var(--rail) - var(--gut) - 420px)}
 .search{margin-left:auto;position:relative}
 .search input{width:280px;height:34px;border-radius:17px;border:1px solid #3a3222;background:#14110b;color:var(--ivory);padding:0 16px;font:14px Outfit,sans-serif;outline:none}
 .search input:focus{border-color:var(--gold)}
-#res{position:absolute;right:0;top:40px;width:340px;max-height:60vh;overflow:auto;background:var(--panel);border:1px solid #3a3222;border-radius:12px;display:none;z-index:9;padding:6px}
+#res{display:none;flex-direction:column;position:absolute;right:0;top:40px;width:340px;max-height:60vh;overflow:auto;background:var(--panel);border:1px solid #3a3222;border-radius:12px;display:none;z-index:9;padding:6px}
 #res button{all:unset;display:block;width:100%;padding:7px 10px;border-radius:7px;cursor:pointer;font-size:14px}
 #res button small{display:block;color:var(--muted);font-size:11.5px}
 #res button:hover,#res button:focus{background:#221d13;outline:none}
 .gut{position:absolute;left:var(--rail);top:var(--top);bottom:0;width:var(--gut);background:linear-gradient(90deg,#0d0b07 78%,#0d0b0700);z-index:3;pointer-events:none}
-.era{position:absolute;left:var(--rail);width:calc(var(--gut) - 14px);text-align:right;z-index:4;cursor:pointer;line-height:1.15;padding:2px 0}
+.era{position:absolute;left:var(--rail);width:calc(var(--gut) - 44px);text-align:right;z-index:4;cursor:pointer;line-height:1.15;padding:2px 0}
 .era b{display:block;font-weight:400;font-size:12px;letter-spacing:1.8px;color:var(--gold)}
 .era span{font-size:10px;color:var(--muted)}
 .era:hover b,.era.cur b{color:var(--goldhi)} .era.cur b{text-decoration:underline;text-underline-offset:4px;text-decoration-color:#5d5546}
@@ -166,7 +166,15 @@ aside .thr{padding-left:20px} aside .thr>li{margin-bottom:14px} aside .thr-h sma
 aside .thr-w{margin:6px 0 0 2px;font-size:13.5px} aside .thr-w b{font-weight:500} aside .thr-w .by{display:inline;color:var(--muted);margin-left:6px;font-size:12.5px}
 .sheet .vf{width:100%;height:32px;border-radius:16px;border:1px solid #3a3222;background:#14110b;color:var(--ivory);padding:0 12px;font:13.5px Outfit,sans-serif;margin-bottom:8px;outline:none}
 .sheet .vopts{display:flex;flex-wrap:wrap;gap:10px;font-size:12.5px;color:var(--muted);margin:0 4px 8px} .sheet .vopts input{accent-color:#c9a24a}
-#res .vres{color:var(--goldhi)}
+#res .vres{color:var(--goldhi);order:2} #res .eres{order:3} #res .eres{color:#e8c46a}
+#evs .evd{all:unset;position:absolute;width:7px;height:7px;transform:rotate(45deg);background:var(--gold);border:1px solid #0b0906;cursor:pointer;z-index:4;opacity:.8}
+#evs .evd:hover,#evs .evd.on{background:var(--goldhi);opacity:1;box-shadow:0 0 0 2px #f0d48a55}
+#tmark{position:absolute;left:calc(var(--rail) + var(--gut) + 6px);max-width:300px;text-align:left;font-size:11px;color:var(--goldhi);background:#0d0b07;padding:1px 4px;border-radius:4px;display:none;z-index:5;pointer-events:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#map #timeline{stroke:var(--goldhi);stroke-opacity:.35;stroke-width:.35;stroke-dasharray:2 2;display:none;pointer-events:none}
+#map #evlayer .ev-line{stroke:var(--goldhi);stroke-opacity:.55;stroke-width:.5;stroke-dasharray:3 2}
+#map #evlayer .ev-link{fill:none;stroke:var(--goldhi);stroke-opacity:.5;stroke-width:.45;stroke-dasharray:1 1.6}
+#map #evlayer .ev-ring{fill:none;stroke:var(--goldhi);stroke-width:.6}
+aside .ev-b{color:#e8c46a} aside .evto{list-style:none;padding:0} aside .evto li{margin-bottom:8px} aside .evto small{color:var(--muted)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style></head>
 <body>
@@ -178,6 +186,7 @@ aside .thr-w{margin:6px 0 0 2px;font-size:13.5px} aside .thr-w b{font-weight:500
   <button data-sheet="families">▥<small>Spires</small></button>
   <button data-sheet="eras">☰<small>Storeys</small></button>
   <button data-sheet="voices">♪<small>Voices</small></button>
+  <button data-sheet="events">◆<small>Events</small></button>
   <button data-sheet="az">Az<small>A–Z</small></button>
   <button data-sheet="guide">?<small>Guide</small></button>
 </nav>
@@ -187,7 +196,7 @@ aside .thr-w{margin:6px 0 0 2px;font-size:13.5px} aside .thr-w b{font-weight:500
   <nav class="crumbs" id="crumbs" aria-label="Where you are"></nav>
   <div class="search"><input id="q" type="search" placeholder="Find a lantern (any form)…" autocomplete="off" aria-label="Find a form"><div id="res" role="listbox"></div></div>
 </header>
-<div class="gut"></div><div id="eras"></div><div id="fams"></div>
+<div class="gut"></div><div id="eras"></div><div id="evs" aria-label="Events in time"></div><div id="tmark" aria-hidden="true"></div><div id="fams"></div>
 <div class="mm" id="mm" title="The whole garden: click to go there"></div>
 <div class="ladder" aria-label="Zoom levels">
   <div class="pm"><button id="zin" aria-label="Zoom in">+</button><button id="zout" aria-label="Zoom out">−</button></div>
@@ -250,10 +259,10 @@ function fitBox(x0, y0, x1, y1, kmax = KMAX) { const k = Math.min(kmax, aw / (x1
 /* ---------- where you are: garden, family, era, form ---------- */
 let sel = null, spot = null, curFam = null, curEra = null, nav = 0;
 const K_FAMILY = () => Math.max(fitK * 2.2, 2.4), K_ERA = () => Math.max(fitK * 3.6, 3.8);
-function level() { if (tkey) return 4; if (sel) return 3; if (nav != null) return nav; if (view.k >= K_ERA() * .95) return 2; if (view.k >= K_FAMILY() * .9) return 1; return 0; }
+function level() { if (tkey) return 4; if (sel || ekey) return 3; if (nav != null) return nav; if (view.k >= K_ERA() * .95) return 2; if (view.k >= K_FAMILY() * .9) return 1; return 0; }
 function famAt(x) { let best = null, d = 1e9; FAMS.forEach(f => { const F = LAY.fams[f], c = (F.x0 + F.x1) / 2, dd = x < F.x0 ? F.x0 - x : x > F.x1 ? x - F.x1 : 0; if (dd < d || (dd === d && Math.abs(c - x) < Math.abs((LAY.fams[best]?.x0 + LAY.fams[best]?.x1) / 2 - x))) { d = dd; best = f; } }); return best; }
 function eraAt(y) { return (LAY.eras.find(e => y >= e.top && y <= e.bottom) || (y < LAY.eras[LAY.eras.length - 1].top ? LAY.eras[LAY.eras.length - 1] : LAY.eras[0])).id; }
-function home() { clearThread(); closePanel(); clearSpot(); curFam = curEra = null; nav = 0; flyTo(fitK, (B[0] + B[2]) / 2, (B[1] + B[3]) / 2); }
+function home() { clearThread(); clearEvent(); closePanel(); clearSpot(); curFam = curEra = null; nav = 0; flyTo(fitK, (B[0] + B[2]) / 2, (B[1] + B[3]) / 2); }
 function goFamily(f, keepY) { const F = LAY.fams[f]; curFam = f; curEra = null; nav = 1; const w = F.x1 - F.x0, k = Math.max(K_FAMILY(), Math.min(aw / (w + 220), K_ERA() * .85));
   const y = keepY != null ? keepY : Math.min(F.open, centre()[1]); flyTo(k, (F.x0 + F.x1) / 2, Math.max(LAY.present + ah / k / 2 - 30, y)); }
 function goEra(f, e) { f = f || curFam || famAt(centre()[0]); const F = LAY.fams[f], E = ERA[e]; curFam = f; curEra = e; nav = 2;
@@ -278,20 +287,20 @@ function frameNet(id, withPanel) {           // the form with every form it conn
   const avail = withPanel ? aw : aw; const k = Math.max(KMIN(), Math.min(6, avail / (x1 - x0), (ah - 60) / (y1 - y0)));
   flyTo(k, (x0 + x1) / 2, (y0 + y1) / 2 + 6); }
 function spotlight(id) {      // search: highlight, connect, frame the whole web; a click then opens it
-  clearThread(); closePanel(); sel = null; spot = id; light(id); frameNet(id, false);
+  clearThread(); clearEvent(); closePanel(); sel = null; spot = id; light(id); frameNet(id, false);
   const n = (BY[id] || []).length, h = $('#hint'); h.innerHTML = ''; el('b', '', h, N[id].t); h.append(` · ${n} connection${n === 1 ? '' : 's'} · click it to open`); h.style.display = 'block'; chrome(); }
 function clearSpot() { spot = null; $('#hint').style.display = 'none'; if (!sel) light(null); }
 function choose(id, frame) {
-  clearThread(); $('#hint').style.display = 'none'; spot = null; sel = id; curFam = famAt(LAY.nodes[id].x); curEra = eraOf(id);
+  clearThread(); clearEvent(); $('#hint').style.display = 'none'; spot = null; sel = id; curFam = famAt(LAY.nodes[id].x); curEra = eraOf(id);
   light(id); card(id); document.body.classList.add('pan'); measure(); clamp(view); if (frame) frameNet(id, true); else apply(); }
-function closePanel() { if (!sel && !tkey && !document.body.classList.contains('pan')) return; if (tkey) { clearThread(); light(null); } sel = null; document.body.classList.remove('pan'); measure(); clamp(view); light(spot); }
+function closePanel() { if (!sel && !tkey && !ekey && !document.body.classList.contains('pan')) return; if (tkey || ekey) { clearThread(); clearEvent(); light(null); } sel = null; document.body.classList.remove('pan'); measure(); clamp(view); light(spot); }
 
 /* ---------- the card ---------- */
 const MINARET = {}; G.MIN.genres.forEach(g => g.lanterns.forEach(id => MINARET[id] = g.t));
 function card(id) {
   const f = famAt(LAY.nodes[id].x), n = N[id];
   const fams = [famOf(id), ...(n.also || [])].filter((x, i, a) => LAY.fams[x] && a.indexOf(x) === i).map(x => ({name: FN(x), c: FC(x)}));
-  window.GardenCard.render(panel, id, {go: o => choose(o, true), close: () => { closePanel(); light(null); }, thread: k => showThread(k), famName: FN(f), eraName: (ERA[n.period] || {}).name || '', fams, minaret: MINARET[id] || ''});
+  window.GardenCard.render(panel, id, {go: o => choose(o, true), close: () => { closePanel(); light(null); }, thread: k => showThread(k), event: e => showEvent(e), famName: FN(f), eraName: (ERA[n.period] || {}).name || '', fams, minaret: MINARET[id] || ''});
 }
 
 /* ---------- F2 voices: a composer's gold thread through every lantern they wrote in ---------- */
@@ -302,7 +311,7 @@ function smooth(pts) { if (pts.length < 2) return ''; let d = `M${pts[0][0]},${p
   for (let i = 0; i < pts.length - 1; i++) { const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
     d += ` C${p1[0] + (p2[0] - p0[0]) / 6},${p1[1] + (p2[1] - p0[1]) / 6} ${p2[0] - (p3[0] - p1[0]) / 6},${p2[1] - (p3[1] - p1[1]) / 6} ${p2[0]},${p2[1]}`; } return d; }
 function showThread(key) {
-  const V = VOICES[key]; if (!V) return; closeSheet(); $('#hint').style.display = 'none'; spot = null; sel = null; tkey = key; nav = 4;
+  const V = VOICES[key]; if (!V) return; closeSheet(); clearEvent(); $('#hint').style.display = 'none'; spot = null; sel = null; tkey = key; nav = 4;
   svg.classList.add('focus'); document.querySelectorAll('#map .on,#map .me').forEach(x => { x.classList.remove('on', 'me'); if (x.classList.contains('fm')) x.removeAttribute('transform'); });
   V.forms.forEach(f => NODE[f.id] && NODE[f.id].classList.add('on'));
   const pts = V.forms.map(f => LAY.nodes[f.id]).filter(Boolean).map(p => [p.x, p.y]);
@@ -320,6 +329,34 @@ function showThread(key) {
   flyTo(Math.max(KMIN(), Math.min(6, aw / (x1 - x0), (ah - 60) / (y1 - y0))), (x0 + x1) / 2, (y0 + y1) / 2 + 6); apply(); }
 function clearThread() { if (!tkey) return; tkey = null; gThread.innerHTML = ''; if (nav === 4) nav = null; }
 
+/* ---------- F4 time: 91 events on the storey gutter, the event card, and a time marker ---------- */
+const EVENTS = window.GardenCard.EVENTS, EVL = Object.values(EVENTS).sort((a, b) => a.y - b.y);
+const yOfYear = yr => { const e = LAY.eras.find(z => yr >= z.start && yr < z.end) || (yr < LAY.eras[0].start ? LAY.eras[0] : LAY.eras[LAY.eras.length - 1]); const t = Math.max(0, Math.min(1, (yr - e.start) / (e.end - e.start))); return e.bottom - 8 - t * (e.bottom - e.top - 16); };
+const yearOfY = y => { const e = LAY.eras.find(z => y >= z.top && y <= z.bottom); if (!e) return null; const t = Math.max(0, Math.min(1, (e.bottom - 8 - y) / (e.bottom - e.top - 16))); return Math.round(e.start + t * (e.end - e.start)); };
+const gEvent = document.createElementNS(SVGNS, 'g'); gEvent.setAttribute('id', 'evlayer'); cam.insertBefore(gEvent, gThread);
+const gTime = document.createElementNS(SVGNS, 'line'); gTime.setAttribute('id', 'timeline'); gTime.setAttribute('x1', B[0]); gTime.setAttribute('x2', B[2]); cam.appendChild(gTime);
+let ekey = null; const EVEL = {};
+EVL.forEach(e => { e.wy = yOfYear(e.y); const b = el('button', 'evd', $('#evs')); b.setAttribute('aria-label', `${e.t}, ${e.d}`); b.title = `${e.t} · ${e.d}`;
+  b.onmouseenter = () => { if (!ekey) previewYear(e.wy, e.t + ' · ' + e.d); }; b.onmouseleave = () => { if (!ekey) previewYear(null); }; b.onclick = () => showEvent(e.id); EVEL[e.id] = b; });
+function previewYear(wy, text) { const lab = $('#tmark'); if (wy == null) { gTime.style.display = 'none'; lab.style.display = 'none'; return; }
+  gTime.setAttribute('y1', wy); gTime.setAttribute('y2', wy); gTime.style.display = 'block'; const r = svg.getBoundingClientRect(), sy = r.top + view.ty + wy * view.k;
+  lab.textContent = text; lab.style.display = 'block'; lab.style.top = (sy - 9) + 'px'; }
+function showEvent(id) {
+  const e = EVENTS[id]; if (!e) return; closeSheet(); clearThread(); $('#hint').style.display = 'none'; spot = null; sel = null; ekey = id; nav = 3; previewYear(null);
+  svg.classList.add('focus'); document.querySelectorAll('#map .on,#map .me').forEach(x => { x.classList.remove('on', 'me'); if (x.classList.contains('fm')) x.removeAttribute('transform'); });
+  const to = (e.to || []).filter(i => LAY.nodes[i]); to.forEach(i => NODE[i] && NODE[i].classList.add('on'));
+  gEvent.innerHTML = ''; const mk = (t, a) => { const z = document.createElementNS(SVGNS, t); for (const k in a) z.setAttribute(k, a[k]); gEvent.appendChild(z); return z; };
+  mk('line', {x1: B[0], x2: B[2], y1: e.wy, y2: e.wy, class: 'ev-line'});
+  to.forEach(i => { const p = LAY.nodes[i], mx = (B[0] + p.x) / 2; mk('path', {d: `M${B[0] + 4},${e.wy} Q${p.x},${e.wy} ${p.x},${p.y}`, class: 'ev-link'}); mk('circle', {cx: p.x, cy: p.y, r: 2.4, class: 'ev-ring'}); });
+  window.GardenCard.renderEvent(panel, id, {go: o => { clearEvent(); choose(o, true); }, close: () => { clearEvent(); closePanel(); light(null); }, famName: i => FN(famAt(LAY.nodes[i].x))});
+  document.body.classList.add('pan'); measure(); clamp(view);
+  const xs = to.map(i => LAY.nodes[i].x).concat([B[0] + 20]), ys = to.map(i => LAY.nodes[i].y).concat([e.wy]);
+  const x0 = Math.min(...xs) - 40, x1 = Math.max(...xs) + 50, y0 = Math.min(...ys) - 22, y1 = Math.max(...ys) + 16;
+  flyTo(Math.max(KMIN(), Math.min(6, aw / (x1 - x0), (ah - 60) / (y1 - y0))), (x0 + x1) / 2, (y0 + y1) / 2 + 6); apply(); }
+function clearEvent() { if (!ekey) return; ekey = null; gEvent.innerHTML = ''; if (nav === 3) nav = null; }
+svg.addEventListener('mousemove', e => { if (ekey || drag) return; const r = svg.getBoundingClientRect(), wy = (e.clientY - r.top - view.ty) / view.k, yr = yearOfY(wy); if (yr == null) return previewYear(null); previewYear(wy, 'c.' + yr); });
+svg.addEventListener('mouseleave', () => { if (!ekey) previewYear(null); });
+
 /* ---------- the frame: breadcrumb, eras, family strip, minimap, ladder ---------- */
 const ERAEL = {}, FAMEL = {};
 LAY.eras.forEach(e => { const d = el('div', 'era', $('#eras')); el('b', 'disp', d, e.name.toUpperCase()); el('span', '', d, e.id === 'contemporary' ? '1980–today' : `${e.start}–${e.end}`); d.onclick = () => goEra(null, e.id); const t = el('div', 'tick', $('#eras')); ERAEL[e.id] = [d, t]; });
@@ -334,6 +371,10 @@ const mx = x => mox + (x - B[0]) * ms, my = y => moy + (y - B[1]) * ms;
   s += `<rect id="mmv" fill="#f0d48a22" stroke="#f0d48a" stroke-width="1.2" rx="1.5"/></svg>`; $('#mm').innerHTML = s; }
 const mmv = () => $('#mmv');
 $('#mm').addEventListener('click', e => { nav = null; const r = $('#mm').getBoundingClientRect(), x = B[0] + (e.clientX - r.left - mox) / ms, y = B[1] + (e.clientY - r.top - moy) / ms; flyTo(Math.max(view.k, K_FAMILY()), x, y); });
+function placeEvents() {
+  const oy = svg.getBoundingClientRect().top, lanes = []; const x0 = 64 + 146 - 13;
+  EVL.forEach(e => { const b = EVEL[e.id], sy = oy + view.ty + e.wy * view.k, vis = sy > oy + 4 && sy < innerHeight - 110; b.style.display = vis ? '' : 'none'; if (!vis) return;
+    let ln = 0; while (lanes[ln] != null && Math.abs(lanes[ln] - sy) < 11) ln++; if (ln > 1 && e.id !== ekey) { b.style.display = 'none'; return; } lanes[ln] = sy; b.style.top = (sy - 4) + 'px'; b.style.left = (x0 - ln * 10) + 'px'; b.classList.toggle('on', e.id === ekey); }); }
 function chrome() {
   const sx = x => view.tx + x * view.k, sy = y => view.ty + y * view.k, ox = svg.getBoundingClientRect().left, oy = svg.getBoundingClientRect().top;
   const [cx, cy] = centre(), lv = level(), f = sel ? famAt(LAY.nodes[sel].x) : (lv >= 1 ? (curFam || famAt(cx)) : null), e = sel ? eraOf(sel) : (lv >= 1 ? eraAt(cy) : null);
@@ -347,8 +388,9 @@ function chrome() {
     v.setAttribute('x', mx(x0)); v.setAttribute('y', my(y0)); v.setAttribute('width', Math.max(2, (x1 - x0) * ms)); v.setAttribute('height', Math.max(2, (y1 - y0) * ms)); }
   document.querySelectorAll('.rung').forEach(r => r.classList.toggle('cur', +r.dataset.l === lv));
   const cr = $('#crumbs'); cr.innerHTML = ''; const add = (t, fn, last) => { if (cr.childNodes.length) el('em', '', cr, '›'); const b = el('button', last ? 'last' : '', cr, t); b.onclick = fn; };
-  if (tkey) { const steps = [['Garden', home], ['Voices', () => openSheet('voices', $('.rail button[data-sheet=voices]'))], [VOICES[tkey].name, () => showThread(tkey)]]; steps.forEach(([t, fn], i) => add(t, fn, i === steps.length - 1)); $('.rung[data-l="4"]').hidden = false; return; }
-  $('.rung[data-l="4"]').hidden = true;
+  if (ekey) { const steps = [['Garden', home], ['Events', () => openSheet('events', $('.rail button[data-sheet=events]'))], [EVENTS[ekey].t, () => showEvent(ekey)]]; steps.forEach(([t, fn], i) => add(t, fn, i === steps.length - 1)); $('.rung[data-l="4"]').hidden = true; placeEvents(); return; }
+  if (tkey) { const steps = [['Garden', home], ['Voices', () => openSheet('voices', $('.rail button[data-sheet=voices]'))], [VOICES[tkey].name, () => showThread(tkey)]]; steps.forEach(([t, fn], i) => add(t, fn, i === steps.length - 1)); $('.rung[data-l="4"]').hidden = false; placeEvents(); return; }
+  $('.rung[data-l="4"]').hidden = true; placeEvents();
   const steps = [['Garden', home]]; if (f) steps.push([FN(f).replace(/^THE /, '').toLowerCase().replace(/^./, c => c.toUpperCase()), () => { closePanel(); clearSpot(); goFamily(f); }]);
   if (e && (lv >= 2 || sel)) steps.push([ERA[e].name, () => { closePanel(); clearSpot(); goEra(f, e); }]);
   if (sel) steps.push([N[sel].t, () => frameNet(sel, true)]);
@@ -364,9 +406,9 @@ addEventListener('pointerup', () => { drag = null; svg.classList.remove('drag');
 svg.addEventListener('wheel', e => { e.preventDefault(); cancelAnimationFrame(anim); const r = svg.getBoundingClientRect(), px = e.clientX - r.left, py = e.clientY - r.top;
   const k = Math.max(KMIN(), Math.min(KMAX, view.k * Math.exp(-e.deltaY * (e.ctrlKey ? .01 : .0016)))), q = k / view.k;
   view.tx = px - (px - view.tx) * q; view.ty = py - (py - view.ty) * q; view.k = k; nav = null; curEra = null; clamp(view); apply(); }, {passive: false});
-svg.addEventListener('click', e => { if (moved) return; const g = e.target.closest('.fm'); if (g) { e.stopPropagation(); return choose(g.dataset.id, view.k < 2.2); } if (sel || tkey) closePanel(); light(null); clearSpot(); });
-svg.addEventListener('mouseover', e => { const g = e.target.closest('.fm'); if (g && !sel && !spot && !tkey) light(g.dataset.id); });
-svg.addEventListener('mouseout', e => { const g = e.target.closest('.fm'); if (g && !sel && !spot && !tkey && !(e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest('.fm') === g)) light(null); });
+svg.addEventListener('click', e => { if (moved) return; const g = e.target.closest('.fm'); if (g) { e.stopPropagation(); return choose(g.dataset.id, view.k < 2.2); } if (sel || tkey || ekey) closePanel(); light(null); clearSpot(); });
+svg.addEventListener('mouseover', e => { const g = e.target.closest('.fm'); if (g && !sel && !spot && !tkey && !ekey) light(g.dataset.id); });
+svg.addEventListener('mouseout', e => { const g = e.target.closest('.fm'); if (g && !sel && !spot && !tkey && !ekey && !(e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest('.fm') === g)) light(null); });
 $('#zin').onclick = () => goLevel(level() + 1); $('#zout').onclick = () => { if (tkey) { closePanel(); return goLevel(1); } if (sel) { closePanel(); light(null); return goLevel(2); } goLevel(level() - 1); };
 document.querySelectorAll('.rung').forEach(r => r.onclick = () => { if (+r.dataset.l === 4) return tkey && showThread(tkey); if (tkey) closePanel(); goLevel(+r.dataset.l); });
 $('#hint').onclick = () => spot && choose(spot, true);
@@ -375,7 +417,7 @@ addEventListener('keydown', e => {
   if (e.key === '/') { e.preventDefault(); $('#q').focus(); return; }
   if (e.key === '+' || e.key === '=') return goLevel(level() + 1);
   if (e.key === '-' || e.key === '_') return $('#zout').click();
-  if (e.key === 'Escape') { if ($('#sheet').classList.contains('open')) return closeSheet(); if (tkey) { closePanel(); return; } if (sel) { closePanel(); light(null); return; } if (spot) return clearSpot(); return goLevel(level() - 1); }
+  if (e.key === 'Escape') { if ($('#sheet').classList.contains('open')) return closeSheet(); if (tkey || ekey) { closePanel(); return; } if (sel) { closePanel(); light(null); return; } if (spot) return clearSpot(); return goLevel(level() - 1); }
   if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { e.preventDefault(); const f = curFam || famAt(centre()[0]), i = FAMS.indexOf(f) + (e.key === 'ArrowRight' ? 1 : -1); if (i < 0 || i >= FAMS.length) return; closePanel(); clearSpot();
     return level() >= 2 ? goEra(FAMS[i], curEra || eraAt(centre()[1])) : goFamily(FAMS[i], centre()[1]); }
   if (e.key === 'ArrowUp' || e.key === 'ArrowDown') { e.preventDefault(); const ids = LAY.eras.map(x => x.id), cur = curEra || eraAt(centre()[1]), i = ids.indexOf(cur) + (e.key === 'ArrowUp' ? 1 : -1); if (i < 0 || i >= ids.length) return; closePanel(); clearSpot(); return goEra(curFam || famAt(centre()[0]), ids[i]); } });
@@ -387,13 +429,15 @@ function results(s) { s = s.trim().toLowerCase(); if (!s) return [];
     .sort((a, b) => a[0] - b[0] || a[1].t.localeCompare(b[1].t)).map(x => x[1]).slice(0, 12); }
 q.addEventListener('input', () => { res.innerHTML = ''; const r = results(q.value), sv = q.value.trim().toLowerCase();
   const vs = sv.length < 3 ? [] : Object.values(VOICES).filter(V => V.name.toLowerCase().includes(sv)).sort((a, b) => b.forms.length - a.forms.length).slice(0, 5);
-  res.style.display = r.length || vs.length ? 'block' : 'none';
+  res.style.display = r.length || vs.length ? 'flex' : 'none';
+  const es = sv.length < 3 ? [] : EVL.filter(e => e.t.toLowerCase().includes(sv)).slice(0, 4); if (es.length) res.style.display = 'flex';
+  es.forEach(e => { const b = el('button', 'eres', res, '◆ ' + e.t); b.setAttribute('role', 'option'); el('small', '', b, `event · ${e.d}`); b.onclick = () => { res.style.display = 'none'; q.value = ''; q.blur(); showEvent(e.id); }; });
   vs.forEach(V => { const b = el('button', 'vres', res, '♪ ' + V.name); b.setAttribute('role', 'option'); el('small', '', b, `composer · ${V.forms.length} lantern${V.forms.length === 1 ? '' : 's'}`); b.onclick = () => { res.style.display = 'none'; q.value = ''; q.blur(); showThread(V.key); }; });
   r.forEach(n => { const b = el('button', '', res, n.t); b.setAttribute('role', 'option'); el('small', '', b, `${n.d || ''} · ${FN(famOf(n.id)).toLowerCase()} · ${(ERA[n.period] || {}).name || ''}`);
     b.onmouseenter = b.onfocus = () => { if (!sel) light(n.id); }; b.onclick = () => { res.style.display = 'none'; q.value = ''; q.blur(); spotlight(n.id); }; }); });
-q.addEventListener('keydown', e => { if (e.key === 'Enter' && res.firstChild) res.firstChild.click(); if (e.key === 'ArrowDown' && res.firstChild) { e.preventDefault(); res.firstChild.focus(); } if (e.key === 'Escape') { q.value = ''; res.style.display = 'none'; q.blur(); if (!sel && !spot && !tkey) light(null); } });
+q.addEventListener('keydown', e => { if (e.key === 'Enter' && res.firstChild) (res.querySelector('button:not(.vres):not(.eres)') || res.firstChild).click(); if (e.key === 'ArrowDown' && res.firstChild) { e.preventDefault(); res.firstChild.focus(); } if (e.key === 'Escape') { q.value = ''; res.style.display = 'none'; q.blur(); if (!sel && !spot && !tkey) light(null); } });
 res.addEventListener('keydown', e => { const b = document.activeElement; if (e.key === 'ArrowDown' && b.nextSibling) { e.preventDefault(); b.nextSibling.focus(); } if (e.key === 'ArrowUp') { e.preventDefault(); (b.previousSibling || q).focus(); } if (e.key === 'Escape') { res.style.display = 'none'; q.focus(); } });
-q.addEventListener('blur', () => setTimeout(() => { if (!res.contains(document.activeElement)) { res.style.display = 'none'; if (!sel && !spot && !tkey) light(null); } }, 150));
+q.addEventListener('blur', () => setTimeout(() => { if (!res.contains(document.activeElement)) { res.style.display = 'none'; if (!sel && !spot && !tkey && !ekey) light(null); } }, 150));
 
 /* ---------- the rail's sheets ---------- */
 const sheet = $('#sheet');
@@ -413,6 +457,7 @@ function openSheet(kind, btn) {
       all.filter(V => (!s || V.name.toLowerCase().includes(s)) && (!cW.checked || V.woman) && (!cR.checked || V.region === 'A' || V.region === 'U') && (!cM.checked || V.forms.length > 1)).forEach(V => { if (n++ > 400) return; const b = el('button', '', list, V.name); el('small', '', b, `${V.forms.length} lantern${V.forms.length === 1 ? '' : 's'}`); b.onclick = () => { closeSheet(); showThread(V.key); }; });
       if (!list.childNodes.length) el('p', '', list, 'No composer matches.'); };
     [f, cW, cR, cM].forEach(x => x.addEventListener('input', draw)); draw(); setTimeout(() => f.focus(), 30); }
+  if (kind === 'events') { el('h3', '', sheet, 'EVENTS IN TIME · ' + EVL.length); EVL.forEach(e => { const b = el('button', '', sheet, e.t); el('small', '', b, e.d + (e.place ? ' · ' + e.place : '')); b.onclick = () => { closeSheet(); showEvent(e.id); }; }); }
   if (kind === 'az') { el('h3', '', sheet, 'EVERY LANTERN, A–Z'); D.nodes.filter(n => LAY.nodes[n.id]).sort((a, b) => a.t.localeCompare(b.t)).forEach(n => { const b = el('button', '', sheet, n.t); el('small', '', b, n.d || ''); b.onclick = () => { closeSheet(); spotlight(n.id); }; }); }
   if (kind === 'guide') { el('h3', '', sheet, 'HOW TO READ THE GARDEN');
     [['Storeys rise.', ' The ground is the year 800; the top is today. Each storey (period) is named on the left.'], ['The commons is the central spire.', ' Folk song, dance and work song rises from one seed at the bottom: the origin. From it, roots fan out to every spire, and its green branches reach the lanterns it fed.'],
@@ -425,7 +470,7 @@ document.querySelectorAll('.rail button').forEach(b => b.onclick = () => openShe
 
 addEventListener('resize', () => { measure(); clamp(view); apply(); });
 measure(); view.k = fitK; clamp(view); apply();
-window.__map = {view, home, goFamily, goEra, goLevel, spotlight, choose, level, LAY, frameNet, showThread, tkey: () => tkey};
+window.__map = {view, home, goFamily, goEra, goLevel, spotlight, choose, level, LAY, frameNet, showThread, tkey: () => tkey, showEvent, ekey: () => ekey};
 })();
 </script>
 </body></html>
