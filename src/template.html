@@ -21,6 +21,7 @@ body.pan #map{width:calc(100vw - var(--rail) - var(--gut) - 380px)}
 #map.far .fm:not(.soil) text{opacity:0}
 #map.far .fm.on:not(.soil) text,#map.far .fm.me:not(.soil) text{opacity:1}
 #map.near .famname{opacity:0;transition:opacity .3s}
+#map.near .fm .moundname,#map.near .fm.on .moundname{opacity:0}
 #map .famname{transition:opacity .3s}
 /* focus: everything falls quiet, the chosen web lights in gold */
 #map.focus .fm:not(.on):not(.me){opacity:.2}
