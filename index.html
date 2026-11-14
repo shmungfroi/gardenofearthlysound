@@ -203,7 +203,7 @@ aside .routes{margin:10px 0 4px} aside .routes small{display:block;font-size:10.
 aside .rt-b{all:unset;cursor:pointer;display:block;border:1px solid #3a3222;border-radius:9px;padding:5px 10px;margin:0 0 6px;font-size:13px} aside .rt-b:hover{border-color:var(--gold)}
 aside .rt-b em{display:block;font-style:normal;font-size:11.5px;color:var(--goldhi)}
 aside .rt-leave{all:unset;cursor:pointer;font-size:11.5px;color:var(--muted);margin-top:4px} aside .rt-leave:hover{color:var(--ivory)}
-#res .rres{order:4;color:var(--ivory)} #res .rres small{color:var(--gold)}
+#res .rres{order:4;color:var(--ivory)} #res .rres small{color:var(--gold)} #res .wres{order:5;color:var(--ivory)} #res .none{padding:8px 10px;font-size:13px;color:var(--muted)}
 aside .route{border-color:var(--gold)} aside .route .rname{font-size:12.5px;color:var(--muted);margin:2px 0 6px}
 /* F3 styles and form bands */
 #map #reach .rl-glow{pointer-events:none} #map #reach .rl-edge{fill:none;stroke:var(--goldhi);stroke-opacity:.35;stroke-width:.3;stroke-dasharray:1.2 1.4;pointer-events:none}
@@ -2283,20 +2283,25 @@ addEventListener('keydown', e => {
 
 /* ---------- search: find, highlight, connect, then choose ---------- */
 const q = $('#q'), res = $('#res');
-function results(s) { s = s.trim().toLowerCase(); if (!s) return [];
-  return D.nodes.filter(n => LAY.nodes[n.id] && n.t.toLowerCase().includes(s)).map(n => { const t = n.t.toLowerCase(); return [t === s ? 0 : t.startsWith(s) ? 1 : t.split(/[\s&,():-]+/).some(w => w.startsWith(s)) ? 2 : 3, n]; })
+const fold = x => String(x || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[‘’']/g, "'").toLowerCase();      // accents and curly quotes never stop a match: lizee finds Lizée
+function results(s) { s = fold(s.trim()); if (!s) return [];
+  return D.nodes.filter(n => LAY.nodes[n.id] && fold(n.t).includes(s)).map(n => { const t = fold(n.t); return [t === s ? 0 : t.startsWith(s) ? 1 : t.split(/[\s&,():-]+/).some(w => w.startsWith(s)) ? 2 : 3, n]; })
     .sort((a, b) => a[0] - b[0] || a[1].t.localeCompare(b[1].t)).map(x => x[1]).slice(0, 12); }
-q.addEventListener('input', () => { res.innerHTML = ''; const r = results(q.value), sv = q.value.trim().toLowerCase();
-  const vs = sv.length < 3 ? [] : Object.values(VOICES).filter(V => V.name.toLowerCase().includes(sv)).sort((a, b) => b.forms.length - a.forms.length).slice(0, 5);
+q.addEventListener('input', () => { res.innerHTML = ''; const r = results(q.value), sv = fold(q.value.trim());
+  const vs = sv.length < 3 ? [] : Object.values(VOICES).filter(V => fold(V.name).includes(sv)).sort((a, b) => b.forms.length - a.forms.length).slice(0, 5);
   res.style.display = r.length || vs.length ? 'flex' : 'none';
-  const es = sv.length < 3 ? [] : EVL.filter(e => e.t.toLowerCase().includes(sv)).slice(0, 4); if (es.length) res.style.display = 'flex';
-  const rs = sv.length < 3 ? [] : Object.entries(window.GardenCard.COURSES).filter(([k, c]) => c.name.toLowerCase().includes(sv)).slice(0, 4); if (rs.length) res.style.display = 'flex';
+  const es = sv.length < 3 ? [] : EVL.filter(e => fold(e.t).includes(sv)).slice(0, 4); if (es.length) res.style.display = 'flex';
+  const rs = sv.length < 3 ? [] : Object.entries(window.GardenCard.COURSES).filter(([k, c]) => fold(c.name).includes(sv)).slice(0, 4); if (rs.length) res.style.display = 'flex';
   rs.forEach(([k, c]) => { const b = el('button', 'rres', res, '⟿ ' + c.name.replace('HSC Preliminary year · ', '').replace('Thread: the ', 'The ').replace('Thread: ', '')); b.setAttribute('role', 'option'); el('small', '', b, `${c.group === 'Threads' ? 'thread' : 'course route'} · ${c.stops.length} stops`); b.onclick = () => { res.style.display = 'none'; q.value = ''; q.blur(); closePanel(); clearSpot(); setCourse('r-' + k); }; });
   es.forEach(e => { const b = el('button', 'eres', res, '◆ ' + e.t); b.setAttribute('role', 'option'); el('small', '', b, `event · ${e.d}`); b.onclick = () => { res.style.display = 'none'; q.value = ''; q.blur(); showEvent(e.id); }; });
   vs.forEach(V => { const b = el('button', 'vres', res, '♪ ' + V.name); b.setAttribute('role', 'option'); el('small', '', b, `composer · ${V.forms.length} lantern${V.forms.length === 1 ? '' : 's'}`); b.onclick = () => { res.style.display = 'none'; q.value = ''; q.blur(); showThread(V.key); }; });
+  const ws = []; if (sv.length >= 4) D.nodes.forEach(n => LAY.nodes[n.id] && (n.works || []).forEach(w => { if (ws.length < 4 && fold(w[0]).includes(sv)) ws.push([n, w]); }));      // works by title: "hitchcock" finds the Hitchcock Études
+  if (ws.length) res.style.display = 'flex';
+  ws.forEach(([n, w]) => { const b = el('button', 'wres', res, '♫ ' + w[0]); b.setAttribute('role', 'option'); el('small', '', b, `work · ${w[1]}${w[2] ? ', ' + w[2] : ''} · in ${n.t}`); b.onclick = () => { res.style.display = 'none'; q.value = ''; q.blur(); spotlight(n.id); }; });
+  if (!r.length && !vs.length && !es.length && !rs.length && !ws.length && sv.length >= 3) { res.style.display = 'flex'; const nb = el('div', 'none', res); nb.textContent = `Nothing called “${q.value.trim()}” in the Garden yet.`; }
   r.forEach(n => { const b = el('button', '', res, n.t); b.setAttribute('role', 'option'); el('small', '', b, `${n.d || ''} · ${FN(famOf(n.id)).toLowerCase()} · ${(ERA[n.period] || {}).name || ''}`);
     b.onmouseenter = b.onfocus = () => { if (!sel) light(n.id); }; b.onclick = () => { res.style.display = 'none'; q.value = ''; q.blur(); spotlight(n.id); }; }); });
-q.addEventListener('keydown', e => { if (e.key === 'Enter' && res.firstChild) (res.querySelector('button:not(.vres):not(.eres):not(.rres)') || res.firstChild).click(); if (e.key === 'ArrowDown' && res.firstChild) { e.preventDefault(); res.firstChild.focus(); } if (e.key === 'Escape') { q.value = ''; res.style.display = 'none'; q.blur(); if (!sel && !spot && !tkey) light(null); } });
+q.addEventListener('keydown', e => { if (e.key === 'Enter' && res.firstChild) (res.querySelector('button:not(.vres):not(.eres):not(.rres):not(.wres)') || res.querySelector('button') || {click() {}}).click(); if (e.key === 'ArrowDown' && res.firstChild) { e.preventDefault(); res.firstChild.focus(); } if (e.key === 'Escape') { q.value = ''; res.style.display = 'none'; q.blur(); if (!sel && !spot && !tkey) light(null); } });
 res.addEventListener('keydown', e => { const b = document.activeElement; if (e.key === 'ArrowDown' && b.nextSibling) { e.preventDefault(); b.nextSibling.focus(); } if (e.key === 'ArrowUp') { e.preventDefault(); (b.previousSibling || q).focus(); } if (e.key === 'Escape') { res.style.display = 'none'; q.focus(); } });
 q.addEventListener('blur', () => setTimeout(() => { if (!res.contains(document.activeElement)) { res.style.display = 'none'; if (!sel && !spot && !tkey && !ekey) light(null); } }, 150));
 
@@ -2314,8 +2319,8 @@ function openSheet(kind, btn) {
     const tW = el('label', '', opts); const cW = el('input', '', tW); cW.type = 'checkbox'; tW.append(' women'); const tR = el('label', '', opts); const cR = el('input', '', tR); cR.type = 'checkbox'; tR.append(' Americas & Australia');
     const tM = el('label', '', opts); const cM = el('input', '', tM); cM.type = 'checkbox'; cM.checked = true; tM.append(' 2+ lanterns');
     const list = el('div', 'vlist', sheet), all = Object.values(VOICES).sort((a, b) => a.name.localeCompare(b.name));
-    const draw = () => { list.innerHTML = ''; const s = f.value.trim().toLowerCase(); let n = 0;
-      all.filter(V => (!s || V.name.toLowerCase().includes(s)) && (!cW.checked || V.woman) && (!cR.checked || V.region === 'A' || V.region === 'U') && (!cM.checked || V.forms.length > 1)).forEach(V => { if (n++ > 400) return; const b = el('button', '', list, V.name); el('small', '', b, `${V.forms.length} lantern${V.forms.length === 1 ? '' : 's'}`); b.onclick = () => { closeSheet(); showThread(V.key); }; });
+    const draw = () => { list.innerHTML = ''; const s = fold(f.value.trim()); let n = 0;
+      all.filter(V => (!s || fold(V.name).includes(s)) && (!cW.checked || V.woman) && (!cR.checked || V.region === 'A' || V.region === 'U') && (!cM.checked || V.forms.length > 1)).forEach(V => { if (n++ > 400) return; const b = el('button', '', list, V.name); el('small', '', b, `${V.forms.length} lantern${V.forms.length === 1 ? '' : 's'}`); b.onclick = () => { closeSheet(); showThread(V.key); }; });
       if (!list.childNodes.length) el('p', '', list, 'No composer matches.'); };
     [f, cW, cR, cM].forEach(x => x.addEventListener('input', draw)); draw(); setTimeout(() => f.focus(), 30); }
   if (kind === 'events') { el('h3', '', sheet, 'EVENTS IN TIME · ' + EVL.length); EVL.forEach(e => { const b = el('button', '', sheet, e.t); el('small', '', b, e.d + (e.place ? ' · ' + e.place : '')); b.onclick = () => { closeSheet(); showEvent(e.id); }; }); }
