@@ -181,6 +181,15 @@ function render(panel, id, ctx) {
     const rest = on.filter(([k]) => k !== ctx.route);
     if (rest.length && ctx.walk) { const d = h('div', 'routes', panel); h('small', '', d, act ? 'Also on' : 'On ' + (rest.length === 1 ? 'a route' : rest.length + ' routes'));
       rest.forEach(([k, c]) => { const b = h('button', 'rt-b', d); b.type = 'button'; h('span', '', b, rname(c)); h('em', '', b, `stop ${at(c) + 1} of ${c.stops.length} · walk it ›`); b.title = 'Show this route on the map and walk it stop by stop'; b.addEventListener('click', () => ctx.walk(k)); }); } }
+  // F3 styles and form bands: where this style's light fell, or where this form's band runs, each place one click away
+  { const isS = (MIN.styles_as_light || []).includes(id), isB = (MIN.forms_as_bands || []).includes(id), R = (isS ? GX.REACH.styles : GX.REACH.forms)[id];
+    if ((isS || isB) && (R || n.attached)) { const GT = {}; MIN.genres.forEach(g => GT[g.id] = g.t);
+      h('h3', '', panel, isS ? 'Where this style reached' : 'Where this form runs');
+      h('p', 'reach-note', panel, isS ? `A style is light: on the map it falls across every minaret it reached${R ? `, ${R.years[0]}–${R.years[1]}` : ''}. Each ☼ marks one documented example.` : 'A form is a gold band: on the map it ties together every minaret where it is documented. Each knot marks one example.');
+      const ul = h('ul', 'reach', panel);
+      if (R) R.reach.forEach(r => { const li = h('li', '', ul), b = h('button', 'lk-b', li, GT[r.minaret] || r.minaret); b.type = 'button'; b.addEventListener('click', () => ctx.reachGo && ctx.reachGo(r.minaret, r.example[2]));
+        h('span', 'rx', li, ` · ${r.example[0]}${r.example[1] ? ', ' + r.example[1] : ''}${r.example[2] ? ', ' + r.example[2] : ''}`); h('span', 'why', li, r.why); });
+      else n.attached.forEach(a => { if (!N[a.form]) return; const li = h('li', '', ul); nav(li, a.form, N[a.form].t); h('span', 'rx', li, ` · ${a.work}, ${a.movement}`); }); } }
   // G3 Listen: every work, with its recording, score and a Spotify search
   if ((n.works || []).length) { h('h3', '', panel, 'Listen'); const ol = h('ol', 'plist', panel);
     n.works.forEach((w, i) => { const m = (F.media || [])[i] || [], nr = m[2] === 'NO_RECORDING', li = h('li', '', ol), b = h('b', '', li, w[0]);

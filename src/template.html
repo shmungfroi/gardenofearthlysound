@@ -205,6 +205,14 @@ aside .rt-b em{display:block;font-style:normal;font-size:11.5px;color:var(--gold
 aside .rt-leave{all:unset;cursor:pointer;font-size:11.5px;color:var(--muted);margin-top:4px} aside .rt-leave:hover{color:var(--ivory)}
 #res .rres{order:4;color:var(--ivory)} #res .rres small{color:var(--gold)}
 aside .route{border-color:var(--gold)} aside .route .rname{font-size:12.5px;color:var(--muted);margin:2px 0 6px}
+/* F3 styles and form bands */
+#map #reach .rl-glow{pointer-events:none} #map #reach .rl-edge{fill:none;stroke:var(--goldhi);stroke-opacity:.35;stroke-width:.3;stroke-dasharray:1.2 1.4;pointer-events:none}
+#map #reach .rb-rib{fill:none;stroke:var(--goldhi);stroke-width:.5;stroke-opacity:.85;stroke-dasharray:2 1.4;pointer-events:none} #map #reach .rb-ribu{fill:none;stroke:#0b0906;stroke-width:1.4;stroke-opacity:.5;pointer-events:none}
+#map #reachspots .rb-knot{fill:none;stroke:var(--goldhi);stroke-width:.9} #map #reachspots .rb-knotu{fill:none;stroke:#0b0906;stroke-width:1.6;stroke-opacity:.7}
+#map #reachspots .spot{cursor:pointer} #map #reachspots .spot:hover .sun,#map #reachspots .spot:hover .rb-knot{stroke:#fff;fill:#fff} #map #reachspots .sun{fill:var(--goldhi);stroke:#0b0906;stroke-width:.25}
+#map #reachspots .spot .hitc{fill:#000;fill-opacity:0}
+aside .reach-note{font-size:12.5px;color:var(--muted)} aside .reach{list-style:none;padding:0;margin:0} aside .reach li{margin:0 0 10px;font-size:13.5px} aside .reach .rx{color:var(--ivory)} aside .reach .why{display:block;font-size:12.5px;color:var(--muted);margin-top:2px}
+.sheet .sg{font-size:10.5px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin:12px 6px 4px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style></head>
 <body>
@@ -218,6 +226,7 @@ aside .route{border-color:var(--gold)} aside .route .rname{font-size:12.5px;colo
   <button data-sheet="voices">♪<small>Voices</small></button>
   <button data-sheet="events">◆<small>Events</small></button>
   <button data-sheet="lenses">◎<small>Lenses</small></button>
+  <button data-sheet="styles">☼<small>Styles</small></button>
   <button data-sheet="az">Az<small>A–Z</small></button>
   <button data-sheet="guide">?<small>Guide</small></button>
 </nav>
@@ -268,7 +277,7 @@ function apply() {
   // names in a lit web stay readable when the view is wide
   const s = Math.max(1, 2.3 / view.k);
   document.querySelectorAll('#map .fm.on:not(.soil),#map .fm.me:not(.soil),#map .fm.rtn:not(.soil)').forEach(g => { const p = LAY.nodes[g.dataset.id]; g.setAttribute('transform', s > 1 ? `translate(${p.x},${p.y}) scale(${s}) translate(${-p.x},${-p.y})` : ''); });
-  const sb = Math.max(1, 3.6 / view.k); document.querySelectorAll('#lens .rt-b').forEach(g => { const x = +g.dataset.x, y = +g.dataset.y; g.setAttribute('transform', sb > 1 ? `translate(${x},${y}) scale(${sb}) translate(${-x},${-y})` : ''); });
+  const sb = Math.max(1, 3.6 / view.k); document.querySelectorAll('#lens .rt-b,#reachspots .sunspot').forEach(g => { const x = +g.dataset.x, y = +g.dataset.y; g.setAttribute('transform', sb > 1 ? `translate(${x},${y}) scale(${sb}) translate(${-x},${-y})` : ''); });
   declutter(); chrome(); }
 function declutter() {      // among lit names, any that would touch an earlier one hides its words (its point stays) until zooming makes room
   const gs = [...document.querySelectorAll('#map .fm.me:not(.soil),#map .fm.on:not(.soil),#map .fm.rtn:not(.soil)')]; gs.forEach(g => g.classList.remove('hid')); if (!gs.length || gs.length > 60) return;
@@ -311,10 +320,10 @@ function light(id) {
   svg.classList.toggle('focus', !!id);
   document.querySelectorAll('#map .on,#map .me').forEach(x => { x.classList.remove('on', 'me'); if (x.classList.contains('fm')) x.removeAttribute('transform'); });
   if (id) { NODE[id] && NODE[id].classList.add('me'); (BY[id] || []).forEach(p => { p.classList.add('on'); [p.dataset.a, p.dataset.b].forEach(j => j !== id && NODE[j] && NODE[j].classList.add('on')); p.parentNode.appendChild(p); }); }
-  hits(); apply(); }
+  drawReach(sel || spot || id); hits(); apply(); }
 function web(id) { const s = new Set([id]); (BY[id] || []).forEach(p => { s.add(p.dataset.a); s.add(p.dataset.b); }); return [...s].filter(j => LAY.nodes[j]); }
 function frameNet(id, withPanel) {           // the form with every form it connects to, as large as fits
-  const ids = web(id), xs = ids.map(j => LAY.nodes[j].x), ys = ids.map(j => LAY.nodes[j].y);
+  const ids = web(id), pr = reachPts(id), xs = ids.map(j => LAY.nodes[j].x).concat(pr.map(p => p[0])), ys = ids.map(j => LAY.nodes[j].y).concat(pr.map(p => p[1]));
   const x0 = Math.min(...xs) - 45, x1 = Math.max(...xs) + 45, y0 = Math.min(...ys) - 18, y1 = Math.max(...ys) + 14;
   const avail = withPanel ? aw : aw; const k = Math.max(KMIN(), Math.min(6, avail / (x1 - x0), (ah - 60) / (y1 - y0)));
   flyTo(k, (x0 + x1) / 2, (y0 + y1) / 2 + 6); }
@@ -332,7 +341,7 @@ const MINARET = {}; G.MIN.genres.forEach(g => g.lanterns.forEach(id => MINARET[i
 function card(id) {
   const f = famAt(LAY.nodes[id].x), n = N[id];
   const fams = [famOf(id), ...(n.also || [])].filter((x, i, a) => LAY.fams[x] && a.indexOf(x) === i).map(x => ({name: FN(x), c: FC(x)}));
-  window.GardenCard.render(panel, id, {go: o => choose(o, true), close: () => { closePanel(); light(null); }, thread: k => showThread(k), event: e => showEvent(e), route: lens.n && lens.n.startsWith('r-') ? lens.n.slice(2) : null, walk: k => setCourse(k ? 'r-' + k : ''), famName: FN(f), eraName: (ERA[n.period] || {}).name || '', fams, minaret: MINARET[id] || ''});
+  window.GardenCard.render(panel, id, {go: o => choose(o, true), close: () => { closePanel(); light(null); }, thread: k => showThread(k), event: e => showEvent(e), reachGo: (g, yr) => reachGo(g, yr), route: lens.n && lens.n.startsWith('r-') ? lens.n.slice(2) : null, walk: k => setCourse(k ? 'r-' + k : ''), famName: FN(f), eraName: (ERA[n.period] || {}).name || '', fams, minaret: MINARET[id] || ''});
 }
 
 /* ---------- F2 voices: a composer's gold thread through every lantern they wrote in ---------- */
@@ -345,7 +354,7 @@ function smooth(pts) { if (pts.length < 2) return ''; let d = `M${pts[0][0]},${p
   for (let i = 0; i < pts.length - 1; i++) { const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
     d += ` C${p1[0] + (p2[0] - p0[0]) / 6},${p1[1] + (p2[1] - p0[1]) / 6} ${p2[0] - (p3[0] - p1[0]) / 6},${p2[1] - (p3[1] - p1[1]) / 6} ${p2[0]},${p2[1]}`; } return d; }
 function showThread(key) {
-  const V = VOICES[key]; if (!V) return; closeSheet(); clearEvent(); $('#hint').style.display = 'none'; spot = null; sel = null; tkey = key; nav = 4;
+  const V = VOICES[key]; if (!V) return; closeSheet(); clearEvent(); drawReach(null); $('#hint').style.display = 'none'; spot = null; sel = null; tkey = key; nav = 4;
   svg.classList.add('focus'); document.querySelectorAll('#map .on,#map .me').forEach(x => { x.classList.remove('on', 'me'); if (x.classList.contains('fm')) x.removeAttribute('transform'); });
   V.forms.forEach(f => NODE[f.id] && NODE[f.id].classList.add('on'));
   const pts = V.forms.map(f => LAY.nodes[f.id]).filter(Boolean).map(p => [p.x, p.y]);
@@ -376,7 +385,7 @@ function previewYear(wy, text) { const lab = $('#tmark'); if (wy == null) { gTim
   gTime.setAttribute('y1', wy); gTime.setAttribute('y2', wy); gTime.style.display = 'block'; const r = svg.getBoundingClientRect(), sy = r.top + view.ty + wy * view.k;
   lab.textContent = text; lab.style.display = 'block'; lab.style.top = (sy - 9) + 'px'; }
 function showEvent(id) {
-  const e = EVENTS[id]; if (!e) return; closeSheet(); clearThread(); $('#hint').style.display = 'none'; spot = null; sel = null; ekey = id; nav = 3; previewYear(null);
+  const e = EVENTS[id]; if (!e) return; closeSheet(); clearThread(); drawReach(null); $('#hint').style.display = 'none'; spot = null; sel = null; ekey = id; nav = 3; previewYear(null);
   svg.classList.add('focus'); document.querySelectorAll('#map .on,#map .me').forEach(x => { x.classList.remove('on', 'me'); if (x.classList.contains('fm')) x.removeAttribute('transform'); });
   const to = (e.to || []).filter(i => LAY.nodes[i]); to.forEach(i => NODE[i] && NODE[i].classList.add('on'));
   gEvent.innerHTML = ''; const mk = (t, a) => { const z = document.createElementNS(SVGNS, t); for (const k in a) z.setAttribute(k, a[k]); gEvent.appendChild(z); return z; };
@@ -390,6 +399,42 @@ function showEvent(id) {
 function clearEvent() { if (!ekey) return; ekey = null; gEvent.innerHTML = ''; if (nav === 3) nav = null; hits(); }
 svg.addEventListener('mousemove', e => { if (ekey || drag) return; if (e.target.closest('#hit')) return previewYear(null); const r = svg.getBoundingClientRect(), wy = (e.clientY - r.top - view.ty) / view.k, yr = yearOfY(wy); if (yr == null) return previewYear(null); previewYear(wy, 'c.' + yr); });
 svg.addEventListener('mouseleave', () => { if (!ekey) previewYear(null); });
+
+/* ---------- F3 styles and form bands: a style's light falls across the minarets it reached; a form's gold band ties the minarets that use it ---------- */
+const gReach = document.createElementNS(SVGNS, 'g'); gReach.setAttribute('id', 'reach'); cam.insertBefore(gReach, cam.querySelector(':scope > .fm'));
+const gSpots = document.createElementNS(SVGNS, 'g'); gSpots.setAttribute('id', 'reachspots'); cam.appendChild(gSpots);      // the markers sit above the lanterns so they can always be read and clicked
+const LIGHT = new Set(G.MIN.styles_as_light), BAND = new Set(G.MIN.forms_as_bands), GT = {}; G.MIN.genres.forEach(g => GT[g.id] = g);
+const yrNum = s => { const m = String(s || '').match(/\d{4}/); return m ? +m[0] : null; };
+const MINOF = {}; G.MIN.genres.forEach(g => g.lanterns.forEach(i => MINOF[i] = MINOF[i] || g.id));
+function reachOf(id) {
+  if (!LIGHT.has(id) && !BAND.has(id)) return null; const isS = LIGHT.has(id), R = (isS ? G.REACH.styles : G.REACH.forms)[id], n = N[id];
+  const spots = R ? R.reach.filter(r => LAY.mins[r.minaret]).map(r => ({g: r.minaret, yr: yrNum(r.example[2]) || n.y, ex: r.example, why: r.why}))
+    : (n.attached || []).filter(a => LAY.nodes[a.form] && LAY.mins[MINOF[a.form]]).map(a => ({g: MINOF[a.form], at: a.form, yr: N[a.form].y, ex: [a.work + ', ' + a.movement, '', ''], why: 'A documented sonata-form movement in ' + N[a.form].t + '.'}));
+  return {isS, years: R ? R.years : [n.y, n.y + 45], spots}; }
+const spotXY = s => { const M = LAY.mins[s.g]; return s.at ? [LAY.nodes[s.at].x, LAY.nodes[s.at].y] : [(M.x0 + M.x1) / 2, yOfYear(s.yr)]; };
+const reachPts = id => { const R = reachOf(id); return R ? R.spots.map(spotXY) : []; };
+let reachId = null;
+function drawReach(id) {
+  if (id === reachId) return; reachId = id; gReach.innerHTML = ''; gSpots.innerHTML = ''; const R = id && reachOf(id); if (!R || !R.spots.length) return;
+  const mk = (t, a, par = gReach) => { const z = document.createElementNS(SVGNS, t); for (const k in a) z.setAttribute(k, a[k]); par.appendChild(z); return z; };
+  const defs = mk('defs', {}), rg = mk('radialGradient', {id: 'sunlight'}, defs); mk('stop', {offset: 0, 'stop-color': '#f0d48a', 'stop-opacity': .55}, rg); mk('stop', {offset: .6, 'stop-color': '#f0d48a', 'stop-opacity': .14}, rg); mk('stop', {offset: 1, 'stop-color': '#f0d48a', 'stop-opacity': 0}, rg);
+  const per = new Map(); R.spots.forEach(s => { if (!per.has(s.g)) per.set(s.g, s); });
+  if (R.isS) { const yb = yOfYear(R.years[0]), yt = yOfYear(R.years[1]), ym = (yb + yt) / 2, ry = Math.max(10, (yb - yt) / 2 + 6);
+    per.forEach((s, g) => { const M = LAY.mins[g], cx = (M.x0 + M.x1) / 2, rx = (M.x1 - M.x0) / 2 + 6;
+      mk('ellipse', {class: 'rl-glow', cx, cy: ym, rx, ry, fill: 'url(#sunlight)'}); mk('ellipse', {class: 'rl-edge', cx, cy: ym, rx: rx - 3, ry: ry - 3}); }); }
+  else { const o = LAY.nodes[id];      // the form's own lantern sends a fine gold thread to every knot
+    R.spots.forEach(sp => { const [x, y] = spotXY(sp); if (Math.hypot(x - o.x, y - o.y) < 3) return; const d = `M${o.x},${o.y} Q${(o.x + x) / 2},${Math.min(o.y, y) - 8 - Math.abs(x - o.x) * .06} ${x},${y}`; mk('path', {class: 'rb-ribu', d}); mk('path', {class: 'rb-rib', d}); }); }
+  R.spots.forEach(s => { const [x, y] = spotXY(s), M = LAY.mins[s.g], g = mk('g', {class: R.isS ? 'spot sunspot' : 'spot'}, gSpots); g._s = s; g._isS = R.isS; g.dataset.x = x; g.dataset.y = y;
+    mk('circle', {class: 'hitc', cx: x, cy: y, r: 3.2}, g);
+    if (R.isS) { let d = ''; for (let j = 0; j < 16; j++) { const a = j * Math.PI / 8, rr = j % 2 ? 1.05 : 2.4; d += (j ? 'L' : 'M') + (x + Math.cos(a) * rr).toFixed(2) + ',' + (y + Math.sin(a) * rr).toFixed(2); } mk('path', {class: 'sun', d: d + 'Z'}, g); }
+    else { const rx = (M.x1 - M.x0) / 2 - 1.5; mk('ellipse', {class: 'rb-knotu', cx: x, cy: y, rx, ry: 1.9}, g); mk('ellipse', {class: 'rb-knot', cx: x, cy: y, rx, ry: 1.9}, g); } }); apply(); }
+function reachGo(gid, yr) { const y = yrNum(yr) || 0, ls = (GT[gid] ? GT[gid].lanterns : []).filter(i => LAY.nodes[i] && N[i]); if (!ls.length) return;
+  const best = ls.reduce((a, b) => Math.abs(N[b].y - y) < Math.abs(N[a].y - y) ? b : a); clearThread(); clearEvent(); choose(best, true); }
+gSpots.addEventListener('mousemove', e => { const g = e.target.closest('.spot'); if (!g) return; const s = g._s, nm = N[reachId] ? N[reachId].t : '';
+  tip.innerHTML = `<b>${nm}</b> ${g._isS ? 'reached' : 'runs through'} <b>${GT[s.g].t}</b><small>${[s.ex[0], s.ex[1], s.ex[2]].filter(Boolean).join(', ')}</small><small>${s.why}</small><small>click to open the nearest lantern</small>`;
+  tip.style.display = 'block'; tip.style.left = Math.min(innerWidth - 310, e.clientX + 14) + 'px'; tip.style.top = (e.clientY + 16) + 'px'; });
+gSpots.addEventListener('mouseout', () => { tip.style.display = 'none'; });
+gSpots.addEventListener('click', e => { const g = e.target.closest('.spot'); if (!g || moved) return; e.stopPropagation(); tip.style.display = 'none'; const s = g._s; if (s.at) { clearThread(); clearEvent(); choose(s.at, true); } else reachGo(s.g, s.yr); });
 
 /* ---------- connections you can click: a lit link, a route step or an event's line travels to the lantern at its other end ---------- */
 const gHit = document.createElementNS(SVGNS, 'g'); gHit.setAttribute('id', 'hit'); cam.insertBefore(gHit, cam.querySelector(':scope > .fm')); const tip = $('#tip');
@@ -561,12 +606,18 @@ function openSheet(kind, btn) {
       el('p', 'lnote', out, 'Matches are the Garden’s suggestions from each form’s period, family, kind and dates: check them against the syllabus.'); };
     lensSheetCourse();
     const cl = el('button', '', sheet, 'Turn every lens off'); cl.style.marginTop = '12px'; cl.style.color = 'var(--muted)'; cl.onclick = () => { lens.on.clear(); sheet.querySelectorAll('input').forEach(c => c.checked = false); setCourse(''); }; }
+  if (kind === 'styles') { el('h3', '', sheet, 'STYLES AND FORM BANDS');
+    el('p', 'lnote', sheet, 'A style is light: choose one to see it fall across every minaret it reached. A form is a gold band tying together the minarets that use it.');
+    [['Styles · light', [...LIGHT]], ['Forms · bands', [...BAND]]].forEach(([t, ids]) => { el('div', 'sg', sheet, t);
+      ids.filter(i => N[i] && LAY.nodes[i]).sort((a, b) => N[a].y - N[b].y).forEach(i => { const R = reachOf(i), b = el('button', '', sheet, (R.isS ? '☼ ' : '◌ ') + N[i].t); el('small', '', b, `${N[i].d || ''} · ${R.spots.length} place${R.spots.length === 1 ? '' : 's'}`);
+        b.onmouseenter = () => { if (!sel) { drawReach(i); } }; b.onmouseleave = () => { if (!sel) drawReach(spot); }; b.onclick = () => { closeSheet(); clearThread(); clearEvent(); choose(i, true); }; }); }); }
   if (kind === 'az') { el('h3', '', sheet, 'EVERY LANTERN, A–Z'); D.nodes.filter(n => LAY.nodes[n.id]).sort((a, b) => a.t.localeCompare(b.t)).forEach(n => { const b = el('button', '', sheet, n.t); el('small', '', b, n.d || ''); b.onclick = () => { closeSheet(); spotlight(n.id); }; }); }
   if (kind === 'guide') { el('h3', '', sheet, 'HOW TO READ THE GARDEN');
     [['Storeys rise.', ' The ground is the year 800; the top is today. Each storey (period) is named on the left.'], ['The commons is the central spire.', ' Folk song, dance and work song rises from one seed at the bottom: the origin. From it, roots fan out to every spire, and its green branches reach the lanterns it fed.'],
      ['Spires are the families.', ' Each grows from a root in the ground and blooms where its oldest form begins. Inside, its minarets (genres) stand side by side.'], ['Lanterns are the forms.', ' A small gold point with its name. Click one to light its links and open its card.'],
      ['Links:', ' solid gold = grew from, dotted gold = influenced, red = reacted against, green = from the commons.'],
      ['Every line is a path:', ' when a lantern is open, hover any of its links to read the connection and click it to travel to the lantern at the other end. Route steps and event lines work the same way.'],
+     ['Styles ☼:', ' a style is light that falls across every minaret it reached, over its years; a form such as the fugue is a gold band tying together the minarets that use it. Hover a ☼ or a knot to read the example; click to open the nearest lantern.'],
      ['Lenses ◎:', ' light the lanterns that answer one question (women composers, the Americas & Australia, oral & folk sources, Aboriginal and Torres Strait Islander music) or serve one NSW course, topic or route. Each wears its own ring; a route also shows its stops in teaching order.'],
      ['Move:', ' drag, scroll or pinch; + and − or the ladder step Garden › Spire › Storey › Lantern; arrow keys move to the next spire or storey; / searches.']]
       .forEach(([b, t]) => { const p = el('p', '', sheet); el('b', '', p, b); p.append(t); }); }
@@ -575,7 +626,7 @@ document.querySelectorAll('.rail button').forEach(b => b.onclick = () => openShe
 
 addEventListener('resize', () => { measure(); clamp(view); apply(); });
 measure(); view.k = fitK; clamp(view); apply();
-window.__map = {fitBox, LENSES, drawLens, lens, setLens, setCourse, view, home, goFamily, goEra, goLevel, spotlight, choose, level, LAY, frameNet, showThread, tkey: () => tkey, showEvent, ekey: () => ekey};
+window.__map = {reachOf, drawReach, fitBox, LENSES, drawLens, lens, setLens, setCourse, view, home, goFamily, goEra, goLevel, spotlight, choose, level, LAY, frameNet, showThread, tkey: () => tkey, showEvent, ekey: () => ekey};
 })();
 </script>
 </body></html>

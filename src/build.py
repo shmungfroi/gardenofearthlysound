@@ -15,7 +15,7 @@ for g in D['genres']:
     for i in g['l']: HOME[i] = g['great']
 for f, _, _ in FAMS:
     for g in D['genres']:
-        if g['great'] == f: COLS.append({'fam': f, 'ids': [i for i in g['l'] if i != 'commons' and i in N]})
+        if g['great'] == f: COLS.append({'fam': f, 'gid': g['id'], 't': g['t'], 'ids': [i for i in g['l'] if i != 'commons' and i in N]})
     loose = [n['id'] for n in D['nodes'] if n['id'] not in HOME and (n.get('lane') or 'song') == f]
     if loose: COLS.append({'fam': f, 'ids': loose, 'style': True})
 # --- time: Medieval at the ground, today at the top; each era as tall as its forms need ---
@@ -411,6 +411,7 @@ if LIVE:
     json.dump({'nodes': {i: {'x': round(POS[i][0], 2), 'y': round(POS[i][1], 2), 'f': HOME.get(i) or N[i].get('lane') or 'song'} for i in POS},
                'fams': {f: {'x0': X[f], 'x1': X[f] + (SPW if f == 'commons' else width(f)), 'open': first[f], 'name': nm, 'c': c} for f, nm, c in FAMS},
                'eras': [{'id': p['id'], 'name': 'Now' if p['id'] == 'contemporary' else p['name'], 'start': p['start'], 'end': p['end'], 'top': p['y1'], 'bottom': p['y0']} for p in PER],
+               'mins': {c['gid']: {'x0': X[f] + (0 if f == 'commons' else k * CW), 'x1': X[f] + (SPW if f == 'commons' else (k + 1) * CW), 'f': f, 't': c['t']} for f in X for k, c in enumerate(fam_cols[f]) if c.get('gid')},
                'present': PRESENT, 'ground': GROUND, 'bounds': [150, PRESENT - 150, W - 60, GROUND + 188]}, open(os.path.join(OUT, 'layout.json'), 'w'))
     print('live map written')
 open(os.path.join(OUT, 'preview.svg'), 'w').write(svg)
