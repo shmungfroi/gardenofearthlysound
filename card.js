@@ -126,6 +126,21 @@ function spotifyUrl(composer, title) {
   return 'https://open.spotify.com/search/' + encodeURIComponent((sur + ' ' + t).trim()); }
 const ext = (parent, href, text, cls) => { const a = h('a', cls || '', parent, text); a.href = href; a.target = '_blank'; a.rel = 'noopener'; return a; };
 
+/* ---------- voices: every composer, as in the Garden's windows (B11) ---------- */
+const TAGS = GX.TAGS || {}, REG = {A: 'Americas', U: 'Australia', E: 'Europe'};
+const personOf = c => { const t = TAGS[c]; return t && t[2] ? t[2] : null; };
+const yr4 = s => { const m = String(s || '').match(/\d{3,4}/); return m ? +m[0] : 9999; };
+const VOICES = {}, WINS = {};
+DATA.nodes.forEach(n => { const seen = new Map();
+  (n.works || []).forEach((w, i) => { if (!w[1]) return; const pid = personOf(w[1]), key = pid || 's:' + w[1], tg = TAGS[w[1]] || [0, 'E', 0];
+    const o = seen.get(key) || {key, pid, c: pid ? (PEOPLE[pid] || w[1]) : w[1], core: false, works: [], woman: false, region: tg[1]};
+    o.core = o.core || !!w[3]; o.works.push([w, i]); o.woman = o.woman || !!tg[0]; seen.set(key, o); });
+  WINS[n.id] = [...seen.values()].sort((a, b) => Math.min(...a.works.map(x => yr4(x[0][2]))) - Math.min(...b.works.map(x => yr4(x[0][2]))));
+  WINS[n.id].forEach(o => { const V = VOICES[o.key] || (VOICES[o.key] = {key: o.key, name: o.c, woman: false, region: o.region, forms: []}); V.woman = V.woman || o.woman; V.forms.push({id: n.id, works: o.works, core: o.core}); }); });
+Object.values(VOICES).forEach(V => { V.forms.sort((a, b) => Math.min(...a.works.map(x => yr4(x[0][2]))) - Math.min(...b.works.map(x => yr4(x[0][2])))); V.first = Math.min(...V.forms.flatMap(f => f.works.map(x => yr4(x[0][2])))); V.last = Math.max(...V.forms.flatMap(f => f.works.map(x => yr4(x[0][2])).filter(y => y < 9999))); });
+const DECEASED = new Set(); Object.values(FULL).forEach(f => (f.deceased || []).forEach(nm => DECEASED.add(nm)));
+const voiceTags = (parent, V) => { if (V.woman) h('span', 'vt w', parent, 'woman composer'); if (REG[V.region] && V.region !== 'E') h('span', 'vt r', parent, REG[V.region]); };
+
 /* ---------- the lantern card, in the Garden's order (G1–G11) ---------- */
 const cap = s => s.replace(/^THE /, '').toLowerCase().replace(/^./, c => c.toUpperCase());
 function render(panel, id, ctx) {
@@ -159,11 +174,17 @@ function render(panel, id, ctx) {
   if ((n.works || []).length) { h('h3', '', panel, 'Listen'); const ol = h('ol', 'plist', panel);
     n.works.forEach((w, i) => { const m = (F.media || [])[i] || [], nr = m[2] === 'NO_RECORDING', li = h('li', '', ol), b = h('b', '', li, w[0]);
       if (w[3]) { const c = h('i', 'core', b, ' ★'); c.title = 'Hear this first'; c.setAttribute('aria-label', 'core work'); }
-      const by = h('span', 'by', li); by.append([w[1], w[2]].filter(Boolean).join(' · '));
+      const by = h('span', 'by', li); if (w[1]) { const key = personOf(w[1]) || 's:' + w[1], V = VOICES[key]; if (V && ctx.thread) { const tb = h('button', 'voice-b', by, w[1]); tb.type = 'button'; tb.title = V.forms.length > 1 ? `Follow ${V.name} through all ${V.forms.length} lanterns` : `${V.name}: one lantern`; tb.addEventListener('click', () => ctx.thread(key)); } else by.append(w[1]); } if (w[2]) by.append((w[1] ? ' · ' : '') + w[2]);
       if (m[2] && !nr) h('p', 'wn', li, m[2]);
       const acts = h('div', 'acts', li); if (m[0]) ext(acts, m[0], 'Listen ↗'); else h('span', 'pending', acts, 'No reliable recording yet');
       if (m[1]) ext(acts, m[1], 'Score ↗', 'score'); if (w[1]) ext(acts, spotifyUrl(w[1], w[0]), 'Spotify ↗', 'sp').title = 'Search Spotify for this work'; });
     h('p', 'pnote', panel, 'Links open in a new tab. Recordings and scores belong to their owners and are linked, not copied.'); }
+
+  // B11 windows: the composers on this lantern; each opens a gold thread through all their lanterns
+  if ((WINS[id] || []).length && ctx.thread) { h('h3', '', panel, 'Composer windows'); const box = h('div', 'wins', panel);
+    WINS[id].forEach(o => { const V = VOICES[o.key], b = h('button', 'win-b' + (o.core ? ' core' : ''), box, (o.core ? '★ ' : '') + o.c); b.type = 'button';
+      const nf = V ? V.forms.length : 1; h('small', '', b, nf > 1 ? ` ${nf} lanterns` : ''); if (V && V.woman) b.classList.add('wm'); b.title = nf > 1 ? `Follow ${o.c} through every lantern` : `${o.c}: this lantern only`; b.addEventListener('click', () => ctx.thread(o.key)); });
+    h('p', 'pnote', panel, 'A window opens a gold thread through every lantern with a work by that composer, across every spire and storey.'); }
 
   // G4 Learning music: what to hear, the elements at work, a task and the evidence question
   if (F.hear || F.el || F.tryit || F.q) { h('h3', '', panel, 'Learning music');
@@ -240,5 +261,23 @@ function render(panel, id, ctx) {
   // G11 respect and contact
   h('p', 'respect', panel, 'This Garden is presented with respect for every musician and culture it includes. To raise a cultural concern or report an incorrect link, contact Justin Ossher, the creator of this Garden, at any time.');
 }
-window.GardenCard = {render};
+function renderComposer(panel, key, ctx) {
+  card = panel; panel.textContent = ''; panel.scrollTop = 0; const V = VOICES[key]; if (!V) return;
+  const x = h('button', 'x', panel, '×'); x.setAttribute('aria-label', 'Close'); x.addEventListener('click', ctx.close);
+  const spires = new Set(V.forms.map(f => ctx.famOf(f.id)));
+  h('div', 'k', panel, 'Voice · composer window');
+  h('h1', '', panel, V.name);
+  h('p', 'd', panel, V.first < 9999 ? (V.first === V.last || !isFinite(V.last) ? `${V.first}` : `${V.first}–${V.last}`) + ' · works on the map' : '');
+  const tg = h('div', 'tags', panel); voiceTags(tg, V);
+  h('p', 'lin', panel, `${V.forms.length} lantern${V.forms.length === 1 ? '' : 's'} across ${spires.size} spire${spires.size === 1 ? '' : 's'} · the gold thread joins them, oldest first`);
+  if (DECEASED.has(V.name)) dnotice(panel, [V.name]);
+  h('h3', '', panel, 'The thread, lantern by lantern'); const ol = h('ol', 'thr', panel);
+  V.forms.forEach(f => { const n = N[f.id], F = FULL[f.id] || {}, li = h('li', '', ol), hd = h('div', 'thr-h', li);
+    const b = h('button', 'lk-b', hd, n.t); b.type = 'button'; b.addEventListener('click', () => ctx.go(f.id)); h('small', '', hd, ` ${cap(ctx.famName(f.id))} spire · ${ctx.eraName(f.id)}`);
+    f.works.forEach(([w, i]) => { const m = (F.media || [])[i] || [], d = h('div', 'thr-w', li), t = h('b', '', d, w[0]); if (w[3]) h('i', 'core', t, ' ★'); if (w[2]) h('span', 'by', d, w[2]);
+      const acts = h('div', 'acts', d); if (m[0]) ext(acts, m[0], 'Listen ↗'); if (m[1]) ext(acts, m[1], 'Score ↗', 'score'); ext(acts, spotifyUrl(w[1], w[0]), 'Spotify ↗', 'sp'); }); });
+  h('p', 'pnote', panel, 'Links open in a new tab. Recordings and scores belong to their owners and are linked, not copied.');
+  h('p', 'respect', panel, 'This Garden is presented with respect for every musician and culture it includes. To raise a cultural concern or report an incorrect link, contact Justin Ossher, the creator of this Garden, at any time.');
+}
+window.GardenCard = {render, renderComposer, VOICES, voiceTags};
 })();

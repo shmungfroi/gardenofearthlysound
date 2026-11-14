@@ -35,6 +35,7 @@ body.pan #map{width:calc(100vw - var(--rail) - var(--gut) - 420px)}
 #map .fm.me text{fill:var(--goldhi);fill-opacity:1;font-weight:700;opacity:1}
 #map .fm.me circle{fill:var(--goldhi);fill-opacity:1;r:1.4px}
 #map .fm:not(.soil):hover text{fill:var(--goldhi)}
+#map .fm.hid text{opacity:0!important}
 
 /* the frame: fixed on every side */
 .rail{position:absolute;left:0;top:0;bottom:0;width:var(--rail);background:#0f0d09;border-right:1px solid var(--line);padding-top:72px;z-index:5}
@@ -153,6 +154,19 @@ aside .thread-nav{display:flex;justify-content:space-between;gap:10px;font-size:
 aside .adapt{font-size:13.5px} aside .adapt em{display:block;color:var(--muted)}
 aside .src{font-size:12px;color:var(--muted);padding-left:18px}
 aside .respect{font-size:12px;color:var(--muted);border-top:1px solid var(--line);margin-top:24px;padding-top:12px}
+#map #thread .thr-glow{fill:none;stroke:var(--goldhi);stroke-opacity:.18;stroke-width:3.2;stroke-linecap:round}
+#map #thread .thr-line{fill:none;stroke:var(--goldhi);stroke-opacity:.95;stroke-width:.9;stroke-linecap:round}
+#map #thread .thr-ring{fill:none;stroke:var(--goldhi);stroke-width:.6} #map #thread .thr-ring.first{stroke-width:1.1}
+aside .voice-b{all:unset;cursor:pointer;color:var(--ivory);border-bottom:1px dotted var(--gold)} aside .voice-b:hover{color:var(--goldhi)}
+aside .wins{display:flex;flex-wrap:wrap;gap:6px}
+aside .win-b{all:unset;cursor:pointer;font-size:12.5px;border:1px solid #3a3222;border-radius:13px;padding:2px 10px} aside .win-b small{color:var(--muted)}
+aside .win-b.core{border-color:var(--gold);color:var(--goldhi)} aside .win-b.wm{box-shadow:inset 3px 0 0 #e46d9c} aside .win-b:hover{background:#221d13}
+aside .vt{font-size:11px;border-radius:10px;padding:1px 9px;border:1px solid} aside .vt.w{border-color:#e46d9c;color:#f2a3c2} aside .vt.r{border-color:var(--green);color:var(--green)}
+aside .thr{padding-left:20px} aside .thr>li{margin-bottom:14px} aside .thr-h small{color:var(--muted);font-size:12px}
+aside .thr-w{margin:6px 0 0 2px;font-size:13.5px} aside .thr-w b{font-weight:500} aside .thr-w .by{display:inline;color:var(--muted);margin-left:6px;font-size:12.5px}
+.sheet .vf{width:100%;height:32px;border-radius:16px;border:1px solid #3a3222;background:#14110b;color:var(--ivory);padding:0 12px;font:13.5px Outfit,sans-serif;margin-bottom:8px;outline:none}
+.sheet .vopts{display:flex;flex-wrap:wrap;gap:10px;font-size:12.5px;color:var(--muted);margin:0 4px 8px} .sheet .vopts input{accent-color:#c9a24a}
+#res .vres{color:var(--goldhi)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style></head>
 <body>
@@ -163,6 +177,7 @@ aside .respect{font-size:12px;color:var(--muted);border-top:1px solid var(--line
   <button data-sheet="search" title="Search (/)">⌕<small>Search</small></button>
   <button data-sheet="families">▥<small>Spires</small></button>
   <button data-sheet="eras">☰<small>Storeys</small></button>
+  <button data-sheet="voices">♪<small>Voices</small></button>
   <button data-sheet="az">Az<small>A–Z</small></button>
   <button data-sheet="guide">?<small>Guide</small></button>
 </nav>
@@ -176,7 +191,7 @@ aside .respect{font-size:12px;color:var(--muted);border-top:1px solid var(--line
 <div class="mm" id="mm" title="The whole garden: click to go there"></div>
 <div class="ladder" aria-label="Zoom levels">
   <div class="pm"><button id="zin" aria-label="Zoom in">+</button><button id="zout" aria-label="Zoom out">−</button></div>
-  <button class="rung" data-l="0"><i></i>Garden</button><button class="rung" data-l="1"><i></i>Spire</button><button class="rung" data-l="2"><i></i>Storey</button><button class="rung" data-l="3"><i></i>Lantern</button>
+  <button class="rung" data-l="0"><i></i>Garden</button><button class="rung" data-l="1"><i></i>Spire</button><button class="rung" data-l="2"><i></i>Storey</button><button class="rung" data-l="3"><i></i>Lantern</button><button class="rung" data-l="4" hidden><i></i>Voice</button>
 </div>
 <div id="hint" role="status"></div>
 <aside id="panel" aria-live="polite"></aside>
@@ -213,7 +228,12 @@ function apply() {
   // names in a lit web stay readable when the view is wide
   const s = Math.max(1, 2.3 / view.k);
   document.querySelectorAll('#map .fm.on:not(.soil),#map .fm.me:not(.soil)').forEach(g => { const p = LAY.nodes[g.dataset.id]; g.setAttribute('transform', s > 1 ? `translate(${p.x},${p.y}) scale(${s}) translate(${-p.x},${-p.y})` : ''); });
-  chrome(); }
+  declutter(); chrome(); }
+function declutter() {      // among lit names, any that would touch an earlier one hides its words (its point stays) until zooming makes room
+  const gs = [...document.querySelectorAll('#map .fm.me:not(.soil),#map .fm.on:not(.soil)')]; gs.forEach(g => g.classList.remove('hid')); if (!gs.length || gs.length > 60) return;
+  gs.sort((a, b) => b.classList.contains('me') - a.classList.contains('me')); const placed = [];
+  gs.forEach(g => { const ts = g.querySelectorAll('text'); if (!ts.length) return; let r = null; ts.forEach(t => { const q = t.getBoundingClientRect(); r = r ? {l: Math.min(r.l, q.left), t: Math.min(r.t, q.top), r: Math.max(r.r, q.right), b: Math.max(r.b, q.bottom)} : {l: q.left, t: q.top, r: q.right, b: q.bottom}; });
+    if (placed.some(p => r.l < p.r + 3 && r.r > p.l - 3 && r.t < p.b + 2 && r.b > p.t - 2)) g.classList.add('hid'); else placed.push(r); }); }
 const centre = () => [(aw / 2 - view.tx) / view.k, (ah / 2 - view.ty) / view.k];
 function flyTo(k, x, y, dur = 650) {           // one eased move that puts map point (x, y) at the centre of the view
   const a = {...view}, b = clamp({k, tx: aw / 2 - x * k, ty: ah / 2 - y * k}), t0 = performance.now();
@@ -230,10 +250,10 @@ function fitBox(x0, y0, x1, y1, kmax = KMAX) { const k = Math.min(kmax, aw / (x1
 /* ---------- where you are: garden, family, era, form ---------- */
 let sel = null, spot = null, curFam = null, curEra = null, nav = 0;
 const K_FAMILY = () => Math.max(fitK * 2.2, 2.4), K_ERA = () => Math.max(fitK * 3.6, 3.8);
-function level() { if (sel) return 3; if (nav != null) return nav; if (view.k >= K_ERA() * .95) return 2; if (view.k >= K_FAMILY() * .9) return 1; return 0; }
+function level() { if (tkey) return 4; if (sel) return 3; if (nav != null) return nav; if (view.k >= K_ERA() * .95) return 2; if (view.k >= K_FAMILY() * .9) return 1; return 0; }
 function famAt(x) { let best = null, d = 1e9; FAMS.forEach(f => { const F = LAY.fams[f], c = (F.x0 + F.x1) / 2, dd = x < F.x0 ? F.x0 - x : x > F.x1 ? x - F.x1 : 0; if (dd < d || (dd === d && Math.abs(c - x) < Math.abs((LAY.fams[best]?.x0 + LAY.fams[best]?.x1) / 2 - x))) { d = dd; best = f; } }); return best; }
 function eraAt(y) { return (LAY.eras.find(e => y >= e.top && y <= e.bottom) || (y < LAY.eras[LAY.eras.length - 1].top ? LAY.eras[LAY.eras.length - 1] : LAY.eras[0])).id; }
-function home() { closePanel(); clearSpot(); curFam = curEra = null; nav = 0; flyTo(fitK, (B[0] + B[2]) / 2, (B[1] + B[3]) / 2); }
+function home() { clearThread(); closePanel(); clearSpot(); curFam = curEra = null; nav = 0; flyTo(fitK, (B[0] + B[2]) / 2, (B[1] + B[3]) / 2); }
 function goFamily(f, keepY) { const F = LAY.fams[f]; curFam = f; curEra = null; nav = 1; const w = F.x1 - F.x0, k = Math.max(K_FAMILY(), Math.min(aw / (w + 220), K_ERA() * .85));
   const y = keepY != null ? keepY : Math.min(F.open, centre()[1]); flyTo(k, (F.x0 + F.x1) / 2, Math.max(LAY.present + ah / k / 2 - 30, y)); }
 function goEra(f, e) { f = f || curFam || famAt(centre()[0]); const F = LAY.fams[f], E = ERA[e]; curFam = f; curEra = e; nav = 2;
@@ -258,21 +278,47 @@ function frameNet(id, withPanel) {           // the form with every form it conn
   const avail = withPanel ? aw : aw; const k = Math.max(KMIN(), Math.min(6, avail / (x1 - x0), (ah - 60) / (y1 - y0)));
   flyTo(k, (x0 + x1) / 2, (y0 + y1) / 2 + 6); }
 function spotlight(id) {      // search: highlight, connect, frame the whole web; a click then opens it
-  closePanel(); sel = null; spot = id; light(id); frameNet(id, false);
+  clearThread(); closePanel(); sel = null; spot = id; light(id); frameNet(id, false);
   const n = (BY[id] || []).length, h = $('#hint'); h.innerHTML = ''; el('b', '', h, N[id].t); h.append(` · ${n} connection${n === 1 ? '' : 's'} · click it to open`); h.style.display = 'block'; chrome(); }
 function clearSpot() { spot = null; $('#hint').style.display = 'none'; if (!sel) light(null); }
 function choose(id, frame) {
-  $('#hint').style.display = 'none'; spot = null; sel = id; curFam = famAt(LAY.nodes[id].x); curEra = eraOf(id);
+  clearThread(); $('#hint').style.display = 'none'; spot = null; sel = id; curFam = famAt(LAY.nodes[id].x); curEra = eraOf(id);
   light(id); card(id); document.body.classList.add('pan'); measure(); clamp(view); if (frame) frameNet(id, true); else apply(); }
-function closePanel() { if (!sel) return; sel = null; document.body.classList.remove('pan'); measure(); clamp(view); light(spot); }
+function closePanel() { if (!sel && !tkey && !document.body.classList.contains('pan')) return; if (tkey) { clearThread(); light(null); } sel = null; document.body.classList.remove('pan'); measure(); clamp(view); light(spot); }
 
 /* ---------- the card ---------- */
 const MINARET = {}; G.MIN.genres.forEach(g => g.lanterns.forEach(id => MINARET[id] = g.t));
 function card(id) {
   const f = famAt(LAY.nodes[id].x), n = N[id];
   const fams = [famOf(id), ...(n.also || [])].filter((x, i, a) => LAY.fams[x] && a.indexOf(x) === i).map(x => ({name: FN(x), c: FC(x)}));
-  window.GardenCard.render(panel, id, {go: o => choose(o, true), close: () => { closePanel(); light(null); }, famName: FN(f), eraName: (ERA[n.period] || {}).name || '', fams, minaret: MINARET[id] || ''});
+  window.GardenCard.render(panel, id, {go: o => choose(o, true), close: () => { closePanel(); light(null); }, thread: k => showThread(k), famName: FN(f), eraName: (ERA[n.period] || {}).name || '', fams, minaret: MINARET[id] || ''});
 }
+
+/* ---------- F2 voices: a composer's gold thread through every lantern they wrote in ---------- */
+const VOICES = window.GardenCard.VOICES, SVGNS = 'http://www.w3.org/2000/svg';
+const gThread = document.createElementNS(SVGNS, 'g'); gThread.setAttribute('id', 'thread'); cam.insertBefore(gThread, cam.querySelector(':scope > .fm'));
+let tkey = null;
+function smooth(pts) { if (pts.length < 2) return ''; let d = `M${pts[0][0]},${pts[0][1]}`;
+  for (let i = 0; i < pts.length - 1; i++) { const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
+    d += ` C${p1[0] + (p2[0] - p0[0]) / 6},${p1[1] + (p2[1] - p0[1]) / 6} ${p2[0] - (p3[0] - p1[0]) / 6},${p2[1] - (p3[1] - p1[1]) / 6} ${p2[0]},${p2[1]}`; } return d; }
+function showThread(key) {
+  const V = VOICES[key]; if (!V) return; closeSheet(); $('#hint').style.display = 'none'; spot = null; sel = null; tkey = key; nav = 4;
+  svg.classList.add('focus'); document.querySelectorAll('#map .on,#map .me').forEach(x => { x.classList.remove('on', 'me'); if (x.classList.contains('fm')) x.removeAttribute('transform'); });
+  V.forms.forEach(f => NODE[f.id] && NODE[f.id].classList.add('on'));
+  const pts = V.forms.map(f => LAY.nodes[f.id]).filter(Boolean).map(p => [p.x, p.y]);
+  gThread.innerHTML = ''; const mk = (t, a) => { const e = document.createElementNS(SVGNS, t); for (const k in a) e.setAttribute(k, a[k]); gThread.appendChild(e); return e; };
+  if (pts.length > 1) {      // a constellation: each lantern joins its nearest neighbour (minimum spanning tree), so the thread never zigzags across the garden
+    const inT = [0], edges = [], dist = (a, b) => Math.hypot(pts[a][0] - pts[b][0], (pts[a][1] - pts[b][1]) * 1.6);
+    while (inT.length < pts.length) { let best = null; inT.forEach(a => pts.forEach((_, b) => { if (inT.includes(b)) return; const d = dist(a, b); if (!best || d < best[2]) best = [a, b, d]; })); edges.push(best); inT.push(best[1]); }
+    let d = ''; edges.forEach(([a, b]) => { const [x1, y1] = pts[a], [x2, y2] = pts[b], L = Math.hypot(x2 - x1, y2 - y1) || 1, bow = Math.min(10, L * .12); d += `M${x1},${y1} Q${(x1 + x2) / 2 + (y1 - y2) / L * bow},${(y1 + y2) / 2 - Math.abs(x2 - x1) / L * bow} ${x2},${y2} `; });
+    mk('path', {d, class: 'thr-glow'}); mk('path', {d, class: 'thr-line'}); }
+  pts.forEach((p, i) => mk('circle', {cx: p[0], cy: p[1], r: 2.4, class: 'thr-ring' + (i === 0 ? ' first' : '')}));
+  window.GardenCard.renderComposer(panel, key, {go: o => { clearThread(); choose(o, true); }, close: () => { clearThread(); closePanel(); light(null); },
+    famOf: id => famAt(LAY.nodes[id].x), famName: id => FN(famAt(LAY.nodes[id].x)), eraName: id => (ERA[N[id].period] || {}).name || ''});
+  document.body.classList.add('pan'); measure(); clamp(view);
+  const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]), x0 = Math.min(...xs) - 50, x1 = Math.max(...xs) + 50, y0 = Math.min(...ys) - 22, y1 = Math.max(...ys) + 16;
+  flyTo(Math.max(KMIN(), Math.min(6, aw / (x1 - x0), (ah - 60) / (y1 - y0))), (x0 + x1) / 2, (y0 + y1) / 2 + 6); apply(); }
+function clearThread() { if (!tkey) return; tkey = null; gThread.innerHTML = ''; if (nav === 4) nav = null; }
 
 /* ---------- the frame: breadcrumb, eras, family strip, minimap, ladder ---------- */
 const ERAEL = {}, FAMEL = {};
@@ -301,6 +347,8 @@ function chrome() {
     v.setAttribute('x', mx(x0)); v.setAttribute('y', my(y0)); v.setAttribute('width', Math.max(2, (x1 - x0) * ms)); v.setAttribute('height', Math.max(2, (y1 - y0) * ms)); }
   document.querySelectorAll('.rung').forEach(r => r.classList.toggle('cur', +r.dataset.l === lv));
   const cr = $('#crumbs'); cr.innerHTML = ''; const add = (t, fn, last) => { if (cr.childNodes.length) el('em', '', cr, '›'); const b = el('button', last ? 'last' : '', cr, t); b.onclick = fn; };
+  if (tkey) { const steps = [['Garden', home], ['Voices', () => openSheet('voices', $('.rail button[data-sheet=voices]'))], [VOICES[tkey].name, () => showThread(tkey)]]; steps.forEach(([t, fn], i) => add(t, fn, i === steps.length - 1)); $('.rung[data-l="4"]').hidden = false; return; }
+  $('.rung[data-l="4"]').hidden = true;
   const steps = [['Garden', home]]; if (f) steps.push([FN(f).replace(/^THE /, '').toLowerCase().replace(/^./, c => c.toUpperCase()), () => { closePanel(); clearSpot(); goFamily(f); }]);
   if (e && (lv >= 2 || sel)) steps.push([ERA[e].name, () => { closePanel(); clearSpot(); goEra(f, e); }]);
   if (sel) steps.push([N[sel].t, () => frameNet(sel, true)]);
@@ -316,18 +364,18 @@ addEventListener('pointerup', () => { drag = null; svg.classList.remove('drag');
 svg.addEventListener('wheel', e => { e.preventDefault(); cancelAnimationFrame(anim); const r = svg.getBoundingClientRect(), px = e.clientX - r.left, py = e.clientY - r.top;
   const k = Math.max(KMIN(), Math.min(KMAX, view.k * Math.exp(-e.deltaY * (e.ctrlKey ? .01 : .0016)))), q = k / view.k;
   view.tx = px - (px - view.tx) * q; view.ty = py - (py - view.ty) * q; view.k = k; nav = null; curEra = null; clamp(view); apply(); }, {passive: false});
-svg.addEventListener('click', e => { if (moved) return; const g = e.target.closest('.fm'); if (g) { e.stopPropagation(); return choose(g.dataset.id, view.k < 2.2); } if (sel) closePanel(); light(null); clearSpot(); });
-svg.addEventListener('mouseover', e => { const g = e.target.closest('.fm'); if (g && !sel && !spot) light(g.dataset.id); });
-svg.addEventListener('mouseout', e => { const g = e.target.closest('.fm'); if (g && !sel && !spot && !(e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest('.fm') === g)) light(null); });
-$('#zin').onclick = () => goLevel(level() + 1); $('#zout').onclick = () => { if (sel) { closePanel(); light(null); return goLevel(2); } goLevel(level() - 1); };
-document.querySelectorAll('.rung').forEach(r => r.onclick = () => goLevel(+r.dataset.l));
+svg.addEventListener('click', e => { if (moved) return; const g = e.target.closest('.fm'); if (g) { e.stopPropagation(); return choose(g.dataset.id, view.k < 2.2); } if (sel || tkey) closePanel(); light(null); clearSpot(); });
+svg.addEventListener('mouseover', e => { const g = e.target.closest('.fm'); if (g && !sel && !spot && !tkey) light(g.dataset.id); });
+svg.addEventListener('mouseout', e => { const g = e.target.closest('.fm'); if (g && !sel && !spot && !tkey && !(e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest('.fm') === g)) light(null); });
+$('#zin').onclick = () => goLevel(level() + 1); $('#zout').onclick = () => { if (tkey) { closePanel(); return goLevel(1); } if (sel) { closePanel(); light(null); return goLevel(2); } goLevel(level() - 1); };
+document.querySelectorAll('.rung').forEach(r => r.onclick = () => { if (+r.dataset.l === 4) return tkey && showThread(tkey); if (tkey) closePanel(); goLevel(+r.dataset.l); });
 $('#hint').onclick = () => spot && choose(spot, true);
 addEventListener('keydown', e => {
   if (e.target.closest('input')) return;
   if (e.key === '/') { e.preventDefault(); $('#q').focus(); return; }
   if (e.key === '+' || e.key === '=') return goLevel(level() + 1);
   if (e.key === '-' || e.key === '_') return $('#zout').click();
-  if (e.key === 'Escape') { if ($('#sheet').classList.contains('open')) return closeSheet(); if (sel) { closePanel(); light(null); return; } if (spot) return clearSpot(); return goLevel(level() - 1); }
+  if (e.key === 'Escape') { if ($('#sheet').classList.contains('open')) return closeSheet(); if (tkey) { closePanel(); return; } if (sel) { closePanel(); light(null); return; } if (spot) return clearSpot(); return goLevel(level() - 1); }
   if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { e.preventDefault(); const f = curFam || famAt(centre()[0]), i = FAMS.indexOf(f) + (e.key === 'ArrowRight' ? 1 : -1); if (i < 0 || i >= FAMS.length) return; closePanel(); clearSpot();
     return level() >= 2 ? goEra(FAMS[i], curEra || eraAt(centre()[1])) : goFamily(FAMS[i], centre()[1]); }
   if (e.key === 'ArrowUp' || e.key === 'ArrowDown') { e.preventDefault(); const ids = LAY.eras.map(x => x.id), cur = curEra || eraAt(centre()[1]), i = ids.indexOf(cur) + (e.key === 'ArrowUp' ? 1 : -1); if (i < 0 || i >= ids.length) return; closePanel(); clearSpot(); return goEra(curFam || famAt(centre()[0]), ids[i]); } });
@@ -337,12 +385,15 @@ const q = $('#q'), res = $('#res');
 function results(s) { s = s.trim().toLowerCase(); if (!s) return [];
   return D.nodes.filter(n => LAY.nodes[n.id] && n.t.toLowerCase().includes(s)).map(n => { const t = n.t.toLowerCase(); return [t === s ? 0 : t.startsWith(s) ? 1 : t.split(/[\s&,():-]+/).some(w => w.startsWith(s)) ? 2 : 3, n]; })
     .sort((a, b) => a[0] - b[0] || a[1].t.localeCompare(b[1].t)).map(x => x[1]).slice(0, 12); }
-q.addEventListener('input', () => { res.innerHTML = ''; const r = results(q.value); res.style.display = r.length ? 'block' : 'none';
+q.addEventListener('input', () => { res.innerHTML = ''; const r = results(q.value), sv = q.value.trim().toLowerCase();
+  const vs = sv.length < 3 ? [] : Object.values(VOICES).filter(V => V.name.toLowerCase().includes(sv)).sort((a, b) => b.forms.length - a.forms.length).slice(0, 5);
+  res.style.display = r.length || vs.length ? 'block' : 'none';
+  vs.forEach(V => { const b = el('button', 'vres', res, '♪ ' + V.name); b.setAttribute('role', 'option'); el('small', '', b, `composer · ${V.forms.length} lantern${V.forms.length === 1 ? '' : 's'}`); b.onclick = () => { res.style.display = 'none'; q.value = ''; q.blur(); showThread(V.key); }; });
   r.forEach(n => { const b = el('button', '', res, n.t); b.setAttribute('role', 'option'); el('small', '', b, `${n.d || ''} · ${FN(famOf(n.id)).toLowerCase()} · ${(ERA[n.period] || {}).name || ''}`);
     b.onmouseenter = b.onfocus = () => { if (!sel) light(n.id); }; b.onclick = () => { res.style.display = 'none'; q.value = ''; q.blur(); spotlight(n.id); }; }); });
-q.addEventListener('keydown', e => { if (e.key === 'Enter' && res.firstChild) res.firstChild.click(); if (e.key === 'ArrowDown' && res.firstChild) { e.preventDefault(); res.firstChild.focus(); } if (e.key === 'Escape') { q.value = ''; res.style.display = 'none'; q.blur(); if (!sel && !spot) light(null); } });
+q.addEventListener('keydown', e => { if (e.key === 'Enter' && res.firstChild) res.firstChild.click(); if (e.key === 'ArrowDown' && res.firstChild) { e.preventDefault(); res.firstChild.focus(); } if (e.key === 'Escape') { q.value = ''; res.style.display = 'none'; q.blur(); if (!sel && !spot && !tkey) light(null); } });
 res.addEventListener('keydown', e => { const b = document.activeElement; if (e.key === 'ArrowDown' && b.nextSibling) { e.preventDefault(); b.nextSibling.focus(); } if (e.key === 'ArrowUp') { e.preventDefault(); (b.previousSibling || q).focus(); } if (e.key === 'Escape') { res.style.display = 'none'; q.focus(); } });
-q.addEventListener('blur', () => setTimeout(() => { if (!res.contains(document.activeElement)) { res.style.display = 'none'; if (!sel && !spot) light(null); } }, 150));
+q.addEventListener('blur', () => setTimeout(() => { if (!res.contains(document.activeElement)) { res.style.display = 'none'; if (!sel && !spot && !tkey) light(null); } }, 150));
 
 /* ---------- the rail's sheets ---------- */
 const sheet = $('#sheet');
@@ -353,6 +404,15 @@ function openSheet(kind, btn) {
   sheet.innerHTML = ''; sheet.dataset.kind = kind; sheet.classList.add('open'); btn.classList.add('on');
   if (kind === 'families') { el('h3', '', sheet, 'THE SPIRES'); FAMS.forEach(f => { const b = el('button', '', sheet, FN(f)); b.style.color = FC(f); b.onclick = () => { closeSheet(); closePanel(); clearSpot(); goFamily(f); }; }); }
   if (kind === 'eras') { el('h3', '', sheet, 'THE STOREYS'); LAY.eras.slice().reverse().forEach(E => { const b = el('button', '', sheet, E.name); el('small', '', b, E.id === 'contemporary' ? '1980–today' : `${E.start}–${E.end}`); b.onclick = () => { closeSheet(); closePanel(); clearSpot(); goEra(null, E.id); }; }); }
+  if (kind === 'voices') { el('h3', '', sheet, 'VOICES · ' + Object.keys(VOICES).length + ' COMPOSERS');
+    const f = el('input', 'vf', sheet); f.placeholder = 'Filter composers…'; f.type = 'search'; const opts = el('div', 'vopts', sheet);
+    const tW = el('label', '', opts); const cW = el('input', '', tW); cW.type = 'checkbox'; tW.append(' women'); const tR = el('label', '', opts); const cR = el('input', '', tR); cR.type = 'checkbox'; tR.append(' Americas & Australia');
+    const tM = el('label', '', opts); const cM = el('input', '', tM); cM.type = 'checkbox'; cM.checked = true; tM.append(' 2+ lanterns');
+    const list = el('div', 'vlist', sheet), all = Object.values(VOICES).sort((a, b) => a.name.localeCompare(b.name));
+    const draw = () => { list.innerHTML = ''; const s = f.value.trim().toLowerCase(); let n = 0;
+      all.filter(V => (!s || V.name.toLowerCase().includes(s)) && (!cW.checked || V.woman) && (!cR.checked || V.region === 'A' || V.region === 'U') && (!cM.checked || V.forms.length > 1)).forEach(V => { if (n++ > 400) return; const b = el('button', '', list, V.name); el('small', '', b, `${V.forms.length} lantern${V.forms.length === 1 ? '' : 's'}`); b.onclick = () => { closeSheet(); showThread(V.key); }; });
+      if (!list.childNodes.length) el('p', '', list, 'No composer matches.'); };
+    [f, cW, cR, cM].forEach(x => x.addEventListener('input', draw)); draw(); setTimeout(() => f.focus(), 30); }
   if (kind === 'az') { el('h3', '', sheet, 'EVERY LANTERN, A–Z'); D.nodes.filter(n => LAY.nodes[n.id]).sort((a, b) => a.t.localeCompare(b.t)).forEach(n => { const b = el('button', '', sheet, n.t); el('small', '', b, n.d || ''); b.onclick = () => { closeSheet(); spotlight(n.id); }; }); }
   if (kind === 'guide') { el('h3', '', sheet, 'HOW TO READ THE GARDEN');
     [['Storeys rise.', ' The ground is the year 800; the top is today. Each storey (period) is named on the left.'], ['The commons is the central spire.', ' Folk song, dance and work song rises from one seed at the bottom: the origin. From it, roots fan out to every spire, and its green branches reach the lanterns it fed.'],
@@ -365,7 +425,7 @@ document.querySelectorAll('.rail button').forEach(b => b.onclick = () => openShe
 
 addEventListener('resize', () => { measure(); clamp(view); apply(); });
 measure(); view.k = fitK; clamp(view); apply();
-window.__map = {view, home, goFamily, goEra, goLevel, spotlight, choose, level, LAY, frameNet};
+window.__map = {view, home, goFamily, goEra, goLevel, spotlight, choose, level, LAY, frameNet, showThread, tkey: () => tkey};
 })();
 </script>
 </body></html>
