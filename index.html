@@ -75,7 +75,8 @@ body.pan .ladder{right:438px}
 .ladder .rung{all:unset;display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--muted);padding:6px 10px;border-radius:8px;cursor:pointer}
 .ladder .rung i{width:8px;height:8px;border-radius:50%;border:1.5px solid #6d6350}
 .ladder .rung:hover{color:var(--ivory)} .ladder .rung.cur{color:#111;background:var(--goldhi)} .ladder .rung.cur i{border-color:#111;background:#111}
-#hint{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);background:#15120b;border:1px solid var(--gold);border-radius:18px;padding:7px 16px;font-size:14px;display:none;z-index:6;cursor:pointer;white-space:nowrap}
+#hint{position:absolute;left:50%;bottom:30px;transform:translateX(-50%);background:#15120b;border:1px solid var(--gold);border-radius:18px;padding:7px 16px;font-size:14px;display:none;z-index:6;cursor:pointer;white-space:nowrap}
+#hint .open{color:var(--goldhi);margin-left:4px} #hint .esc{color:var(--muted);font-size:11.5px;margin-left:12px;padding-left:12px;border-left:1px solid #3a3222} #hint:hover .open{text-decoration:underline}
 #hint b{color:var(--goldhi);font-weight:500} #hint:hover{background:#221d13}
 aside{position:absolute;right:0;top:var(--top);bottom:0;width:420px;background:var(--panel);border-left:1px solid var(--line);padding:22px 26px 40px;overflow:auto;z-index:6;display:none;font-size:14.5px;line-height:1.58}
 body.pan aside{display:block}
@@ -229,6 +230,18 @@ aside .living{font-size:12px;color:var(--muted);margin-top:6px} aside .living a{
 #cpop.show{opacity:1;transform:none} #cpop h4{margin:0 0 2px;font:400 19px 'Poiret One',serif;letter-spacing:3px;color:#a9dc8c;text-transform:uppercase}
 #cpop .k{font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:8px} #cpop p{margin:0 0 7px;font-size:13px;line-height:1.5;color:var(--ivory)}
 #cpop .ends{font-size:12px;color:var(--muted)} #cpop .ends b{color:var(--goldhi);font-weight:500} #cpop .go{font-size:11.5px;color:#a9dc8c;margin-top:4px}
+/* pin, trace and the trail */
+#map .lk.trace{stroke-width:1.6!important;stroke-opacity:1!important;stroke:var(--goldhi)!important}
+#map .fm.traced text{opacity:1!important;fill:var(--goldhi)} #map.far .fm.on.fade:hover text{opacity:1}
+#map #trailg .tr-line{fill:none;stroke:#ece2c8;stroke-width:.55;stroke-dasharray:.8 1.4;stroke-linecap:round;stroke-opacity:.9;pointer-events:none}
+#map #trailg .tr-dot{fill:#0b0906;stroke:#ece2c8;stroke-width:.45} #map #trailg .tr-n{font:700 2px Outfit,sans-serif;fill:#ece2c8;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+#trail{position:absolute;left:calc(var(--rail) + var(--gut) + 12px);bottom:6px;display:none;align-items:center;gap:6px;z-index:5;max-width:calc(100vw - var(--rail) - var(--gut) - 220px);overflow-x:auto;scrollbar-width:thin;background:#0b0906d9;border:1px solid #3a3222;border-radius:16px;padding:3px 6px 3px 12px}
+body.pan #trail{max-width:calc(100vw - var(--rail) - var(--gut) - 640px)} body.trailing #trail{display:flex} body.trailing #foot{bottom:44px} #foot{transition:opacity .25s} body.pinned #foot{opacity:0;pointer-events:none}
+#trail .tl{font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);white-space:nowrap;margin-right:4px}
+#trail .tc{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;font-size:12.5px;color:var(--ivory);border:1px solid #3a3222;border-radius:12px;padding:2px 4px 2px 8px}
+#trail .tc:hover{border-color:var(--gold)} #trail .tc em{font-style:normal;color:var(--gold);font-size:11px} #trail .tc.new{border-color:var(--goldhi);box-shadow:0 0 0 2px #f0d48a44}
+#trail .tc i{font-style:normal;color:var(--muted);padding:0 3px;border-radius:50%} #trail .tc i:hover{color:var(--goldhi)} #trail .tsep{color:#5a4f38}
+#trail .tclr{all:unset;cursor:pointer;font-size:11.5px;color:var(--muted);white-space:nowrap;padding:2px 6px} #trail .tclr:hover{color:var(--ivory)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style></head>
 <body>
@@ -1988,6 +2001,7 @@ aside .living{font-size:12px;color:var(--muted);margin-top:6px} aside .living a{
 </div>
 <div id="hint" role="status"></div><div id="cpop" role="tooltip" aria-hidden="true"></div><div id="tip" role="tooltip"></div>
 <aside id="panel" aria-live="polite"></aside>
+<div id="trail" aria-label="Your trail"></div>
 <p id="foot">This is a living document in the form of an interactive page. Please e-mail <a href="mailto:shmungfroi@gmail.com">shmungfroi@gmail.com</a> to make any suggestions, comments or corrections.</p>
 
 <script src="gx_data.js"></script>
@@ -2022,7 +2036,7 @@ function apply() {
   // names in a lit web stay readable when the view is wide
   const s = Math.max(1, 2.3 / view.k);
   document.querySelectorAll('#map .fm.on:not(.soil),#map .fm.me:not(.soil),#map .fm.rtn:not(.soil)').forEach(g => { const p = LAY.nodes[g.dataset.id]; g.setAttribute('transform', s > 1 ? `translate(${p.x},${p.y}) scale(${s}) translate(${-p.x},${-p.y})` : ''); });
-  const sb = Math.max(1, 3.6 / view.k); document.querySelectorAll('#lens .rt-b,#reachspots .sunspot').forEach(g => { const x = +g.dataset.x, y = +g.dataset.y; g.setAttribute('transform', sb > 1 ? `translate(${x},${y}) scale(${sb}) translate(${-x},${-y})` : ''); });
+  const sb = Math.max(1, 3.6 / view.k); document.querySelectorAll('#lens .rt-b,#reachspots .sunspot,#trailg .tr-b').forEach(g => { const x = +g.dataset.x, y = +g.dataset.y; g.setAttribute('transform', sb > 1 ? `translate(${x},${y}) scale(${sb}) translate(${-x},${-y})` : ''); });
   const co = Math.max(.06, Math.min(1, 1 - (view.k / fitK - 1.3) / 2.4));      // the crowns fade as you zoom in, so the lanterns beneath them come forward
   if (co !== apply._co) { apply._co = co; document.querySelectorAll('#map .crown').forEach(g => { g.style.opacity = co; g.style.pointerEvents = co < .5 ? 'none' : ''; }); }
   svg.classList.toggle('closer', view.k > 5); const ss = Math.min(1, 6.5 / view.k);      // stars stay small when the view is very close
@@ -2081,11 +2095,25 @@ function frameNet(id, withPanel) {           // the form with every form it conn
   const avail = withPanel ? aw : aw; const k = Math.max(KMIN(), Math.min(6, avail / (x1 - x0), (ah - 60) / (y1 - y0)));
   flyTo(k, (x0 + x1) / 2, (y0 + y1) / 2 + 6); }
 function spotlight(id) {      // search: highlight, connect, frame the whole web; a click then opens it
-  clearThread(); clearEvent(); closePanel(); sel = null; spot = id; light(id); frameNet(id, false);
-  const n = (BY[id] || []).length, h = $('#hint'); h.innerHTML = ''; el('b', '', h, N[id].t); h.append(` · ${n} connection${n === 1 ? '' : 's'} · click it to open`); h.style.display = 'block'; chrome(); }
-function clearSpot() { spot = null; $('#hint').style.display = 'none'; if (!sel) light(null); }
+  pin(id); frameNet(id, false); }
+function pin(id) {      // a click on the map pins a web quietly: no card, no camera move; click again (or the pill) to open the card
+  clearThread(); clearEvent(); closePanel(); sel = null; spot = id; light(id); pinPill(); chrome(); }
+function pinPill() {      // the pill names what is pinned, offers the card, and says how to let go
+  const h = $('#hint'); h.innerHTML = ''; let name = '', what = '';
+  if (spot && N[spot]) { name = N[spot].t; const n = (BY[spot] || []).length; what = `${n} connection${n === 1 ? '' : 's'}`; }
+  else if (tkey && VOICES[tkey]) { name = VOICES[tkey].name; const n = VOICES[tkey].forms.length; what = `${n} lantern${n === 1 ? '' : 's'}`; }
+  else if (ekey && EVENTS[ekey]) { name = EVENTS[ekey].t; const n = (EVENTS[ekey].to || []).length; what = `${EVENTS[ekey].d} · ${n} lantern${n === 1 ? '' : 's'}`; }
+  const show = !!name && !document.body.classList.contains('pan'); document.body.classList.toggle('pinned', show); if (!show) { h.style.display = 'none'; return; }
+  el('b', '', h, name); h.append(` · ${what} ·`); el('span', 'open', h, 'Open card ›'); el('span', 'esc', h, 'Pinned · Esc to release'); h.style.display = 'block'; }
+function hidePill() { $('#hint').style.display = 'none'; document.body.classList.remove('pinned'); }
+function openPinned() { if (spot) return choose(spot, view.k < 2.2); if (tkey) return showThread(tkey); if (ekey) return showEvent(ekey); }
+function releasePin() { clearTrace(); clearThread(); clearEvent(); spot = null; hidePill(); if (!sel) light(null); }
+function stepBack() {      // Esc and the card's close button step back one layer: card, then pinned web, then the clean Garden
+  if (document.body.classList.contains('pan')) { const was = sel; sel = null; document.body.classList.remove('pan'); measure(); clamp(view); if (was) { spot = was; light(was); } apply(); pinPill(); return true; }
+  if (spot || tkey || ekey) { releasePin(); return true; } return false; }
+function clearSpot() { clearTrace(); spot = null; hidePill(); if (!sel) light(null); }
 function choose(id, frame) { $("#cpop") && $("#cpop").classList.remove("show");
-  clearThread(); clearEvent(); $('#hint').style.display = 'none'; spot = null; sel = id; curFam = famAt(LAY.nodes[id].x); curEra = eraOf(id);
+  clearThread(); clearEvent(); hidePill(); spot = null; sel = id; curFam = famAt(LAY.nodes[id].x); curEra = eraOf(id);
   light(id); card(id); document.body.classList.add('pan'); measure(); clamp(view); if (frame) frameNet(id, true); else apply(); }
 function closePanel() { if (!sel && !tkey && !ekey && !document.body.classList.contains('pan')) return; if (tkey || ekey) { clearThread(); clearEvent(); light(null); } sel = null; document.body.classList.remove('pan'); measure(); clamp(view); light(spot); }
 
@@ -2094,7 +2122,7 @@ const MINARET = {}; G.MIN.genres.forEach(g => g.lanterns.forEach(id => MINARET[i
 function card(id) {
   const f = famAt(LAY.nodes[id].x), n = N[id];
   const fams = [famOf(id), ...(n.also || [])].filter((x, i, a) => LAY.fams[x] && a.indexOf(x) === i).map(x => ({name: FN(x), c: FC(x)}));
-  window.GardenCard.render(panel, id, {go: o => choose(o, true), close: () => { closePanel(); light(null); }, thread: k => showThread(k), event: e => showEvent(e), reachGo: (g, yr) => reachGo(g, yr), route: lens.n && lens.n.startsWith('r-') ? lens.n.slice(2) : null, walk: k => setCourse(k ? 'r-' + k : ''), famName: FN(f), eraName: (ERA[n.period] || {}).name || '', fams, minaret: MINARET[id] || ''});
+  window.GardenCard.render(panel, id, {go: o => choose(o, true), close: () => stepBack(), thread: k => showThread(k), event: e => showEvent(e), reachGo: (g, yr) => reachGo(g, yr), route: lens.n && lens.n.startsWith('r-') ? lens.n.slice(2) : null, walk: k => setCourse(k ? 'r-' + k : ''), famName: FN(f), eraName: (ERA[n.period] || {}).name || '', fams, minaret: MINARET[id] || ''});
 }
 
 /* ---------- F2 voices: a composer's gold thread through every lantern they wrote in ---------- */
@@ -2106,8 +2134,9 @@ function segs(pts) { const out = []; for (let i = 0; i < pts.length - 1; i++) { 
 function smooth(pts) { if (pts.length < 2) return ''; let d = `M${pts[0][0]},${pts[0][1]}`;
   for (let i = 0; i < pts.length - 1; i++) { const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
     d += ` C${p1[0] + (p2[0] - p0[0]) / 6},${p1[1] + (p2[1] - p0[1]) / 6} ${p2[0] - (p3[0] - p1[0]) / 6},${p2[1] - (p3[1] - p1[1]) / 6} ${p2[0]},${p2[1]}`; } return d; }
-function showThread(key) {
-  const V = VOICES[key]; if (!V) return; closeSheet(); clearEvent(); drawReach(null); $('#hint').style.display = 'none'; spot = null; sel = null; tkey = key; nav = 4;
+function showThread(key, quiet) {
+  const V = VOICES[key]; if (!V) return; closeSheet(); clearEvent(); clearTrace(); drawReach(null); hidePill(); spot = null; sel = null; tkey = key; nav = 4;
+  if (quiet && document.body.classList.contains('pan')) { document.body.classList.remove('pan'); measure(); clamp(view); }
   svg.classList.add('focus'); document.querySelectorAll('#map .on,#map .me').forEach(x => { x.classList.remove('on', 'me'); if (x.classList.contains('fm')) x.removeAttribute('transform'); });
   V.forms.forEach(f => NODE[f.id] && NODE[f.id].classList.add('on')); document.querySelectorAll('#stars .st.me').forEach(x => x.classList.remove('me')); STAR[key] && STAR[key].classList.add('me');
   const pts = V.forms.map(f => LAY.nodes[f.id]).filter(Boolean).map(p => [p.x, p.y]);
@@ -2118,7 +2147,8 @@ function showThread(key) {
     let d = ''; edges.forEach(([a, b]) => { const [x1, y1] = pts[a], [x2, y2] = pts[b], L = Math.hypot(x2 - x1, y2 - y1) || 1, bow = Math.min(10, L * .12); d += `M${x1},${y1} Q${(x1 + x2) / 2 + (y1 - y2) / L * bow},${(y1 + y2) / 2 - Math.abs(x2 - x1) / L * bow} ${x2},${y2} `; });
     mk('path', {d, class: 'thr-glow'}); mk('path', {d, class: 'thr-line'}); }
   pts.forEach((p, i) => mk('circle', {cx: p[0], cy: p[1], r: 2.4, class: 'thr-ring' + (i === 0 ? ' first' : '')}));
-  window.GardenCard.renderComposer(panel, key, {go: o => { clearThread(); choose(o, true); }, close: () => { clearThread(); closePanel(); light(null); },
+  if (quiet) { apply(); pinPill(); return; }      // pinned from the map: the thread shows, the card waits
+  window.GardenCard.renderComposer(panel, key, {go: o => { clearThread(); choose(o, true); }, close: () => stepBack(),
     famOf: id => famAt(LAY.nodes[id].x), famName: id => FN(famAt(LAY.nodes[id].x)), eraName: id => (ERA[N[id].period] || {}).name || ''});
   document.body.classList.add('pan'); measure(); clamp(view);
   const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]), x0 = Math.min(...xs) - 50, x1 = Math.max(...xs) + 50, y0 = Math.min(...ys) - 22, y1 = Math.max(...ys) + 16;
@@ -2133,18 +2163,20 @@ const gEvent = document.createElementNS(SVGNS, 'g'); gEvent.setAttribute('id', '
 const gTime = document.createElementNS(SVGNS, 'line'); gTime.setAttribute('id', 'timeline'); gTime.setAttribute('x1', B[0]); gTime.setAttribute('x2', B[2]); cam.appendChild(gTime);
 let ekey = null; const EVEL = {};
 EVL.forEach(e => { e.wy = yOfYear(e.y); const b = el('button', 'evd', $('#evs')); b.setAttribute('aria-label', `${e.t}, ${e.d}`); b.title = `${e.t} · ${e.d}`;
-  b.onmouseenter = () => { if (!ekey) previewYear(e.wy, e.t + ' · ' + e.d); }; b.onmouseleave = () => { if (!ekey) previewYear(null); }; b.onclick = () => showEvent(e.id); EVEL[e.id] = b; });
+  b.onmouseenter = () => { if (!ekey) previewYear(e.wy, e.t + ' · ' + e.d); }; b.onmouseleave = () => { if (!ekey) previewYear(null); }; b.onclick = ev => { if (ev.shiftKey) return; if (ekey === e.id && !document.body.classList.contains('pan')) showEvent(e.id); else showEvent(e.id, true); }; EVEL[e.id] = b; });      // the gutter is part of the map: first click pins, second opens
 function previewYear(wy, text) { const lab = $('#tmark'); if (wy == null) { gTime.style.display = 'none'; lab.style.display = 'none'; return; }
   gTime.setAttribute('y1', wy); gTime.setAttribute('y2', wy); gTime.style.display = 'block'; const r = svg.getBoundingClientRect(), sy = r.top + view.ty + wy * view.k;
   lab.textContent = text; lab.style.display = 'block'; lab.style.top = (sy - 9) + 'px'; }
-function showEvent(id) {
-  const e = EVENTS[id]; if (!e) return; closeSheet(); clearThread(); drawReach(null); $('#hint').style.display = 'none'; spot = null; sel = null; ekey = id; nav = 3; previewYear(null);
+function showEvent(id, quiet) {
+  const e = EVENTS[id]; if (!e) return; closeSheet(); clearThread(); clearTrace(); drawReach(null);
+  if (quiet && document.body.classList.contains('pan')) { document.body.classList.remove('pan'); measure(); clamp(view); } hidePill(); spot = null; sel = null; ekey = id; nav = 3; previewYear(null);
   svg.classList.add('focus'); document.querySelectorAll('#map .on,#map .me').forEach(x => { x.classList.remove('on', 'me'); if (x.classList.contains('fm')) x.removeAttribute('transform'); });
   const to = (e.to || []).filter(i => LAY.nodes[i]); to.forEach(i => NODE[i] && NODE[i].classList.add('on'));
   gEvent.innerHTML = ''; const mk = (t, a) => { const z = document.createElementNS(SVGNS, t); for (const k in a) z.setAttribute(k, a[k]); gEvent.appendChild(z); return z; };
   mk('line', {x1: B[0], x2: B[2], y1: e.wy, y2: e.wy, class: 'ev-line'});
   to.forEach(i => { const p = LAY.nodes[i], mx = (B[0] + p.x) / 2; mk('path', {d: `M${B[0] + 4},${e.wy} Q${p.x},${e.wy} ${p.x},${p.y}`, class: 'ev-link'}).dataset.to = i; mk('circle', {cx: p.x, cy: p.y, r: 2.4, class: 'ev-ring'}); });
-  window.GardenCard.renderEvent(panel, id, {go: o => { clearEvent(); choose(o, true); }, close: () => { clearEvent(); closePanel(); light(null); }, famName: i => FN(famAt(LAY.nodes[i].x))});
+  if (quiet) { hits(); apply(); pinPill(); return; }
+  window.GardenCard.renderEvent(panel, id, {go: o => { clearEvent(); choose(o, true); }, close: () => stepBack(), famName: i => FN(famAt(LAY.nodes[i].x))});
   document.body.classList.add('pan'); measure(); clamp(view);
   const xs = to.map(i => LAY.nodes[i].x).concat([B[0] + 20]), ys = to.map(i => LAY.nodes[i].y).concat([e.wy]);
   const x0 = Math.min(...xs) - 40, x1 = Math.max(...xs) + 50, y0 = Math.min(...ys) - 22, y1 = Math.max(...ys) + 16;
@@ -2182,12 +2214,12 @@ function drawReach(id) {
     if (R.isS) { let d = ''; for (let j = 0; j < 16; j++) { const a = j * Math.PI / 8, rr = j % 2 ? 1.05 : 2.4; d += (j ? 'L' : 'M') + (x + Math.cos(a) * rr).toFixed(2) + ',' + (y + Math.sin(a) * rr).toFixed(2); } mk('path', {class: 'sun', d: d + 'Z'}, g); }
     else { const rx = (M.x1 - M.x0) / 2 - 1.5; mk('ellipse', {class: 'rb-knotu', cx: x, cy: y, rx, ry: 1.9}, g); mk('ellipse', {class: 'rb-knot', cx: x, cy: y, rx, ry: 1.9}, g); } }); apply(); }
 function reachGo(gid, yr) { const y = yrNum(yr) || 0, ls = (GT[gid] ? GT[gid].lanterns : []).filter(i => LAY.nodes[i] && N[i]); if (!ls.length) return;
-  const best = ls.reduce((a, b) => Math.abs(N[b].y - y) < Math.abs(N[a].y - y) ? b : a); clearThread(); clearEvent(); choose(best, true); }
+  const best = ls.reduce((a, b) => Math.abs(N[b].y - y) < Math.abs(N[a].y - y) ? b : a); clearThread(); clearEvent(); travel(best); }
 gSpots.addEventListener('mousemove', e => { const g = e.target.closest('.spot'); if (!g) return; const s = g._s, nm = N[reachId] ? N[reachId].t : '';
   tip.innerHTML = `<b>${nm}</b> ${g._isS ? 'reached' : 'runs through'} <b>${GT[s.g].t}</b><small>${[s.ex[0], s.ex[1], s.ex[2]].filter(Boolean).join(', ')}</small><small>${s.why}</small><small>click to open the nearest lantern</small>`;
   tip.style.display = 'block'; tip.style.left = Math.min(innerWidth - 310, e.clientX + 14) + 'px'; tip.style.top = (e.clientY + 16) + 'px'; });
 gSpots.addEventListener('mouseout', () => { tip.style.display = 'none'; });
-gSpots.addEventListener('click', e => { const g = e.target.closest('.spot'); if (!g || moved) return; e.stopPropagation(); tip.style.display = 'none'; const s = g._s; if (s.at) { clearThread(); clearEvent(); choose(s.at, true); } else reachGo(s.g, s.yr); });
+gSpots.addEventListener('click', e => { const g = e.target.closest('.spot'); if (!g || moved) return; e.stopPropagation(); tip.style.display = 'none'; const s = g._s; if (s.at) { clearThread(); clearEvent(); travel(s.at); } else reachGo(s.g, s.yr); });
 
 /* ---------- connections you can click: a lit link, a route step or an event's line travels to the lantern at its other end ---------- */
 const gHit = document.createElementNS(SVGNS, 'g'); gHit.setAttribute('id', 'hit'); cam.insertBefore(gHit, cam.querySelector(':scope > .fm')); const tip = $('#tip');
@@ -2199,10 +2231,11 @@ function hits() { gHit.innerHTML = ''; const here = sel || spot; const add = (sr
     let to = sel === a ? b : sel === b ? a : null; if (!to && ev) { const r = svg.getBoundingClientRect(), wx = (ev.clientX - r.left - view.tx) / view.k, wy = (ev.clientY - r.top - view.ty) / view.k, A = LAY.nodes[a], B2 = LAY.nodes[b]; to = Math.hypot(A.x - wx, A.y - wy) < Math.hypot(B2.x - wx, B2.y - wy) ? a : b; }
     to = to || b; const n = to === a ? ia : ib; return {to, html: `Route step ${ia + 1} → ${ib + 1}<small>to stop ${n + 1}: ${N[to].t}</small>`}; }));
   document.querySelectorAll('#evlayer .ev-link').forEach(p => add(p, () => ({to: p.dataset.to, html: `<b>${EVENTS[ekey].t}</b> made possible <b>${N[p.dataset.to].t}</b><small>click to travel there</small>`}))); }
-gHit.addEventListener('mousemove', e => { const z = e.target; if (!z._info) return; const info = z._info(e); document.querySelectorAll('#map .hov').forEach(x => x !== z._src && x.classList.remove('hov')); z._src.classList.add('hov');
+// a lantern's own links are read by the trace, not here
+gHit.addEventListener('mousemove', e => { const z = e.target; if (!z._info || (z._src && z._src.classList.contains('lk'))) return; const info = z._info(e); document.querySelectorAll('#map .hov').forEach(x => x !== z._src && x.classList.remove('hov')); z._src.classList.add('hov');
   tip.innerHTML = info.html; tip.style.display = 'block'; tip.style.left = Math.min(innerWidth - 310, e.clientX + 14) + 'px'; tip.style.top = (e.clientY + 16) + 'px'; });
 gHit.addEventListener('mouseout', e => { if (e.target._src) e.target._src.classList.remove('hov'); tip.style.display = 'none'; });
-gHit.addEventListener('click', e => { const z = e.target; if (!z._info || moved) return; e.stopPropagation(); tip.style.display = 'none'; const {to} = z._info(e); if (to && LAY.nodes[to]) { clearThread(); clearEvent(); choose(to, true); } });
+gHit.addEventListener('click', e => { const z = e.target; if (!z._info || moved) return; e.stopPropagation(); tip.style.display = 'none'; const {to} = z._info(e); if (to && LAY.nodes[to]) travel(to); });
 
 /* ---------- makers of the Now storey: every composer of a Now work is a small star beside their lantern; click to follow their thread ---------- */
 const gStars = document.createElementNS(SVGNS, 'g'); gStars.setAttribute('id', 'stars'); cam.appendChild(gStars);
@@ -2228,7 +2261,7 @@ gStars.addEventListener('mousemove', e => { const g = e.target.closest('.st'); i
   tip.innerHTML = `<b>${V.name}</b><small>${w[0]}${w[2] ? ', ' + w[2] : ''} · ${N[g._fs[0].id].t}</small><small>${V.forms.length} lantern${V.forms.length === 1 ? '' : 's'} in the Garden · click to follow their thread</small>`;
   tip.style.display = 'block'; tip.style.left = Math.min(innerWidth - 310, e.clientX + 14) + 'px'; tip.style.top = (e.clientY + 16) + 'px'; });
 gStars.addEventListener('mouseout', () => { tip.style.display = 'none'; });
-gStars.addEventListener('click', e => { const g = e.target.closest('.st'); if (!g || moved) return; e.stopPropagation(); tip.style.display = 'none'; showThread(g._V.key); });
+gStars.addEventListener('click', e => { const g = e.target.closest('.st'); if (!g || moved) return; e.stopPropagation(); tip.style.display = 'none'; const k = g._V.key; if (tkey === k && !document.body.classList.contains('pan')) showThread(k); else showThread(k, true); });
 function starNames() {      // when close enough to read, a star's name shows unless it would sit on a lantern's name or another star's
   if (!svg.classList.contains('closer')) return; const r0 = svg.getBoundingClientRect(), taken = [];
   document.querySelectorAll('#map .fm:not(.soil) text').forEach(t => { const q = t.getBoundingClientRect(); if (q.right > r0.left && q.left < r0.right && q.bottom > r0.top && q.top < r0.bottom && q.width) taken.push(q); });
@@ -2321,29 +2354,91 @@ addEventListener('pointerup', () => { drag = null; svg.classList.remove('drag');
 svg.addEventListener('wheel', e => { e.preventDefault(); cancelAnimationFrame(anim); const r = svg.getBoundingClientRect(), px = e.clientX - r.left, py = e.clientY - r.top;
   const k = Math.max(KMIN(), Math.min(KMAX, view.k * Math.exp(-e.deltaY * (e.ctrlKey ? .01 : .0016)))), q = k / view.k;
   view.tx = px - (px - view.tx) * q; view.ty = py - (py - view.ty) * q; view.k = k; nav = null; curEra = null; clamp(view); apply(); }, {passive: false});
-svg.addEventListener('click', e => { if (moved) return; const g = e.target.closest('.fm'); if (g) { e.stopPropagation(); return choose(g.dataset.id, view.k < 2.2); } if (sel || tkey || ekey) closePanel(); light(null); clearSpot(); });
-svg.addEventListener('mouseover', e => { const g = e.target.closest('.fm'); if (g && !sel && !spot && !tkey && !ekey) { light(g.dataset.id); if (g.dataset.id === 'commons') commonsNote(true); } });
+svg.addEventListener('click', e => { if (moved) return; const g = e.target.closest('.fm'); commonsNote(false);
+  if (g) { e.stopPropagation(); const id = g.dataset.id;
+    if (e.shiftKey) { collect(id); if (!spot && !sel && !tkey && !ekey) pin(id); return; }      // Shift-click drops a lantern straight into the trail
+    if (sel === id) return; if (spot === id && !tkey && !ekey) return choose(id, view.k < 2.2); return pin(id); }
+  if (trace && (spot || sel)) return travel(trace.to);      // a click on a traced line travels to its far lantern
+  if (sel || tkey || ekey) closePanel(); light(null); clearSpot(); });
+svg.addEventListener('dblclick', e => { const g = e.target.closest('.fm'); if (!g) return; e.preventDefault(); choose(g.dataset.id, view.k < 2.2); });
+let hoverId = null;
+svg.addEventListener('mouseover', e => { const g = e.target.closest('.fm'); hoverId = g ? g.dataset.id : hoverId; if (g && !sel && !spot && !tkey && !ekey) { light(g.dataset.id); if (g.dataset.id === 'commons') commonsNote(true); } });
 const cpop = $('#cpop');
 function commonsNote(on) {      // a short note on what lights up when the seed of the Garden is touched
   if (!on) { cpop.classList.remove('show'); return; }
   const lit = [...document.querySelectorAll('#map .fm.on:not(.soil)')].map(g => g.dataset.id).filter(i => N[i]).sort((a, b) => N[a].y - N[b].y);
   if (!lit.length) return; const first = N[lit[0]], last = N[lit[lit.length - 1]];
-  cpop.innerHTML = `<h4>The commons</h4><div class="k">Folk song · dance · work song</div><p>The unwritten music of ordinary people, made and passed on by ear in fields, kitchens, ships and village squares. Every spire grows from this ground.</p><p class="ends">The green lines run to the <b>${lit.length} lanterns</b> that grew from it, from <b>${first.t}</b> to <b>${last.t}</b>. Names nearest the ground shine brightest.</p><div class="go">Click the seed to open its card.</div>`;
+  cpop.innerHTML = `<h4>The commons</h4><div class="k">Folk song · dance · work song</div><p>The unwritten music of ordinary people, made and passed on by ear in fields, kitchens, ships and village squares. Every spire grows from this ground.</p><p class="ends">The green lines run to the <b>${lit.length} lanterns</b> that grew from it, from <b>${first.t}</b> to <b>${last.t}</b>. Names nearest the ground shine brightest.</p><div class="go">Click the seed to pin its web, again to open its card. Hold Shift to keep the web while you trace its lines.</div>`;
   const r0 = $('#map').getBoundingClientRect(), p = LAY.nodes.commons, sx = r0.left + view.tx + p.x * view.k, sy = r0.top + view.ty + p.y * view.k;
   cpop.style.left = Math.max(r0.left + 10, Math.min(r0.right - 350, sx + 170)) + 'px'; cpop.style.top = Math.max(r0.top + 40, sy - 680) + 'px'; cpop.classList.add('show'); }      // set beside the seed, clear of the oldest (brightest) names
-svg.addEventListener('mouseout', e => { const g0 = e.target.closest('.fm.soil'); if (g0) commonsNote(false); const g = e.target.closest('.fm'); if (g && !sel && !spot && !tkey && !ekey && !(e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest('.fm') === g)) light(null); });
+svg.addEventListener('mouseout', e => { const g0 = e.target.closest('.fm.soil'); if (g0) commonsNote(false); const g = e.target.closest('.fm'); if (g && !(e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest('.fm') === g)) hoverId = null; if (g && !sel && !spot && !tkey && !ekey && !(e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest('.fm') === g)) light(null); });
 $('#zin').onclick = () => goLevel(level() + 1); $('#zout').onclick = () => { if (tkey) { closePanel(); return goLevel(1); } if (sel) { closePanel(); light(null); return goLevel(2); } goLevel(level() - 1); };
 document.querySelectorAll('.rung').forEach(r => r.onclick = () => { if (+r.dataset.l === 4) return tkey && showThread(tkey); if (tkey) closePanel(); goLevel(+r.dataset.l); });
-$('#hint').onclick = () => spot && choose(spot, true);
+$('#hint').onclick = () => openPinned();
 addEventListener('keydown', e => {
   if (e.target.closest('input')) return;
   if (e.key === '/') { e.preventDefault(); $('#q').focus(); return; }
   if (e.key === '+' || e.key === '=') return goLevel(level() + 1);
   if (e.key === '-' || e.key === '_') return $('#zout').click();
-  if (e.key === 'Escape') { if ($('#sheet').classList.contains('open')) return closeSheet(); if (tkey || ekey) { closePanel(); return; } if (sel) { closePanel(); light(null); return; } if (spot) return clearSpot(); return goLevel(level() - 1); }
+  if (e.key === 'Escape') { if ($('#sheet').classList.contains('open')) return closeSheet(); if (stepBack()) return; return goLevel(level() - 1); }
+  if (e.key === 'Enter' && (spot || tkey || ekey) && !document.body.classList.contains('pan')) return openPinned();
   if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { e.preventDefault(); const f = curFam || famAt(centre()[0]), i = FAMS.indexOf(f) + (e.key === 'ArrowRight' ? 1 : -1); if (i < 0 || i >= FAMS.length) return; closePanel(); clearSpot();
     return level() >= 2 ? goEra(FAMS[i], curEra || eraAt(centre()[1])) : goFamily(FAMS[i], centre()[1]); }
   if (e.key === 'ArrowUp' || e.key === 'ArrowDown') { e.preventDefault(); const ids = LAY.eras.map(x => x.id), cur = curEra || eraAt(centre()[1]), i = ids.indexOf(cur) + (e.key === 'ArrowUp' ? 1 : -1); if (i < 0 || i >= ids.length) return; closePanel(); clearSpot(); return goEra(curFam || famAt(centre()[0]), ids[i]); } });
+
+/* ---------- trace and trail: follow a pinned web's lines with the pointer; lanterns you reach are picked up into your own trail ---------- */
+let trace = null; const SAMP = new Map();
+function samples(p) { if (!SAMP.has(p)) { const L = p.getTotalLength(), a = []; for (let i = 0; i <= 48; i++) { const q = p.getPointAtLength(L * i / 48); a.push([q.x, q.y]); } SAMP.set(p, a); } return SAMP.get(p); }
+function nearOn(p, wx, wy) { let d = 1e9, t = 0; samples(p).forEach((q, i) => { const dd = Math.hypot(q[0] - wx, q[1] - wy); if (dd < d) { d = dd; t = i / 48; } }); return {d, t}; }
+function clearTrace() { if (!trace) return; trace.p.classList.remove('trace'); NODE[trace.to] && NODE[trace.to].classList.remove('traced'); trace = null; tip.style.display = 'none'; }
+function traceAt(e) {
+  const here = sel || spot; if (!here || tkey || ekey || e.target.closest('.fm') || e.target.closest('#stars') || e.target.closest('#reachspots')) return clearTrace();
+  const r0 = svg.getBoundingClientRect(), wx = (e.clientX - r0.left - view.tx) / view.k, wy = (e.clientY - r0.top - view.ty) / view.k, tol = 14 / view.k;
+  let best = null; (BY[here] || []).forEach(p => { const m = nearOn(p, wx, wy); if (!best || m.d < best.d) best = {p, ...m}; });
+  if (trace && best && best.p !== trace.p) { const cur = nearOn(trace.p, wx, wy); if (cur.d < tol && best.d > cur.d * .55) best = {p: trace.p, ...cur}; }      // stay on the line being followed until the pointer clearly leaves it
+  if (!best || best.d > tol) return clearTrace();
+  const p = best.p, a = p.dataset.a, b = p.dataset.b, fwd = a === here, to = fwd ? b : a; if (!N[to]) return clearTrace();
+  if (!trace || trace.p !== p) { clearTrace(); trace = {p, to}; p.classList.add('trace'); NODE[to] && NODE[to].classList.add('traced'); }
+  const sa = samples(p), startsAtA = Math.hypot(sa[0][0] - LAY.nodes[a].x, sa[0][1] - LAY.nodes[a].y) < Math.hypot(sa[0][0] - LAY.nodes[b].x, sa[0][1] - LAY.nodes[b].y);
+  const toward = (to === b) === startsAtA ? best.t : 1 - best.t, got = trail.includes(to);
+  if (toward > .82 && !got) collect(to);
+  const t = [...p.classList].find(c => VERB[c]) || 'p';
+  tip.innerHTML = `<b>${N[here].t}</b> ${VERB[t][fwd ? 0 : 1]} <b>${N[to].t}</b><small>${N[to].d || ''}</small><small>${trail.includes(to) ? 'in your trail · click to travel there' : 'trace to the end to pick it up · click to travel there'}</small>`;
+  tip.style.display = 'block'; tip.style.left = Math.min(innerWidth - 310, e.clientX + 14) + 'px'; tip.style.top = (e.clientY + 16) + 'px'; }
+svg.addEventListener('mousemove', e => { if (!drag) traceAt(e); });
+svg.addEventListener('mouseleave', () => clearTrace());
+function travel(to) {      // follow a connection: with a card open, open the next card; otherwise pin the next web and keep it in view
+  if (!N[to] || !LAY.nodes[to]) return; clearTrace(); collect(to);
+  if (document.body.classList.contains('pan')) return choose(to, true);
+  clearThread(); clearEvent(); pin(to); const p = LAY.nodes[to], sx = view.tx + p.x * view.k, sy = view.ty + p.y * view.k;
+  if (sx < 40 || sx > aw - 40 || sy < 70 || sy > ah - 60) flyTo(view.k, p.x, p.y); }
+
+// Shift: hold to keep a web while you trace it, release to let go; tap to toggle the pin on or off
+let shiftAt = 0, shiftMade = false;
+addEventListener('keydown', e => { if (e.key !== 'Shift' || e.repeat || (e.target.closest && e.target.closest('input'))) return; shiftAt = performance.now(); shiftMade = false;
+  if (!spot && !sel && !tkey && !ekey && hoverId) { pin(hoverId); shiftMade = true; } });
+addEventListener('keyup', e => { if (e.key !== 'Shift' || !shiftAt || (e.target.closest && e.target.closest('input'))) return; const held = performance.now() - shiftAt > 280; shiftAt = 0;
+  if (document.body.classList.contains('pan')) return;
+  if (held) { if (shiftMade) releasePin(); }      // held: the pin lasts only as long as the key
+  else if (!shiftMade && (spot || tkey || ekey)) releasePin(); });      // tapped: a quick press turns the pin on, the next quick press turns it off
+
+// the trail: lanterns picked up by tracing or Shift-click, in the order you reached them; kept in this browser
+const gTrail = document.createElementNS(SVGNS, 'g'); gTrail.setAttribute('id', 'trailg'); cam.insertBefore(gTrail, gThread);
+let trail = []; try { trail = (JSON.parse(localStorage.getItem('garden.trail') || '[]') || []).filter(i => N[i] && LAY.nodes[i]); } catch (err) { trail = []; }
+function saveTrail() { try { localStorage.setItem('garden.trail', JSON.stringify(trail)); } catch (err) {} drawTrail(); }
+function collect(id) { if (!N[id] || !LAY.nodes[id] || id === 'commons') return; if (!trail.includes(id)) { trail.push(id); saveTrail(); } drawTrail(id); }
+function drawTrail(fresh) {
+  const box = $('#trail'); box.innerHTML = ''; gTrail.innerHTML = ''; document.body.classList.toggle('trailing', trail.length > 0); if (!trail.length) return;
+  el('span', 'tl', box, 'Your trail');
+  trail.forEach((id, i) => { if (i) el('span', 'tsep', box, '›'); const c = el('button', 'tc' + (id === fresh ? ' new' : ''), box); el('em', '', c, String(i + 1)); c.append(N[id].t); c.title = 'Pin this lantern';
+    const x = el('i', '', c, '×'); x.title = 'Take it out of the trail'; x.onclick = ev => { ev.stopPropagation(); trail = trail.filter(j => j !== id); saveTrail(); }; c.onclick = () => { clearThread(); clearEvent(); pin(id); const p = LAY.nodes[id]; flyTo(Math.max(view.k, fitK * 2.2), p.x, p.y); };
+    if (id === fresh) setTimeout(() => c.scrollIntoView({block: 'nearest', inline: 'nearest'}), 0); });
+  const clr = el('button', 'tclr', box, 'Clear'); clr.onclick = () => { trail = []; saveTrail(); };
+  const pts = trail.map(i => LAY.nodes[i]).map(p => [p.x, p.y]), mk = (t, a, par = gTrail) => { const z = document.createElementNS(SVGNS, t); for (const k in a) z.setAttribute(k, a[k]); par.appendChild(z); return z; };
+  if (pts.length > 1) mk('path', {class: 'tr-line', d: smooth(pts)});
+  pts.forEach(([x, y], i) => { const g = mk('g', {class: 'tr-b'}); g.dataset.x = x + 3.4; g.dataset.y = y + 3.4; mk('circle', {class: 'tr-dot', cx: x + 3.4, cy: y + 3.4, r: 1.5}, g); mk('text', {class: 'tr-n', x: x + 3.4, y: y + 3.45}, g).textContent = i + 1; });
+  apply(); }
+drawTrail();
 
 /* ---------- search: find, highlight, connect, then choose ---------- */
 const q = $('#q'), res = $('#res');
@@ -2361,10 +2456,10 @@ q.addEventListener('input', () => { res.innerHTML = ''; const r = results(q.valu
   vs.forEach(V => { const b = el('button', 'vres', res, '♪ ' + V.name); b.setAttribute('role', 'option'); el('small', '', b, `composer · ${V.forms.length} lantern${V.forms.length === 1 ? '' : 's'}`); b.onclick = () => { res.style.display = 'none'; q.value = ''; q.blur(); showThread(V.key); }; });
   const ws = []; if (sv.length >= 4) D.nodes.forEach(n => LAY.nodes[n.id] && (n.works || []).forEach(w => { if (ws.length < 4 && fold(w[0]).includes(sv)) ws.push([n, w]); }));      // works by title: "hitchcock" finds the Hitchcock Études
   if (ws.length) res.style.display = 'flex';
-  ws.forEach(([n, w]) => { const b = el('button', 'wres', res, '♫ ' + w[0]); b.setAttribute('role', 'option'); el('small', '', b, `work · ${w[1]}${w[2] ? ', ' + w[2] : ''} · in ${n.t}`); b.onclick = () => { res.style.display = 'none'; q.value = ''; q.blur(); spotlight(n.id); }; });
+  ws.forEach(([n, w]) => { const b = el('button', 'wres', res, '♫ ' + w[0]); b.setAttribute('role', 'option'); el('small', '', b, `work · ${w[1]}${w[2] ? ', ' + w[2] : ''} · in ${n.t}`); b.onclick = () => { res.style.display = 'none'; q.value = ''; q.blur(); choose(n.id, true); }; });
   if (!r.length && !vs.length && !es.length && !rs.length && !ws.length && sv.length >= 3) { res.style.display = 'flex'; const nb = el('div', 'none', res); nb.textContent = `Nothing called “${q.value.trim()}” in the Garden yet.`; }
   r.forEach(n => { const b = el('button', '', res, n.t); b.setAttribute('role', 'option'); el('small', '', b, `${n.d || ''} · ${FN(famOf(n.id)).toLowerCase()} · ${(ERA[n.period] || {}).name || ''}`);
-    b.onmouseenter = b.onfocus = () => { if (!sel) light(n.id); }; b.onclick = () => { res.style.display = 'none'; q.value = ''; q.blur(); spotlight(n.id); }; }); });
+    b.onmouseenter = b.onfocus = () => { if (!sel) light(n.id); }; b.onclick = () => { res.style.display = 'none'; q.value = ''; q.blur(); choose(n.id, true); }; }); });
 q.addEventListener('keydown', e => { if (e.key === 'Enter' && res.firstChild) (res.querySelector('button:not(.vres):not(.eres):not(.rres):not(.wres)') || res.querySelector('button') || {click() {}}).click(); if (e.key === 'ArrowDown' && res.firstChild) { e.preventDefault(); res.firstChild.focus(); } if (e.key === 'Escape') { q.value = ''; res.style.display = 'none'; q.blur(); if (!sel && !spot && !tkey) light(null); } });
 res.addEventListener('keydown', e => { const b = document.activeElement; if (e.key === 'ArrowDown' && b.nextSibling) { e.preventDefault(); b.nextSibling.focus(); } if (e.key === 'ArrowUp') { e.preventDefault(); (b.previousSibling || q).focus(); } if (e.key === 'Escape') { res.style.display = 'none'; q.focus(); } });
 q.addEventListener('blur', () => setTimeout(() => { if (!res.contains(document.activeElement)) { res.style.display = 'none'; if (!sel && !spot && !tkey && !ekey) light(null); } }, 150));
@@ -2408,12 +2503,14 @@ function openSheet(kind, btn) {
     [['Styles · light', [...LIGHT]], ['Forms · bands', [...BAND]]].forEach(([t, ids]) => { el('div', 'sg', sheet, t);
       ids.filter(i => N[i] && LAY.nodes[i]).sort((a, b) => N[a].y - N[b].y).forEach(i => { const R = reachOf(i), b = el('button', '', sheet, (R.isS ? '☼ ' : '◌ ') + N[i].t); el('small', '', b, `${N[i].d || ''} · ${R.spots.length} place${R.spots.length === 1 ? '' : 's'}`);
         b.onmouseenter = () => { if (!sel) { drawReach(i); } }; b.onmouseleave = () => { if (!sel) drawReach(spot); }; b.onclick = () => { closeSheet(); clearThread(); clearEvent(); choose(i, true); }; }); }); }
-  if (kind === 'az') { el('h3', '', sheet, 'EVERY LANTERN, A–Z'); D.nodes.filter(n => LAY.nodes[n.id]).sort((a, b) => a.t.localeCompare(b.t)).forEach(n => { const b = el('button', '', sheet, n.t); el('small', '', b, n.d || ''); b.onclick = () => { closeSheet(); spotlight(n.id); }; }); }
+  if (kind === 'az') { el('h3', '', sheet, 'EVERY LANTERN, A–Z'); D.nodes.filter(n => LAY.nodes[n.id]).sort((a, b) => a.t.localeCompare(b.t)).forEach(n => { const b = el('button', '', sheet, n.t); el('small', '', b, n.d || ''); b.onclick = () => { closeSheet(); choose(n.id, true); }; }); }
   if (kind === 'guide') { el('h3', '', sheet, 'HOW TO READ THE GARDEN');
     [['Storeys rise.', ' The ground is the year 800; the top is today. Each storey (period) is named on the left.'], ['The commons is the central spire.', ' Folk song, dance and work song rises from one seed at the bottom: the origin. From it, roots fan out to every spire, and its green branches reach the lanterns it fed.'],
      ['Spires are the families.', ' Each grows from a root in the ground and blooms where its oldest form begins. Inside, its minarets (genres) stand side by side.'], ['Lanterns are the forms.', ' A small gold point with its name. Click one to light its links and open its card.'],
      ['Links:', ' solid gold = grew from, dotted gold = influenced, red = reacted against, green = from the commons.'],
-     ['Every line is a path:', ' when a lantern is open, hover any of its links to read the connection and click it to travel to the lantern at the other end. Route steps and event lines work the same way.'],
+     ['Pin, then open:', ' a click on the map pins a lantern’s web without moving the view; click it again, double-click, press Enter or use the pill to open its card. Choices from search and the sheets open the card straight away. Esc steps back: card, then pin, then the Garden.'],
+     ['Trace:', ' hold Shift to keep a web while you move (tap Shift to pin or release). Run the pointer along any line to read the connection and light its far lantern; follow it to the end and that lantern joins your trail at the foot of the map. Shift-click a lantern to add it directly. Your trail stays in this browser.'],
+     ['Every line is a path:', ' click a traced line, a route step or an event line to travel to the lantern at its other end.'],
      ['Styles ☼:', ' a style is light that falls across every minaret it reached, over its years; a form such as the fugue is a gold band tying together the minarets that use it. Hover a ☼ or a knot to read the example; click to open the nearest lantern.'],
      ['Stars in the Now storey:', ' every maker of music since 1980 in the Garden is a small star beside their lantern. Hover a star to meet them; click to follow their thread through every lantern they wrote in.'],
      ['Lenses ◎:', ' light the lanterns that answer one question (women composers, the Americas & Australia, oral & folk sources, Aboriginal and Torres Strait Islander music) or serve one NSW course, topic or route. Each wears its own ring; a route also shows its stops in teaching order.'],
@@ -2424,7 +2521,7 @@ document.querySelectorAll('.rail button').forEach(b => b.onclick = () => openShe
 
 addEventListener('resize', () => { measure(); clamp(view); apply(); });
 measure(); view.k = fitK; clamp(view); apply();
-window.__map = {STAR, reachOf, drawReach, fitBox, LENSES, drawLens, lens, setLens, setCourse, view, home, goFamily, goEra, goLevel, spotlight, choose, level, LAY, frameNet, showThread, tkey: () => tkey, showEvent, ekey: () => ekey};
+window.__map = {spot: () => spot, trail: () => trail, pin, STAR, reachOf, drawReach, fitBox, LENSES, drawLens, lens, setLens, setCourse, view, home, goFamily, goEra, goLevel, spotlight, choose, level, LAY, frameNet, showThread, tkey: () => tkey, showEvent, ekey: () => ekey};
 })();
 </script>
 </body></html>
