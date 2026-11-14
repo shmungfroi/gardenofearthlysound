@@ -13,7 +13,7 @@ button{font:inherit;color:inherit}
 
 /* the map */
 #map{position:absolute;left:calc(var(--rail) + var(--gut));top:var(--top);width:calc(100vw - var(--rail) - var(--gut));height:calc(100vh - var(--top));touch-action:none;cursor:grab;display:block}
-body.pan #map{width:calc(100vw - var(--rail) - var(--gut) - 380px)}
+body.pan #map{width:calc(100vw - var(--rail) - var(--gut) - 420px)}
 #map.drag{cursor:grabbing}
 #map #chrome,#map #gut text{display:none}
 #map .fm{cursor:pointer}
@@ -65,7 +65,7 @@ body.pan #map{width:calc(100vw - var(--rail) - var(--gut) - 380px)}
 .mm{position:absolute;left:calc(var(--rail) + 6px);bottom:12px;width:calc(var(--gut) - 12px);height:84px;border:1px solid #3a3222;border-radius:9px;background:#0d0b07ee;z-index:5;overflow:hidden;cursor:pointer}
 .mm svg{width:100%;height:100%;display:block}
 .ladder{position:absolute;right:18px;bottom:16px;display:flex;flex-direction:column;gap:2px;background:#0f0d09ee;border:1px solid #3a3222;border-radius:14px;padding:8px;z-index:5}
-body.pan .ladder{right:398px}
+body.pan .ladder{right:438px}
 .ladder .pm{display:flex;gap:6px;justify-content:center;margin:2px 0 6px}
 .ladder .pm button{all:unset;width:34px;height:34px;border-radius:50%;background:var(--ivory);color:#111;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer}
 .ladder .pm button:hover{background:var(--goldhi)}
@@ -74,7 +74,7 @@ body.pan .ladder{right:398px}
 .ladder .rung:hover{color:var(--ivory)} .ladder .rung.cur{color:#111;background:var(--goldhi)} .ladder .rung.cur i{border-color:#111;background:#111}
 #hint{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);background:#15120b;border:1px solid var(--gold);border-radius:18px;padding:7px 16px;font-size:14px;display:none;z-index:6;cursor:pointer;white-space:nowrap}
 #hint b{color:var(--goldhi);font-weight:500} #hint:hover{background:#221d13}
-aside{position:absolute;right:0;top:var(--top);bottom:0;width:380px;background:var(--panel);border-left:1px solid var(--line);padding:22px 26px 40px;overflow:auto;z-index:6;display:none;font-size:14.5px;line-height:1.58}
+aside{position:absolute;right:0;top:var(--top);bottom:0;width:420px;background:var(--panel);border-left:1px solid var(--line);padding:22px 26px 40px;overflow:auto;z-index:6;display:none;font-size:14.5px;line-height:1.58}
 body.pan aside{display:block}
 aside .x{position:absolute;right:14px;top:14px;all:unset;position:absolute;right:16px;top:14px;width:30px;height:30px;border-radius:50%;border:1px solid #3a3222;display:flex;align-items:center;justify-content:center;cursor:pointer}
 aside .k{padding-right:40px;font-size:10.5px;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
@@ -93,6 +93,66 @@ aside b{color:var(--goldhi);font-weight:500}
 .sheet button:hover{background:#221d13;color:var(--goldhi)} .sheet button small{color:var(--muted);margin-left:6px}
 .sheet p{font-size:13.5px;line-height:1.55;margin:6px}
 .sheet .sw{display:inline-block;width:22px;border-top:2px solid var(--gold);vertical-align:middle;margin-right:8px}
+aside .x{z-index:2}
+aside a{color:var(--goldhi)} aside a:hover{color:var(--ivory)}
+aside .lin{font-size:12px;color:var(--muted);margin:4px 0 12px}
+aside .alias{font-style:italic;color:var(--muted);margin:-6px 0 8px}
+aside .tags{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:4px 0 6px}
+aside .tags span{color:#fff;margin:0}
+aside .tags .mn{background:none;color:var(--ivory);border:1px solid #3a3222;border-radius:10px}
+aside .kind-b{all:unset;cursor:pointer;font-size:11px;border:1px solid var(--gold);color:var(--gold);border-radius:10px;padding:1px 9px}
+aside .kdef{font-size:13px;background:#1a160e;border-left:2px solid var(--gold);padding:8px 10px;margin:6px 0}
+aside .kdef cite{display:block;font-size:11px;color:var(--muted);margin-top:4px}
+aside .cnotice,aside .pnotice{font-size:13px;background:#24120f;border:1px solid #6b2a22;border-radius:8px;padding:9px 11px;margin:10px 0}
+aside .voice{margin:12px 0;padding:6px 14px;border-left:2px solid var(--green);font-style:italic}
+aside .voice cite{display:block;font-style:normal;font-size:12px;color:var(--muted)}
+aside .brief{margin-top:10px}
+aside h3{font:400 17px "Poiret One",Outfit,sans-serif;letter-spacing:2.4px;color:var(--gold);text-transform:uppercase;margin:24px 0 10px;padding-top:12px;border-top:1px solid var(--line)}
+aside .plist{padding-left:20px} aside .plist li{margin-bottom:12px}
+aside .plist b{font-weight:500;color:var(--ivory)} aside .plist .core{color:var(--goldhi);font-style:normal}
+aside .plist .by{display:block;font-size:12.5px;color:var(--muted)} aside .plist .wn{font-size:12.5px;margin:2px 0}
+aside .acts{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+aside .acts a,aside .acts .pending{font-size:12px;border:1px solid #3a3222;border-radius:12px;padding:1px 10px;color:var(--goldhi);text-decoration:none}
+aside .acts a:hover{border-color:var(--gold)} aside .acts .pending{color:var(--muted)} aside .acts .sp{color:var(--green)}
+aside .pnote,aside .status,aside .nsw-note{font-size:12px;color:var(--muted)}
+aside .hear{padding-left:18px} aside .hear li{margin-bottom:4px}
+aside .els{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+aside .els>button{all:unset;cursor:pointer;font-size:12.5px;border:1px solid var(--gold);color:var(--goldhi);border-radius:13px;padding:2px 11px}
+aside .els>button.more{border-style:dashed;color:var(--ivory)} aside .els>button[aria-expanded=true]{background:var(--gold);color:#111}
+aside .ecard-slot{flex:1 1 100%}
+aside .ecard,aside .gdef{position:relative;background:#1a160e;border:1px solid #3a3222;border-radius:10px;padding:10px 32px 10px 12px;margin:6px 0;font-size:13.5px}
+aside .edef{color:var(--muted);font-size:13px} aside .gex{font-style:italic;color:var(--muted)}
+aside .gx{all:unset;cursor:pointer;position:absolute;right:10px;top:6px;color:var(--muted)}
+aside .ecard .tags span,aside .ecard .tags .kw{font-size:12px;border:1px solid #3a3222;border-radius:10px;padding:1px 8px;color:var(--ivory);background:none}
+aside button.kw{all:unset;cursor:pointer;color:var(--goldhi);border-bottom:1px dotted var(--gold)}
+aside .gel{display:inline-flex;gap:4px;margin-left:6px} aside .gel i{font-style:normal;font-size:10.5px;color:var(--green);border:1px solid #3d5a2c;border-radius:8px;padding:0 6px}
+aside .box{background:#15120b;border:1px solid #3a3222;border-radius:10px;padding:10px 12px;margin:10px 0}
+aside .box small{display:block;font-size:10.5px;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold);margin-bottom:4px}
+aside .box.q{border-color:#6b2a22} aside .box.q small{color:#e3796d}
+aside .qs{padding-left:20px} aside .qs li{margin-bottom:16px}
+aside .qm{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:11px}
+aside .qm .st{background:var(--gold);color:#111;border-radius:8px;padding:0 7px}
+aside .qm .crs{border:1px solid #6b2a22;color:#e3796d;border-radius:8px;padding:0 7px}
+aside .qm .verb{color:var(--goldhi);text-transform:uppercase;letter-spacing:1.2px}
+aside .qt{margin:4px 0} aside .m1y11{font-size:13px;color:var(--muted)} aside .lw{font-size:12.5px;color:var(--muted)}
+aside .lw a{color:var(--goldhi)}
+aside details summary{cursor:pointer;color:var(--goldhi);font-size:13px;margin:6px 0}
+aside details.sec{border-top:1px solid var(--line);margin-top:20px;padding-top:10px}
+aside details.sec>summary{font:400 17px "Poiret One",Outfit,sans-serif;letter-spacing:2.4px;color:var(--gold);text-transform:uppercase}
+aside details.nsw{background:#14120c;border:1px solid #3a3222;border-radius:10px;padding:6px 12px;margin:20px 0 6px}
+aside .nsw-in{font-size:13px} aside .nsw-in ul{padding-left:18px;margin:2px 0 8px} aside .nsw-in code{font-size:11px;color:var(--green)}
+aside .nsw-x table{border-collapse:collapse;font-size:12px;width:100%} aside .nsw-x th,aside .nsw-x td{border:1px solid #2a2418;padding:3px 5px;text-align:left;vertical-align:top} aside .nsw-x th{color:var(--gold);font-weight:500}
+aside .tnote{font-size:13.5px;background:#14120c;border-left:2px solid var(--gold);padding:8px 10px}
+aside .people,aside .about{margin:10px 0} aside .people small,aside .about small,aside .conn-g small,aside .thread small{display:block;font-size:10.5px;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold);margin-bottom:2px}
+aside .conn-g{margin:10px 0} aside .conn-g ul{list-style:none;padding:0;margin:0}
+aside .conn-g li{margin:0 0 8px} aside .conn-g .why{display:block;font-size:12.5px;color:var(--muted);margin-top:2px}
+aside .lk-b{all:unset;cursor:pointer;color:var(--goldhi);border-bottom:1px solid #5d5546} aside .lk-b:hover{border-color:var(--gold)}
+aside .conn-g .ev{font-weight:500;color:var(--ivory)}
+aside .thread{background:#14120c;border:1px solid #3a3222;border-radius:10px;padding:8px 12px;margin:10px 0;font-size:13.5px}
+aside .thread-nav{display:flex;justify-content:space-between;gap:10px;font-size:13px}
+aside .adapt{font-size:13.5px} aside .adapt em{display:block;color:var(--muted)}
+aside .src{font-size:12px;color:var(--muted);padding-left:18px}
+aside .respect{font-size:12px;color:var(--muted);border-top:1px solid var(--line);margin-top:24px;padding-top:12px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style></head>
 <body>
@@ -122,6 +182,7 @@ aside b{color:var(--goldhi);font-weight:500}
 <aside id="panel" aria-live="polite"></aside>
 
 <script src="gx_data.js"></script>
+<script src="card.js"></script>
 <script>
 (() => {
 const LAY = %%LAYOUT%%;
@@ -206,20 +267,11 @@ function choose(id, frame) {
 function closePanel() { if (!sel) return; sel = null; document.body.classList.remove('pan'); measure(); clamp(view); light(spot); }
 
 /* ---------- the card ---------- */
-const bold = s => { const f = document.createDocumentFragment(); s.split(/(\*\*[^*]+\*\*)/).forEach(p => { if (/^\*\*/.test(p)) el('b', '', f, p.slice(2, -2)); else f.append(p); }); return f; };
+const MINARET = {}; G.MIN.genres.forEach(g => g.lanterns.forEach(id => MINARET[id] = g.t));
 function card(id) {
-  const n = N[id]; panel.innerHTML = '';
-  const x = el('button', 'x', panel, '×'); x.setAttribute('aria-label', 'Close'); x.onclick = () => { closePanel(); light(null); };
-  el('div', 'k', panel, `Lantern · ${FN(famAt(LAY.nodes[id].x)).replace(/^THE /, '')} spire · ${(ERA[n.period] || {}).name || ''} storey`);
-  el('h1', '', panel, n.t); el('p', 'd', panel, n.d || '');
-  const tg = el('div', 'tags', panel); [famOf(id), ...(n.also || [])].filter((f, i, a) => LAY.fams[f] && a.indexOf(f) === i).forEach(f => { const s = el('span', '', tg, FN(f).toLowerCase().replace(/^./, c => c.toUpperCase())); s.style.background = FC(f); s.style.color = '#fff'; });
-  if (n.brief) el('p', '', panel).append(bold(n.brief));
-  const L = D.links.filter(l => l[0] === id || l[1] === id);
-  const groups = [['Grew from', l => l[1] === id && l[2] === 'p', 0], ['Influenced by', l => l[1] === id && l[2] === 'i', 0], ['Reacted against', l => l[1] === id && l[2] === 'r', 0],
-                  ['Led to', l => l[0] === id && l[2] === 'p', 1], ['Went on to influence', l => l[0] === id && l[2] === 'i', 1], ['Provoked a reaction in', l => l[0] === id && l[2] === 'r', 1]];
-  groups.forEach(([h, f, side]) => { const ls = L.filter(f); if (!ls.length) return; el('h4', '', panel, h); const c = el('div', 'chips', panel);
-    ls.forEach(l => { const o = side ? l[1] : l[0]; if (!N[o]) return; const b = el('button', '', c, N[o].t); b.onclick = () => choose(o, true); }); });
-  if (n.works && n.works.length) { el('h4', '', panel, 'Listen'); const ol = el('ol', '', panel); n.works.slice(0, 6).forEach(w => { const li = el('li', '', ol); el('i', '', li, w[0]); li.append(el('br')); el('small', '', li, [w[1], w[2]].filter(Boolean).join(' · ')); }); }
+  const f = famAt(LAY.nodes[id].x), n = N[id];
+  const fams = [famOf(id), ...(n.also || [])].filter((x, i, a) => LAY.fams[x] && a.indexOf(x) === i).map(x => ({name: FN(x), c: FC(x)}));
+  window.GardenCard.render(panel, id, {go: o => choose(o, true), close: () => { closePanel(); light(null); }, famName: FN(f), eraName: (ERA[n.period] || {}).name || '', fams, minaret: MINARET[id] || ''});
 }
 
 /* ---------- the frame: breadcrumb, eras, family strip, minimap, ladder ---------- */

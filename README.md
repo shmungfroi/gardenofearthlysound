@@ -24,6 +24,8 @@ The script:
 
 Display names that need special handling are in `src/names.json`.
 
+The lantern card (`card.js`) follows the Garden's card: notices, Listen (recordings, scores, Spotify), Learning music, Answer like an analyst, the NSW syllabus panel for teachers, Learning about music, Connections with reasons, and Sources.
+
 ## Design
 - **Spires:** each family has its own jewel colour.
 - **Everything else:** text, links, lanterns and the frame use gold, red, green and ivory on warm black.
