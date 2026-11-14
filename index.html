@@ -270,6 +270,8 @@ aside .jr-work{margin:12px 0 4px;font-size:15px} aside .jr-work .ic{color:var(--
 aside .jr-q{margin:12px 0;padding:6px 14px;border-left:2px solid var(--green);font-size:16px;line-height:1.5} aside .jr-q cite{display:block;font-style:normal;font-size:12px;color:var(--muted);margin-top:4px}
 aside .jr-brief{font-size:13.5px;color:var(--muted)} aside .jr-nav{display:flex;justify-content:space-between;margin:18px 0 4px}
 aside .jr-prompt{font-size:16px;line-height:1.55} aside .jr-rules{padding-left:18px;color:var(--ivory);font-size:14px} aside .jr-rules li{margin:5px 0}
+#toast .undo{all:unset;cursor:pointer;margin-left:10px;color:#111;background:var(--goldhi);border-radius:10px;padding:1px 10px;font-size:12.5px} #toast .undo:hover{background:var(--ivory)}
+.sheet .jreset{border:1px solid var(--gold);background:#1a160e;margin:4px 0 8px;color:var(--goldhi)} .sheet .jreset small{display:block;margin:2px 0 0!important;color:var(--muted)} .sheet .jreset:disabled{opacity:.45;cursor:default}
 .sheet .jbig{border:1px dashed var(--gold);margin:8px 0;color:var(--ivory)} .sheet .jbig:disabled{opacity:.45;cursor:default}
 .sheet .jrow{display:flex;align-items:center;gap:4px} .sheet .jrow>button:first-child{flex:1;min-width:0} .sheet .jrow small{display:block;margin:0!important;font-size:11.5px}
 .sheet .jrow .jx{all:unset;cursor:pointer;flex:none;font-size:11.5px;color:var(--gold);padding:4px 6px;border-radius:6px} .sheet .jrow .jx:hover{background:#221d13;color:var(--goldhi)}
@@ -2514,7 +2516,7 @@ function drawTrail(fresh) {
     const cl = el('button', 'tclr', box, 'Close'); cl.onclick = () => { shared = null; drawTrail(); }; }
   else { const sj = el('button', 'tsh', box, '✎ Save as journey'); sj.title = 'Keep this trail as a journey, with a work and a note at each stop'; sj.onclick = () => newJourneyFromTrail();
     const sh = el('button', 'tsh', box, '⧉ Share'); sh.title = 'Copy a link that shows this trail'; sh.onclick = () => shareLink(HOME + '#trail=' + trail.join(','), `a trail of ${trail.length} lantern${trail.length === 1 ? '' : 's'}`);
-    const clr = el('button', 'tclr', box, 'Clear'); clr.onclick = () => { trail = []; trailHow = {}; saveTrail(); }; }
+    const clr = el('button', 'tclr', box, '↺ Clear'); clr.title = 'Clear the trail and start a new journey (Undo available)'; clr.onclick = () => resetJourney(); }
   const pts = T.map(i => LAY.nodes[i]).map(p => [p.x, p.y]), mk = (t, a, par = gTrail) => { const z = document.createElementNS(SVGNS, t); for (const k in a) z.setAttribute(k, a[k]); par.appendChild(z); return z; };
   if (pts.length > 1) mk('path', {class: 'tr-line', d: smooth(pts)});
   pts.forEach(([x, y], i) => { const g = mk('g', {class: 'tr-b' + (walking && i === walking.i ? ' cur' : '')}); g.dataset.x = x + 3.4; g.dataset.y = y + 3.4; mk('circle', {class: 'tr-dot', cx: x + 3.4, cy: y + 3.4, r: 1.5}, g); mk('text', {class: 'tr-n', x: x + 3.4, y: y + 3.45}, g).textContent = i + 1; });
@@ -2729,6 +2731,12 @@ function endJourneyPanel() { const was = !!walking; walking = null; jpanel = fal
 function quitWalk() { if (inWalk) return; if (walking || jpanel) { walking = null; jpanel = false; document.body.classList.remove('jmode', 'walking'); drawTrail(); } }
 const H = (t, cls, par, txt) => el(t, cls, par, txt);
 
+function resetJourney() {      // a fresh start: the trail and any task under way are cleared; saved journeys are never touched; Undo for a few seconds
+  if (!trail.length && !task) return toast('Nothing to reset: your trail is already empty');
+  const was = {trail: trail.slice(), how: {...trailHow}, task}; trail = []; trailHow = {}; task = null; saveTask(); saveTrail(); releasePin();
+  if (sheet.classList.contains('open') && sheet.dataset.kind === 'journeys') journeySheet();
+  toast(`Trail cleared${was.task ? ' and task left' : ''} · ready for a new journey <button class="undo">Undo</button>`, 7000); say('Trail cleared. Undo is available.');
+  const u = $('#toast .undo'); if (u) u.onclick = () => { trail = was.trail; trailHow = was.how; task = was.task; saveTask(); saveTrail(); $('#toast').style.display = 'none'; if (sheet.classList.contains('open') && sheet.dataset.kind === 'journeys') journeySheet(); say('Trail restored'); }; }
 function newJourneyFromTrail() { if (!trail.length) return toast('Collect a few lanterns into your trail first');
   const j = {id: uid('j'), title: task ? task.t : '', by: '', made: today(), task: task ? {...task} : null, stops: trail.map(id => ({id, how: trailHow[id] || {k: 'pick'}, w: null, note: ''}))};
   JOURNEYS.unshift(j); saveJ(); editJourney(j); }
@@ -2820,6 +2828,7 @@ function editTask(T) { const isNew = !T; T = T || {id: uid('t'), t: '', p: '', n
 function journeySheetOpen() { const b = document.querySelector('.rail button[data-sheet="journeys"]'); if (!sheet.classList.contains('open') || sheet.dataset.kind !== 'journeys') openSheet('journeys', b); else journeySheet(); }
 function journeySheet() { sheet.innerHTML = ''; el('h3', '', sheet, 'JOURNEYS');
   el('p', 'lnote', sheet, 'A journey is your trail kept with a work and a note at each stop. Walk it again, share its link, or print its sheet.');
+  const rs = el('button', 'jreset', sheet, '↺ Start a new journey'); el('small', '', rs, trail.length || task ? `clears your trail${trail.length ? ' (' + trail.length + ')' : ''}${task ? ' and the task under way' : ''}; saved journeys stay` : 'your trail is empty'); rs.disabled = !trail.length && !task; rs.onclick = () => resetJourney();
   const sv = el('button', 'jbig', sheet, trail.length ? `✎ Save your trail as a journey (${trail.length} lanterns)` : '✎ Save your trail as a journey'); sv.disabled = !trail.length; sv.onclick = () => { closeSheet(); newJourneyFromTrail(); };
   if (!trail.length) el('p', 'lnote', sheet, 'Your trail is empty: trace lines, follow them, Shift-click lanterns or use ＋ Trail on a card.');
   if (task) { el('h4', '', sheet, 'Task under way'); const r = el('div', 'jrow', sheet); const b = el('button', '', r, task.t || 'Listening task'); el('small', '', b, `${trail.length} of ${task.n} stops`); b.onclick = () => { closeSheet(); showTask(task); };
