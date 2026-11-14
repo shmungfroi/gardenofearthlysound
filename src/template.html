@@ -213,6 +213,15 @@ aside .route{border-color:var(--gold)} aside .route .rname{font-size:12.5px;colo
 #map #reachspots .spot .hitc{fill:#000;fill-opacity:0}
 aside .reach-note{font-size:12.5px;color:var(--muted)} aside .reach{list-style:none;padding:0;margin:0} aside .reach li{margin:0 0 10px;font-size:13.5px} aside .reach .rx{color:var(--ivory)} aside .reach .why{display:block;font-size:12.5px;color:var(--muted);margin-top:2px}
 .sheet .sg{font-size:10.5px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin:12px 6px 4px}
+/* makers of the Now storey: a star for every composer of today's music */
+#map #stars .st{cursor:pointer} #map #stars .st path{fill:var(--ivory);fill-opacity:.85} #map #stars .st .hitc{fill:#000;fill-opacity:0}
+#map #stars .st:hover path,#map #stars .st.me path{fill:var(--goldhi);fill-opacity:1}
+#map #stars .stn{font:500 1.55px Outfit,sans-serif;fill:var(--ivory);fill-opacity:.75;display:none;pointer-events:none;dominant-baseline:central}
+#map.closer #stars .stn{display:block} #map.closer #stars .stn.hid{display:none} #map #stars .st.me .stn{fill:var(--goldhi);fill-opacity:1;display:block}
+#map.focus #stars .st:not(.me){opacity:.35}
+#foot{position:absolute;left:calc(var(--rail) + var(--gut) + 12px);bottom:6px;font-size:11px;color:var(--muted);z-index:4;max-width:calc(100vw - var(--rail) - var(--gut) - 220px);line-height:1.4}
+#foot a{color:var(--gold)} #foot a:hover{color:var(--goldhi)} body.pan #foot{max-width:calc(100vw - var(--rail) - var(--gut) - 640px)}
+aside .living{font-size:12px;color:var(--muted);margin-top:6px} aside .living a{color:var(--goldhi)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style></head>
 <body>
@@ -244,6 +253,7 @@ aside .reach-note{font-size:12.5px;color:var(--muted)} aside .reach{list-style:n
 </div>
 <div id="hint" role="status"></div><div id="tip" role="tooltip"></div>
 <aside id="panel" aria-live="polite"></aside>
+<p id="foot">This is a living document in the form of an interactive page. Please e-mail <a href="mailto:shmungfroi@gmail.com">shmungfroi@gmail.com</a> to make any suggestions, comments or corrections.</p>
 
 <script src="gx_data.js"></script>
 <script src="card.js"></script>
@@ -278,6 +288,8 @@ function apply() {
   const s = Math.max(1, 2.3 / view.k);
   document.querySelectorAll('#map .fm.on:not(.soil),#map .fm.me:not(.soil),#map .fm.rtn:not(.soil)').forEach(g => { const p = LAY.nodes[g.dataset.id]; g.setAttribute('transform', s > 1 ? `translate(${p.x},${p.y}) scale(${s}) translate(${-p.x},${-p.y})` : ''); });
   const sb = Math.max(1, 3.6 / view.k); document.querySelectorAll('#lens .rt-b,#reachspots .sunspot').forEach(g => { const x = +g.dataset.x, y = +g.dataset.y; g.setAttribute('transform', sb > 1 ? `translate(${x},${y}) scale(${sb}) translate(${-x},${-y})` : ''); });
+  svg.classList.toggle('closer', view.k > 5); const ss = Math.min(1, 6.5 / view.k);      // stars stay small when the view is very close
+  if (ss !== apply._ss) { apply._ss = ss; document.querySelectorAll('#stars .st').forEach(g => { const x = +g.dataset.x, y = +g.dataset.y; g.setAttribute('transform', ss < 1 ? `translate(${x},${y}) scale(${ss}) translate(${-x},${-y})` : ''); }); } clearTimeout(apply._t); apply._t = setTimeout(() => typeof starNames === 'function' && starNames(), 120);
   declutter(); chrome(); }
 function declutter() {      // among lit names, any that would touch an earlier one hides its words (its point stays) until zooming makes room
   const gs = [...document.querySelectorAll('#map .fm.me:not(.soil),#map .fm.on:not(.soil),#map .fm.rtn:not(.soil)')]; gs.forEach(g => g.classList.remove('hid')); if (!gs.length || gs.length > 60) return;
@@ -286,6 +298,7 @@ function declutter() {      // among lit names, any that would touch an earlier 
     if (placed.some(p => r.l < p.r + 3 && r.r > p.l - 3 && r.t < p.b + 2 && r.b > p.t - 2)) g.classList.add('hid'); else placed.push(r); }); }
 const centre = () => [(aw / 2 - view.tx) / view.k, (ah / 2 - view.ty) / view.k];
 function flyTo(k, x, y, dur = 650) {           // one eased move that puts map point (x, y) at the centre of the view
+  k = Math.max(KMIN(), Math.min(KMAX, k));      // limit the zoom first, so the point still lands in the centre
   const a = {...view}, b = clamp({k, tx: aw / 2 - x * k, ty: ah / 2 - y * k}), t0 = performance.now();
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) dur = 0;
   cancelAnimationFrame(anim);
@@ -356,7 +369,7 @@ function smooth(pts) { if (pts.length < 2) return ''; let d = `M${pts[0][0]},${p
 function showThread(key) {
   const V = VOICES[key]; if (!V) return; closeSheet(); clearEvent(); drawReach(null); $('#hint').style.display = 'none'; spot = null; sel = null; tkey = key; nav = 4;
   svg.classList.add('focus'); document.querySelectorAll('#map .on,#map .me').forEach(x => { x.classList.remove('on', 'me'); if (x.classList.contains('fm')) x.removeAttribute('transform'); });
-  V.forms.forEach(f => NODE[f.id] && NODE[f.id].classList.add('on'));
+  V.forms.forEach(f => NODE[f.id] && NODE[f.id].classList.add('on')); document.querySelectorAll('#stars .st.me').forEach(x => x.classList.remove('me')); STAR[key] && STAR[key].classList.add('me');
   const pts = V.forms.map(f => LAY.nodes[f.id]).filter(Boolean).map(p => [p.x, p.y]);
   gThread.innerHTML = ''; const mk = (t, a) => { const e = document.createElementNS(SVGNS, t); for (const k in a) e.setAttribute(k, a[k]); gThread.appendChild(e); return e; };
   if (pts.length > 1) {      // a constellation: each lantern joins its nearest neighbour (minimum spanning tree), so the thread never zigzags across the garden
@@ -370,7 +383,7 @@ function showThread(key) {
   document.body.classList.add('pan'); measure(); clamp(view);
   const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]), x0 = Math.min(...xs) - 50, x1 = Math.max(...xs) + 50, y0 = Math.min(...ys) - 22, y1 = Math.max(...ys) + 16;
   flyTo(Math.max(KMIN(), Math.min(6, aw / (x1 - x0), (ah - 60) / (y1 - y0))), (x0 + x1) / 2, (y0 + y1) / 2 + 6); apply(); }
-function clearThread() { if (!tkey) return; tkey = null; gThread.innerHTML = ''; if (nav === 4) nav = null; }
+function clearThread() { if (!tkey) return; STAR[tkey] && STAR[tkey].classList.remove('me'); tkey = null; gThread.innerHTML = ''; if (nav === 4) nav = null; }
 
 /* ---------- F4 time: 91 events on the storey gutter, the event card, and a time marker ---------- */
 const EVENTS = window.GardenCard.EVENTS, EVL = Object.values(EVENTS).sort((a, b) => a.y - b.y);
@@ -450,6 +463,37 @@ gHit.addEventListener('mousemove', e => { const z = e.target; if (!z._info) retu
   tip.innerHTML = info.html; tip.style.display = 'block'; tip.style.left = Math.min(innerWidth - 310, e.clientX + 14) + 'px'; tip.style.top = (e.clientY + 16) + 'px'; });
 gHit.addEventListener('mouseout', e => { if (e.target._src) e.target._src.classList.remove('hov'); tip.style.display = 'none'; });
 gHit.addEventListener('click', e => { const z = e.target; if (!z._info || moved) return; e.stopPropagation(); tip.style.display = 'none'; const {to} = z._info(e); if (to && LAY.nodes[to]) { clearThread(); clearEvent(); choose(to, true); } });
+
+/* ---------- makers of the Now storey: every composer of a Now work is a small star beside their lantern; click to follow their thread ---------- */
+const gStars = document.createElementNS(SVGNS, 'g'); gStars.setAttribute('id', 'stars'); cam.appendChild(gStars);
+const STAR = {};
+(() => {
+  const NOWE = LAY.eras.find(e => e.id === 'contemporary'), y0 = NOWE.top + 6, y1 = NOWE.bottom - 1;
+  const boxes = [], pts = [];
+  document.querySelectorAll('#map .fm:not(.soil)').forEach(g => { const p = LAY.nodes[g.dataset.id]; if (!p || p.y < y0 - 20 || p.y > y1 + 20) return; pts.push([p.x, p.y]);
+    g.querySelectorAll('text').forEach(t => { const b = t.getBBox(); boxes.push([b.x - .6, b.y - .5, b.x + b.width + .6, b.y + b.height + .5]); }); });
+  const byHome = {}; Object.values(VOICES).forEach(V => { const fs = V.forms.filter(f => N[f.id] && N[f.id].period === 'contemporary' && LAY.nodes[f.id]); if (fs.length) (byHome[fs[0].id] = byHome[fs[0].id] || []).push([V, fs]); });
+  const placed = [];
+  const ok = (x, y, F) => x > F.x0 + 1.4 && x < F.x1 - 1.4 && y > y0 && y < y1 && !pts.some(([a, b]) => Math.hypot(a - x, b - y) < 2.6) && !boxes.some(b => x > b[0] - 1 && x < b[2] + 1 && y > b[1] - 1 && y < b[3] + 1) && !placed.some(([a, b]) => Math.hypot(a - x, b - y) < 2.3);
+  Object.entries(byHome).forEach(([lid, list]) => { const p = LAY.nodes[lid], F = LAY.fams[p.f] || LAY.fams[famAt(p.x)];
+    list.sort((a, b) => a[0].first - b[0].first).forEach(([V, fs]) => { let spot = null;
+      for (let ring = 0; ring < 9 && !spot; ring++) { const rr = 4 + ring * 1.9, n = Math.max(8, Math.round(2 * Math.PI * rr / 2.4));
+        for (let j = 0; j < n; j++) { const a = (j / n) * 2 * Math.PI + ring * .37, x = p.x + Math.cos(a) * rr, y = p.y + Math.sin(a) * rr * .8; if (ok(x, y, F)) { spot = [x, y]; break; } } }
+      if (!spot) return; placed.push(spot); const [x, y] = spot, g = document.createElementNS(SVGNS, 'g'); g.setAttribute('class', 'st'); g._V = V; g._fs = fs; g.dataset.x = x; g.dataset.y = y;
+      const w = fs[0].works[0][0], d = `M${x},${y - 1.05}L${x + .3},${y - .3}L${x + 1.05},${y}L${x + .3},${y + .3}L${x},${y + 1.05}L${x - .3},${y + .3}L${x - 1.05},${y}L${x - .3},${y - .3}Z`;
+      g.innerHTML = `<circle class="hitc" cx="${x}" cy="${y}" r="1.7"/><path d="${d}"/>`; const t = document.createElementNS(SVGNS, 'text'); t.setAttribute('class', 'stn'); t.setAttribute('x', x + 1.5); t.setAttribute('y', y); t.textContent = V.name; g.appendChild(t);
+      gStars.appendChild(g); STAR[V.key] = g; }); });
+})();
+gStars.addEventListener('mousemove', e => { const g = e.target.closest('.st'); if (!g) return; const V = g._V, w = g._fs[0].works[0][0];
+  tip.innerHTML = `<b>${V.name}</b><small>${w[0]}${w[2] ? ', ' + w[2] : ''} · ${N[g._fs[0].id].t}</small><small>${V.forms.length} lantern${V.forms.length === 1 ? '' : 's'} in the Garden · click to follow their thread</small>`;
+  tip.style.display = 'block'; tip.style.left = Math.min(innerWidth - 310, e.clientX + 14) + 'px'; tip.style.top = (e.clientY + 16) + 'px'; });
+gStars.addEventListener('mouseout', () => { tip.style.display = 'none'; });
+gStars.addEventListener('click', e => { const g = e.target.closest('.st'); if (!g || moved) return; e.stopPropagation(); tip.style.display = 'none'; showThread(g._V.key); });
+function starNames() {      // when close enough to read, a star's name shows unless it would sit on a lantern's name or another star's
+  if (!svg.classList.contains('closer')) return; const r0 = svg.getBoundingClientRect(), taken = [];
+  document.querySelectorAll('#map .fm:not(.soil) text').forEach(t => { const q = t.getBoundingClientRect(); if (q.right > r0.left && q.left < r0.right && q.bottom > r0.top && q.top < r0.bottom && q.width) taken.push(q); });
+  gStars.querySelectorAll('.stn').forEach(t => { t.classList.remove('hid'); const q = t.getBoundingClientRect(); if (q.right < r0.left || q.left > r0.right || q.bottom < r0.top || q.top > r0.bottom) return;
+    if (taken.some(b => q.left < b.right + 2 && q.right > b.left - 2 && q.top < b.bottom && q.bottom > b.top)) t.classList.add('hid'); else taken.push(q); }); }
 
 /* ---------- F5 lenses: who wrote it, where it came from, and the NSW course it serves ---------- */
 const GC = window.GardenCard, gLens = document.createElementNS(SVGNS, 'g'); gLens.setAttribute('id', 'lens'); cam.insertBefore(gLens, gEvent);
@@ -623,6 +667,7 @@ function openSheet(kind, btn) {
      ['Links:', ' solid gold = grew from, dotted gold = influenced, red = reacted against, green = from the commons.'],
      ['Every line is a path:', ' when a lantern is open, hover any of its links to read the connection and click it to travel to the lantern at the other end. Route steps and event lines work the same way.'],
      ['Styles ☼:', ' a style is light that falls across every minaret it reached, over its years; a form such as the fugue is a gold band tying together the minarets that use it. Hover a ☼ or a knot to read the example; click to open the nearest lantern.'],
+     ['Stars in the Now storey:', ' every maker of music since 1980 in the Garden is a small star beside their lantern. Hover a star to meet them; click to follow their thread through every lantern they wrote in.'],
      ['Lenses ◎:', ' light the lanterns that answer one question (women composers, the Americas & Australia, oral & folk sources, Aboriginal and Torres Strait Islander music) or serve one NSW course, topic or route. Each wears its own ring; a route also shows its stops in teaching order.'],
      ['Move:', ' drag, scroll or pinch; + and − or the ladder step Garden › Spire › Storey › Lantern; arrow keys move to the next spire or storey; / searches.']]
       .forEach(([b, t]) => { const p = el('p', '', sheet); el('b', '', p, b); p.append(t); }); }
@@ -631,7 +676,7 @@ document.querySelectorAll('.rail button').forEach(b => b.onclick = () => openShe
 
 addEventListener('resize', () => { measure(); clamp(view); apply(); });
 measure(); view.k = fitK; clamp(view); apply();
-window.__map = {reachOf, drawReach, fitBox, LENSES, drawLens, lens, setLens, setCourse, view, home, goFamily, goEra, goLevel, spotlight, choose, level, LAY, frameNet, showThread, tkey: () => tkey, showEvent, ekey: () => ekey};
+window.__map = {STAR, reachOf, drawReach, fitBox, LENSES, drawLens, lens, setLens, setCourse, view, home, goFamily, goEra, goLevel, spotlight, choose, level, LAY, frameNet, showThread, tkey: () => tkey, showEvent, ekey: () => ekey};
 })();
 </script>
 </body></html>

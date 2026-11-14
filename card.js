@@ -276,7 +276,7 @@ function render(panel, id, ctx) {
   if ((SRC[id] || []).length) { const d = h('details', 'sec', panel); h('summary', '', d, 'Sources'); const ul = h('ul', 'src', d); SRC[id].forEach(r => h('li', '', ul, r)); }
   if (F.hear) h('p', 'status', panel, 'Dates give the year at least two composers were working in the form; the first experiments usually come a little earlier.');
   // G11 respect and contact
-  h('p', 'respect', panel, 'This Garden is presented with respect for every musician and culture it includes. To raise a cultural concern or report an incorrect link, contact Justin Ossher, the creator of this Garden, at any time.');
+  h('p', 'respect', panel, 'This Garden is presented with respect for every musician and culture it includes. To raise a cultural concern or report an incorrect link, contact Justin Ossher, the creator of this Garden, at any time.'); { const lv = h('p', 'living', panel, 'This is a living document in the form of an interactive page. Please e-mail '); const a = h('a', '', lv, 'shmungfroi@gmail.com'); a.href = 'mailto:shmungfroi@gmail.com'; lv.append(' to make any suggestions, comments or corrections.'); }
 }
 function renderComposer(panel, key, ctx) {
   card = panel; panel.textContent = ''; panel.scrollTop = 0; const V = VOICES[key]; if (!V) return;
@@ -294,7 +294,7 @@ function renderComposer(panel, key, ctx) {
     f.works.forEach(([w, i]) => { const m = (F.media || [])[i] || [], d = h('div', 'thr-w', li), t = h('b', '', d, w[0]); if (w[3]) h('i', 'core', t, ' ★'); if (w[2]) h('span', 'by', d, w[2]);
       const acts = h('div', 'acts', d); if (m[0]) ext(acts, m[0], 'Listen ↗'); if (m[1]) ext(acts, m[1], 'Score ↗', 'score'); ext(acts, spotifyUrl(w[1], w[0]), 'Spotify ↗', 'sp'); }); });
   h('p', 'pnote', panel, 'Links open in a new tab. Recordings and scores belong to their owners and are linked, not copied.');
-  h('p', 'respect', panel, 'This Garden is presented with respect for every musician and culture it includes. To raise a cultural concern or report an incorrect link, contact Justin Ossher, the creator of this Garden, at any time.');
+  h('p', 'respect', panel, 'This Garden is presented with respect for every musician and culture it includes. To raise a cultural concern or report an incorrect link, contact Justin Ossher, the creator of this Garden, at any time.'); { const lv = h('p', 'living', panel, 'This is a living document in the form of an interactive page. Please e-mail '); const a = h('a', '', lv, 'shmungfroi@gmail.com'); a.href = 'mailto:shmungfroi@gmail.com'; lv.append(' to make any suggestions, comments or corrections.'); }
 }
 function renderEvent(panel, eid, ctx) {
   card = panel; panel.textContent = ''; panel.scrollTop = 0; const e = E[eid]; if (!e) return;
@@ -307,7 +307,7 @@ function renderEvent(panel, eid, ctx) {
   if (e.why) { h('h3', '', panel, 'Why it matters for music'); rich(h('p', '', panel), e.why); }
   if (to.length) { h('h3', '', panel, 'Made possible'); const ul = h('ul', 'evto', panel);
     to.slice().sort((a, b) => N[a].y - N[b].y).forEach(i => { const li = h('li', '', ul), b = h('button', 'lk-b', li, N[i].t); b.type = 'button'; b.addEventListener('click', () => ctx.go(i)); h('small', '', li, ` ${N[i].d} · ${cap(ctx.famName(i))} spire`); }); }
-  h('p', 'respect', panel, 'This Garden is presented with respect for every musician and culture it includes. To raise a cultural concern or report an incorrect link, contact Justin Ossher, the creator of this Garden, at any time.');
+  h('p', 'respect', panel, 'This Garden is presented with respect for every musician and culture it includes. To raise a cultural concern or report an incorrect link, contact Justin Ossher, the creator of this Garden, at any time.'); { const lv = h('p', 'living', panel, 'This is a living document in the form of an interactive page. Please e-mail '); const a = h('a', '', lv, 'shmungfroi@gmail.com'); a.href = 'mailto:shmungfroi@gmail.com'; lv.append(' to make any suggestions, comments or corrections.'); }
 }
 window.GardenCard = {render, renderComposer, renderEvent, VOICES, voiceTags, EVENTS: E, NSW, STRAND, COURSES, WINS};
 })();
