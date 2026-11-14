@@ -362,7 +362,7 @@ for f2, _, c2 in FAMS:             # roots: from the seed, one to the foot of ev
     o.append(f'<path class="root" d="M{SEED[0]},{SEED[1]} C{SEED[0] + (fx - SEED[0]) * .15},{my} {fx},{GROUND + 40} {fx},{GROUND}" fill="none" stroke="{c2}" stroke-opacity=".55" stroke-width=".9" stroke-linecap="round"/>')
 o.append(f'<path d="M{sx},{SEED[1]} L{sx},{GROUND}" stroke="#6fbf5a" stroke-opacity=".8" stroke-width="1.6"/>')      # the central root, up into the spire
 o.append(f'<circle cx="{SEED[0]}" cy="{SEED[1]}" r="3.2" fill="{GOLD_HI}"/><circle cx="{SEED[0]}" cy="{SEED[1]}" r="7" fill="none" stroke="{GOLD_HI}" stroke-opacity=".45" stroke-width=".6"/>')
-o.append(f'<g class="fm soil" data-id="commons"><path class="hit" d="{mound}" fill="transparent"/><circle class="hit" cx="{SEED[0]}" cy="{SEED[1]}" r="9" fill="transparent"/>')
+o.append(f'<g class="fm soil" data-id="commons"><circle class="seedring" cx="{SEED[0]}" cy="{SEED[1]}" r="7" fill="none"/><circle class="hit" cx="{SEED[0]}" cy="{SEED[1]}" r="14" fill="transparent"/>')      # only the seed answers the pointer, not the whole mound
 o.append(f'<text class="famname moundname disp" x="{sx}" y="{GROUND+34}" fill="{GOLD_HI}" font-size="24" text-anchor="middle" letter-spacing="4">THE COMMONS</text>')
 o.append(f'<text class="famname moundname" x="{sx}" y="{GROUND+52}" fill="{IVORY}" fill-opacity=".75" font-size="10" text-anchor="middle" letter-spacing="2">FOLK SONG · DANCE · WORK SONG</text>')
 o.append(f'<text class="famname moundname" x="{sx}" y="{GROUND+66}" fill="{IVORY}" fill-opacity=".6" font-size="9" font-style="italic" text-anchor="middle" letter-spacing=".6">the ground all music springs from</text></g>')
