@@ -2883,7 +2883,10 @@ ${taskHTML}<div class="map">${g}</div><ol>${stops}</ol>
 <footer>Walk this journey in the Garden: <a href="${esc(link)}">${esc(link.length > 160 ? link.slice(0, 120) + '…' : link)}</a><br>The Garden of Earthly Sounds is a living document in the form of an interactive page. Please e-mail shmungfroi@gmail.com to make any suggestions, comments or corrections.</footer>
 </main></body></html>`;
   const url = URL.createObjectURL(new Blob([html], {type: 'text/html'})); let w = null; try { w = window.open(url, '_blank'); } catch (err) {}
-  if (!w) { const a = document.createElement('a'); a.href = url; a.download = (j.title || 'journey').replace(/[^\w\- ]+/g, '').trim().replace(/\s+/g, '-').toLowerCase() + '.html'; document.body.appendChild(a); a.click(); a.remove(); toast('The journey sheet was downloaded: open it to print or save as PDF', 4000); }
+  if (!w) { const name = ((j.title || 'journey').replace(/[^\w\- ]+/g, '').trim().replace(/\s+/g, '-').toLowerCase() || 'journey') + '.html';
+    let dl = null; try { dl = window.claude && window.claude.use ? await window.claude.use('downloads') : null; } catch (err) { dl = null; }
+    if (dl) { try { await dl.save({filename: name, data: html}); toast('Journey sheet saved: open it to print or save as PDF', 4000); } catch (err) { if (!err || err.code !== 'declined') toast('The journey sheet could not be saved here; try Copy as text, or open the Garden on its own page', 5000); } }
+    else { const a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove(); toast('The journey sheet was downloaded: open it to print or save as PDF', 4000); } }
   window.__lastSheet = html; }
 
 readHash(location.hash); drawTrail();
