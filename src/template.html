@@ -242,11 +242,43 @@ body.pan #trail{max-width:calc(100vw - var(--rail) - var(--gut) - 640px)} body.t
 #trail .tc:hover{border-color:var(--gold)} #trail .tc em{font-style:normal;color:var(--gold);font-size:11px} #trail .tc.new{border-color:var(--goldhi);box-shadow:0 0 0 2px #f0d48a44}
 #trail .tc i{font-style:normal;color:var(--muted);padding:0 3px;border-radius:50%} #trail .tc i:hover{color:var(--goldhi)} #trail .tsep{color:#5a4f38}
 #trail .tclr{all:unset;cursor:pointer;font-size:11.5px;color:var(--muted);white-space:nowrap;padding:2px 6px} #trail .tclr:hover{color:var(--ivory)}
+/* journeys */
+aside .cact{position:absolute;right:56px;top:14px;display:flex;gap:6px;z-index:2} aside .cact .share{position:static} aside > .k{padding-right:230px}
+#trail .ttask{font-size:11px;color:var(--ivory);border:1px dashed var(--gold);border-radius:10px;padding:1px 8px;white-space:nowrap} #trail .ttask.done{background:var(--gold);color:#111;border-style:solid}
+#map #trailg .tr-b.cur .tr-dot{fill:var(--goldhi);stroke:var(--goldhi)} #map #trailg .tr-b.cur .tr-n{fill:#111}
+body.walking #trail,body.jmode #trail{display:none!important}
+aside .jr-title,aside .jr-by,aside .jr-num{width:100%;height:36px;border-radius:8px;border:1px solid #3a3222;background:#14110b;color:var(--ivory);font:15px Outfit,sans-serif;padding:0 10px;margin:4px 0 6px;outline:none} aside .jr-title{font:22px "Poiret One",sans-serif;height:42px}
+aside .jr-title:focus,aside .jr-by:focus,aside .jr-note:focus,aside .jr-w:focus,aside .jr-num:focus{border-color:var(--gold)}
+aside .jr-task{background:#1a160e;border-left:2px solid var(--gold);padding:8px 12px;margin:10px 0;border-radius:0 8px 8px 0;font-size:13.5px} aside .jr-tk{font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:var(--gold)} aside .jr-task p{margin:4px 0}
+aside .jr-task ul{list-style:none;padding:0;margin:6px 0 0;color:var(--muted)} aside .jr-task li.ok{color:var(--green)}
+aside .jr-stops{list-style:none;padding:0;margin:10px 0} aside .jr-stop{border-top:1px solid #2a2418;padding:12px 0}
+aside .jr-hd{display:flex;align-items:baseline;gap:8px} aside .jr-hd em{font-style:normal;font-size:11px;font-weight:700;background:var(--gold);color:#111;border-radius:50%;min-width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;transform:translateY(-1px)}
+aside .jr-nm{all:unset;cursor:pointer;font-size:16px;color:var(--ivory)} aside .jr-nm:hover{color:var(--goldhi)} aside .jr-hd small{color:var(--muted);font-size:12px}
+aside .jr-ctl{margin-left:auto;display:flex;gap:2px} aside .jr-ctl button{all:unset;cursor:pointer;width:24px;height:24px;text-align:center;border-radius:6px;color:var(--muted)} aside .jr-ctl button:hover:not(:disabled){color:var(--goldhi);background:#221d13} aside .jr-ctl button:disabled{opacity:.25;cursor:default}
+aside .jr-line{font-style:italic;color:var(--muted);font-size:13px;margin:3px 0 6px 28px} aside .jr-line.big{font-size:14.5px;margin:12px 0 2px;color:var(--gold)}
+aside .jr-w,aside .jr-add{width:calc(100% - 28px);margin-left:28px;height:32px;border-radius:8px;border:1px solid #3a3222;background:#14110b;color:var(--ivory);font:13px Outfit,sans-serif;padding:0 6px;outline:none} aside .jr-add{width:100%;margin:12px 0 0;border-style:dashed}
+aside .jr-note{width:calc(100% - 28px);margin:6px 0 0 28px;border-radius:8px;border:1px solid #3a3222;background:#14110b;color:var(--ivory);font:14px/1.45 Outfit,sans-serif;padding:7px 9px;resize:vertical;outline:none}
+aside label.jr-f .jr-note,aside label.jr-f .jr-w{width:100%;margin-left:0} aside label.jr-f{display:block;margin:10px 0 4px} aside label.jr-f>span{display:block;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold)} aside .jr-num{width:90px}
+aside .jr-chk{display:flex;gap:8px;align-items:center;font-size:14px;margin:12px 0} aside .jr-chk input{accent-color:#c9a24a}
+aside .jr-cnt{font-size:11px;color:var(--muted);text-align:right}
+aside .jr-act{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 8px} aside .jr-b{all:unset;cursor:pointer;font-size:13px;border:1px solid #3a3222;border-radius:16px;padding:6px 14px} aside .jr-b:hover:not(:disabled){border-color:var(--gold);color:var(--goldhi)} aside .jr-b.gold{background:var(--gold);color:#111;border-color:var(--gold)} aside .jr-b.gold:hover:not(:disabled){background:var(--goldhi);color:#111} aside .jr-b:disabled{opacity:.4;cursor:default}
+aside .jr-del{all:unset;cursor:pointer;font-size:12.5px;color:#d07a6e;padding:6px 6px;margin-left:auto} aside .jr-del:hover{text-decoration:underline}
+aside .jr-small,aside .jr-empty{font-size:12px;color:var(--muted)}
+aside .jr-jt{font:400 30px/1.15 "Poiret One",sans-serif;margin:6px 0 2px} aside .jr-stopname{font:400 26px "Poiret One",sans-serif;margin:4px 0 0;color:var(--goldhi)}
+aside .jr-dots{display:flex;flex-wrap:wrap;gap:5px;margin:12px 0 4px} aside .jr-dots button{all:unset;cursor:pointer;width:24px;height:24px;border-radius:50%;border:1px solid #3a3222;font-size:11px;display:flex;align-items:center;justify-content:center;color:var(--muted)} aside .jr-dots button:hover{border-color:var(--gold);color:var(--ivory)} aside .jr-dots button.cur{background:var(--goldhi);color:#111;border-color:var(--goldhi)}
+aside .jr-work{margin:12px 0 4px;font-size:15px} aside .jr-work .ic{color:var(--gold);margin-right:8px}
+aside .jr-q{margin:12px 0;padding:6px 14px;border-left:2px solid var(--green);font-size:16px;line-height:1.5} aside .jr-q cite{display:block;font-style:normal;font-size:12px;color:var(--muted);margin-top:4px}
+aside .jr-brief{font-size:13.5px;color:var(--muted)} aside .jr-nav{display:flex;justify-content:space-between;margin:18px 0 4px}
+aside .jr-prompt{font-size:16px;line-height:1.55} aside .jr-rules{padding-left:18px;color:var(--ivory);font-size:14px} aside .jr-rules li{margin:5px 0}
+.sheet .jbig{border:1px dashed var(--gold);margin:8px 0;color:var(--ivory)} .sheet .jbig:disabled{opacity:.45;cursor:default}
+.sheet .jrow{display:flex;align-items:center;gap:4px} .sheet .jrow>button:first-child{flex:1;min-width:0} .sheet .jrow small{display:block;margin:0!important;font-size:11.5px}
+.sheet .jrow .jx{all:unset;cursor:pointer;flex:none;font-size:11.5px;color:var(--gold);padding:4px 6px;border-radius:6px} .sheet .jrow .jx:hover{background:#221d13;color:var(--goldhi)}
+@media (max-width:760px){aside .cact{position:static;justify-content:flex-end;margin:-4px 40px 6px 0} aside > .k{padding-right:0}}
 /* F6: sharing, access, touch, phone */
 .vh{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .skip{position:absolute;left:8px;top:-60px;z-index:30;background:var(--goldhi);color:#111;padding:8px 14px;border-radius:8px;text-decoration:none;font-size:14px} .skip:focus{top:8px}
 button:focus-visible,a:focus-visible,.sheet .lz:focus-within{outline:2px solid var(--goldhi);outline-offset:2px} #map:focus-visible{outline:2px solid var(--gold);outline-offset:-3px}
-aside > .k{padding-right:150px} aside .share{all:unset;position:absolute;right:56px;top:14px;height:30px;padding:0 12px;border-radius:15px;border:1px solid #3a3222;font-size:12px;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:6px;z-index:2} aside .share:hover{color:var(--goldhi);border-color:var(--gold)}
+aside .share{all:unset;position:absolute;right:56px;top:14px;height:30px;padding:0 12px;border-radius:15px;border:1px solid #3a3222;font-size:12px;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:6px;z-index:2} aside .share:hover{color:var(--goldhi);border-color:var(--gold)}
 #trail .tsh{all:unset;cursor:pointer;font-size:11.5px;color:var(--gold);white-space:nowrap;padding:2px 6px} #trail .tsh:hover{color:var(--goldhi)}
 #trail.shared{border-color:var(--gold)} #trail.shared .tl{color:var(--goldhi)}
 #toast{position:fixed;left:50%;top:calc(var(--top) + 14px);transform:translateX(-50%);background:#15120b;border:1px solid var(--gold);border-radius:14px;padding:6px 14px;font-size:13px;z-index:30;display:none;max-width:92vw}
@@ -255,8 +287,8 @@ aside > .k{padding-right:150px} aside .share{all:unset;position:absolute;right:5
 @media (max-width:760px){
   :root{--rail:0px;--gut:0px;--top:50px;--bar:58px}
   .rail{top:auto;bottom:0;right:0;width:auto;height:var(--bar);padding:0 2px;display:flex;overflow-x:auto;border-right:0;border-top:1px solid var(--line);z-index:9;scrollbar-width:none}
-  .rail .logo{display:none} .rail button{width:auto;min-width:40px;padding:8px 0 6px;font-size:16px;flex:1 1 0} .rail button small{font-size:7.5px;letter-spacing:.3px}
-  body.trailing .ladder{bottom:calc(var(--bar) + 52px)} aside > .k{padding-right:130px}
+  .rail .logo{display:none} .rail button{width:auto;min-width:0;padding:8px 0 6px;font-size:15px;flex:1 1 0} .rail button small{font-size:7px;letter-spacing:.1px}
+  body.trailing .ladder{bottom:calc(var(--bar) + 52px)}
   .top{gap:8px;padding:0 8px} .top .t{font-size:10.5px;letter-spacing:1.6px;white-space:normal;width:84px;line-height:1.2} .crumbs{display:none}
   .search{flex:1;min-width:0} .search input{width:100%;font-size:16px}
   #res{position:fixed;left:6px;right:6px;top:calc(var(--top) + 2px);width:auto;max-height:calc(100dvh - var(--top) - var(--bar) - 12px)}
@@ -289,6 +321,7 @@ aside > .k{padding-right:150px} aside .share{all:unset;position:absolute;right:5
   <button data-sheet="events">◆<small>Events</small></button>
   <button data-sheet="lenses">◎<small>Lenses</small></button>
   <button data-sheet="styles">☼<small>Styles</small></button>
+  <button data-sheet="journeys" title="Journeys and listening tasks">⤳<small>Journeys</small></button>
   <button data-sheet="az">Az<small>A–Z</small></button>
   <button data-sheet="guide">?<small>Guide</small></button>
 </nav>
@@ -406,7 +439,7 @@ function frameNet(id, withPanel) {           // the form with every form it conn
   flyTo(k, (x0 + x1) / 2, (y0 + y1) / 2 + 6); }
 function spotlight(id) {      // search: highlight, connect, frame the whole web; a click then opens it
   pin(id); frameNet(id, false); }
-function pin(id) {      // a click on the map pins a web quietly: no card, no camera move; click again (or the pill) to open the card
+function pin(id) { quitWalk();      // a click on the map pins a web quietly: no card, no camera move; click again (or the pill) to open the card
   clearThread(); clearEvent(); closePanel(); sel = null; spot = id; light(id); pinPill(); chrome(); }
 function pinPill() {      // the pill names what is pinned, offers the card, and says how to let go
   const h = $('#hint'); h.innerHTML = ''; let name = '', what = '';
@@ -419,10 +452,11 @@ function hidePill() { $('#hint').style.display = 'none'; document.body.classList
 function openPinned() { if (spot) return choose(spot, view.k < 2.2); if (tkey) return showThread(tkey); if (ekey) return showEvent(ekey); }
 function releasePin() { clearTrace(); clearThread(); clearEvent(); spot = null; hidePill(); if (!sel) light(null); }
 function stepBack() {      // Esc and the card's close button step back one layer: card, then pinned web, then the clean Garden
+  if (walking || jpanel) { endJourneyPanel(); return true; }
   if (document.body.classList.contains('pan')) { const was = sel; sel = null; document.body.classList.remove('pan'); measure(); clamp(view); if (was) { spot = was; light(was); } apply(); pinPill(); return true; }
   if (spot || tkey || ekey) { releasePin(); return true; } return false; }
 function clearSpot() { clearTrace(); spot = null; hidePill(); if (!sel) light(null); }
-function choose(id, frame) { $("#cpop") && $("#cpop").classList.remove("show");
+function choose(id, frame) { quitWalk(); $("#cpop") && $("#cpop").classList.remove("show");
   clearThread(); clearEvent(); hidePill(); spot = null; sel = id; curFam = famAt(LAY.nodes[id].x); curEra = eraOf(id);
   light(id); card(id); addShare(); document.body.classList.add('pan'); measure(); clamp(view); if (frame) frameNet(id, true); else apply(); }
 function closePanel() { if (!sel && !tkey && !ekey && !document.body.classList.contains('pan')) return; if (tkey || ekey) { clearThread(); clearEvent(); light(null); } sel = null; document.body.classList.remove('pan'); measure(); clamp(view); light(spot); }
@@ -444,7 +478,7 @@ function segs(pts) { const out = []; for (let i = 0; i < pts.length - 1; i++) { 
 function smooth(pts) { if (pts.length < 2) return ''; let d = `M${pts[0][0]},${pts[0][1]}`;
   for (let i = 0; i < pts.length - 1; i++) { const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
     d += ` C${p1[0] + (p2[0] - p0[0]) / 6},${p1[1] + (p2[1] - p0[1]) / 6} ${p2[0] - (p3[0] - p1[0]) / 6},${p2[1] - (p3[1] - p1[1]) / 6} ${p2[0]},${p2[1]}`; } return d; }
-function showThread(key, quiet) {
+function showThread(key, quiet) { quitWalk();
   const V = VOICES[key]; if (!V) return; closeSheet(); clearEvent(); clearTrace(); drawReach(null); hidePill(); spot = null; sel = null; tkey = key; nav = 4;
   if (quiet && document.body.classList.contains('pan')) { document.body.classList.remove('pan'); measure(); clamp(view); }
   svg.classList.add('focus'); document.querySelectorAll('#map .on,#map .me').forEach(x => { x.classList.remove('on', 'me'); if (x.classList.contains('fm')) x.removeAttribute('transform'); });
@@ -477,7 +511,7 @@ EVL.forEach(e => { e.wy = yOfYear(e.y); const b = el('button', 'evd', $('#evs'))
 function previewYear(wy, text) { const lab = $('#tmark'); if (wy == null) { gTime.style.display = 'none'; lab.style.display = 'none'; return; }
   gTime.setAttribute('y1', wy); gTime.setAttribute('y2', wy); gTime.style.display = 'block'; const r = svg.getBoundingClientRect(), sy = r.top + view.ty + wy * view.k;
   lab.textContent = text; lab.style.display = 'block'; lab.style.top = (sy - 9) + 'px'; }
-function showEvent(id, quiet) {
+function showEvent(id, quiet) { quitWalk();
   const e = EVENTS[id]; if (!e) return; closeSheet(); clearThread(); clearTrace(); drawReach(null);
   if (quiet && document.body.classList.contains('pan')) { document.body.classList.remove('pan'); measure(); clamp(view); } hidePill(); spot = null; sel = null; ekey = id; nav = 3; previewYear(null);
   svg.classList.add('focus'); document.querySelectorAll('#map .on,#map .me').forEach(x => { x.classList.remove('on', 'me'); if (x.classList.contains('fm')) x.removeAttribute('transform'); });
@@ -666,7 +700,7 @@ svg.addEventListener('wheel', e => { e.preventDefault(); cancelAnimationFrame(an
   view.tx = px - (px - view.tx) * q; view.ty = py - (py - view.ty) * q; view.k = k; nav = null; curEra = null; clamp(view); apply(); }, {passive: false});
 svg.addEventListener('click', e => { if (moved) return; const g = e.target.closest('.fm') || (COARSE() ? nearFm(e.clientX, e.clientY) : null); commonsNote(false);
   if (g) { e.stopPropagation(); const id = g.dataset.id;
-    if (e.shiftKey) { collect(id); if (!spot && !sel && !tkey && !ekey) pin(id); return; }      // Shift-click drops a lantern straight into the trail
+    if (e.shiftKey) { collect(id, {k: 'pick'}); if (!spot && !sel && !tkey && !ekey) pin(id); return; }      // Shift-click drops a lantern straight into the trail
     if (sel === id) return; if (spot === id && !tkey && !ekey) return choose(id, view.k < 2.2); return pin(id); }
   if (!trace && (spot || sel) && !tkey && !ekey) traceAt(e, COARSE() ? 22 : 14);      // a tap on a line (no hover on touch) finds it here
   if (trace && (spot || sel)) return travel(trace.to);      // a click on a traced line travels to its far lantern
@@ -714,14 +748,14 @@ function traceAt(e, px = 14) {
   if (!trace || trace.p !== p) { clearTrace(); trace = {p, to}; p.classList.add('trace'); NODE[to] && NODE[to].classList.add('traced'); }
   const sa = samples(p), startsAtA = Math.hypot(sa[0][0] - LAY.nodes[a].x, sa[0][1] - LAY.nodes[a].y) < Math.hypot(sa[0][0] - LAY.nodes[b].x, sa[0][1] - LAY.nodes[b].y);
   const toward = (to === b) === startsAtA ? best.t : 1 - best.t, got = trail.includes(to);
-  if (toward > .82 && !got) collect(to);
+  if (toward > .82 && !got) collect(to, {k: 'trace', from: here});
   const t = [...p.classList].find(c => VERB[c]) || 'p';
   tip.innerHTML = `<b>${N[here].t}</b> ${VERB[t][fwd ? 0 : 1]} <b>${N[to].t}</b><small>${N[to].d || ''}</small><small>${trail.includes(to) ? 'in your trail' : 'trace to the end to pick it up'} · ${COARSE() ? 'tap' : 'click'} to travel there</small>`;
   tip.style.display = 'block'; tip.style.left = Math.min(innerWidth - 310, e.clientX + 14) + 'px'; tip.style.top = (e.clientY + 16) + 'px'; }
 svg.addEventListener('mousemove', e => { if (!drag) traceAt(e); });
 svg.addEventListener('mouseleave', () => clearTrace());
 function travel(to) {      // follow a connection: with a card open, open the next card; otherwise pin the next web and keep it in view
-  if (!N[to] || !LAY.nodes[to]) return; clearTrace(); collect(to);
+  if (!N[to] || !LAY.nodes[to]) return; const from = sel || spot; clearTrace(); collect(to, {k: 'travel', from});
   if (document.body.classList.contains('pan')) return choose(to, true);
   clearThread(); clearEvent(); pin(to); const p = LAY.nodes[to], sx = view.tx + p.x * view.k, sy = view.ty + p.y * view.k;
   if (sx < 40 || sx > aw - 40 || sy < 70 || sy > ah - 60) flyTo(view.k, p.x, p.y); }
@@ -737,23 +771,25 @@ addEventListener('keyup', e => { if (e.key !== 'Shift' || !shiftAt || (e.target.
 
 // the trail: lanterns picked up by tracing or Shift-click, in the order you reached them; kept in this browser
 const gTrail = document.createElementNS(SVGNS, 'g'); gTrail.setAttribute('id', 'trailg'); cam.insertBefore(gTrail, gThread);
-let trail = [], shared = null;      // shared: a trail opened from someone's link, shown until kept or closed
+let trail = [], shared = null, trailHow = {};      // shared: a trail opened from someone's link, shown until kept or closed; trailHow: how each lantern was reached
+try { trailHow = JSON.parse(localStorage.getItem('garden.trailhow') || '{}') || {}; } catch (err) { trailHow = {}; }
 try { trail = (JSON.parse(localStorage.getItem('garden.trail') || '[]') || []).filter(i => N[i] && LAY.nodes[i]); } catch (err) { trail = []; }
-function saveTrail() { try { localStorage.setItem('garden.trail', JSON.stringify(trail)); } catch (err) {} drawTrail(); }
-function collect(id) { if (!N[id] || !LAY.nodes[id] || id === 'commons') return; if (shared) shared = null; if (!trail.includes(id)) { trail.push(id); saveTrail(); } drawTrail(id); }
+function saveTrail() { Object.keys(trailHow).forEach(k => { if (!trail.includes(k)) delete trailHow[k]; }); try { localStorage.setItem('garden.trail', JSON.stringify(trail)); localStorage.setItem('garden.trailhow', JSON.stringify(trailHow)); } catch (err) {} drawTrail(); }
+function collect(id, how) { if (!N[id] || !LAY.nodes[id] || id === 'commons') return; if (shared) shared = null; if (!trail.includes(id)) { trail.push(id); trailHow[id] = how || {k: 'pick'}; saveTrail(); } drawTrail(id); }
 function drawTrail(fresh) {
-  const box = $('#trail'), T = shared || trail; box.innerHTML = ''; gTrail.innerHTML = ''; box.classList.toggle('shared', !!shared); document.body.classList.toggle('trailing', T.length > 0); if (!T.length) return;
-  el('span', 'tl', box, shared ? 'A shared trail' : 'Your trail');
+  const box = $('#trail'), T = walking ? walking.j.stops.map(x => x.id) : (shared || trail); box.innerHTML = ''; gTrail.innerHTML = ''; box.classList.toggle('shared', !!shared); document.body.classList.toggle('trailing', T.length > 0); if (!T.length) return;
+  el('span', 'tl', box, shared ? 'A shared trail' : 'Your trail'); if (!shared && task) { const tp = el('span', 'ttask', box, `Task · ${trail.length} of ${task.n}`); tp.title = task.t || 'Listening task'; if (trail.length >= task.n) tp.classList.add('done'); }
   T.forEach((id, i) => { if (i) el('span', 'tsep', box, '›'); const c = el('button', 'tc' + (id === fresh ? ' new' : ''), box); el('em', '', c, String(i + 1)); c.append(N[id].t); c.title = 'Pin this lantern';
     if (!shared) { const x = el('i', '', c, '×'); x.title = 'Take it out of the trail'; x.setAttribute('role', 'button'); x.setAttribute('aria-label', 'Take ' + N[id].t + ' out of the trail'); x.onclick = ev => { ev.stopPropagation(); trail = trail.filter(j => j !== id); saveTrail(); }; } c.onclick = () => { clearThread(); clearEvent(); pin(id); const p = LAY.nodes[id]; flyTo(Math.max(view.k, fitK * 2.2), p.x, p.y); };
     if (id === fresh) setTimeout(() => c.scrollIntoView({block: 'nearest', inline: 'nearest'}), 0); });
   if (shared) { const keep = el('button', 'tsh', box, 'Keep as my trail'); keep.onclick = () => { trail = shared.slice(); shared = null; saveTrail(); toast('This trail is now yours, kept in this browser'); };
     const cl = el('button', 'tclr', box, 'Close'); cl.onclick = () => { shared = null; drawTrail(); }; }
-  else { const sh = el('button', 'tsh', box, '⧉ Share'); sh.title = 'Copy a link that shows this trail'; sh.onclick = () => shareLink(HOME + '#trail=' + trail.join(','), `a trail of ${trail.length} lantern${trail.length === 1 ? '' : 's'}`);
-    const clr = el('button', 'tclr', box, 'Clear'); clr.onclick = () => { trail = []; saveTrail(); }; }
+  else { const sj = el('button', 'tsh', box, '✎ Save as journey'); sj.title = 'Keep this trail as a journey, with a work and a note at each stop'; sj.onclick = () => newJourneyFromTrail();
+    const sh = el('button', 'tsh', box, '⧉ Share'); sh.title = 'Copy a link that shows this trail'; sh.onclick = () => shareLink(HOME + '#trail=' + trail.join(','), `a trail of ${trail.length} lantern${trail.length === 1 ? '' : 's'}`);
+    const clr = el('button', 'tclr', box, 'Clear'); clr.onclick = () => { trail = []; trailHow = {}; saveTrail(); }; }
   const pts = T.map(i => LAY.nodes[i]).map(p => [p.x, p.y]), mk = (t, a, par = gTrail) => { const z = document.createElementNS(SVGNS, t); for (const k in a) z.setAttribute(k, a[k]); par.appendChild(z); return z; };
   if (pts.length > 1) mk('path', {class: 'tr-line', d: smooth(pts)});
-  pts.forEach(([x, y], i) => { const g = mk('g', {class: 'tr-b'}); g.dataset.x = x + 3.4; g.dataset.y = y + 3.4; mk('circle', {class: 'tr-dot', cx: x + 3.4, cy: y + 3.4, r: 1.5}, g); mk('text', {class: 'tr-n', x: x + 3.4, y: y + 3.45}, g).textContent = i + 1; });
+  pts.forEach(([x, y], i) => { const g = mk('g', {class: 'tr-b' + (walking && i === walking.i ? ' cur' : '')}); g.dataset.x = x + 3.4; g.dataset.y = y + 3.4; mk('circle', {class: 'tr-dot', cx: x + 3.4, cy: y + 3.4, r: 1.5}, g); mk('text', {class: 'tr-n', x: x + 3.4, y: y + 3.45}, g).textContent = i + 1; });
   apply(); }
 
 /* ---------- search: find, highlight, connect, then choose ---------- */
@@ -787,6 +823,7 @@ function openSheet(kind, btn) {
   if (sheet.classList.contains('open') && sheet.dataset.kind === kind) return closeSheet();
   closeSheet(); if (kind === 'search') { q.focus(); return; }
   sheet.innerHTML = ''; sheet.dataset.kind = kind; sheet.classList.add('open'); btn.classList.add('on');
+  if (kind === 'journeys') return journeySheet();
   if (kind === 'families') { el('h3', '', sheet, 'THE SPIRES'); FAMS.forEach(f => { const b = el('button', '', sheet, FN(f)); b.style.color = FC(f); b.onclick = () => { closeSheet(); closePanel(); clearSpot(); goFamily(f); }; }); }
   if (kind === 'eras') { el('h3', '', sheet, 'THE STOREYS'); LAY.eras.slice().reverse().forEach(E => { const b = el('button', '', sheet, E.name); el('small', '', b, E.id === 'contemporary' ? '1980–today' : `${E.start}–${E.end}`); b.onclick = () => { closeSheet(); closePanel(); clearSpot(); goEra(null, E.id); }; }); }
   if (kind === 'voices') { el('h3', '', sheet, 'VOICES · ' + Object.keys(VOICES).length + ' COMPOSERS');
@@ -826,6 +863,7 @@ function openSheet(kind, btn) {
      ['Links:', ' solid gold = grew from, dotted gold = influenced, red = reacted against, green = from the commons.'],
      ['Pin, then open:', ' a click on the map pins a lantern’s web without moving the view; click it again, double-click, press Enter or use the pill to open its card. Choices from search and the sheets open the card straight away. Esc steps back: card, then pin, then the Garden.'],
      ['Trace:', ' hold Shift to keep a web while you move (tap Shift to pin or release). Run the pointer along any line to read the connection and light its far lantern; follow it to the end and that lantern joins your trail at the foot of the map. Shift-click a lantern to add it directly. Your trail stays in this browser.'],
+     ['Journeys ⤳:', ' save your trail as a journey: name it, choose the work you listened to at each stop and add a short note. The journey shows how each stop connects to the last (or where you leapt). Walk it stop by stop, share it as a link, copy it as text, or open its sheet to print or save as PDF. Teachers and guides can set a listening task (a prompt, a number of stops, where to begin and end) and share its link; listeners begin it, collect their stops and send back their journey.'],
      ['Every line is a path:', ' click a traced line, a route step or an event line to travel to the lantern at its other end.'],
      ['Styles ☼:', ' a style is light that falls across every minaret it reached, over its years; a form such as the fugue is a gold band tying together the minarets that use it. Hover a ☼ or a knot to read the example; click to open the nearest lantern.'],
      ['Stars in the Now storey:', ' every maker of music since 1980 in the Garden is a small star beside their lantern. Hover a star to meet them; click to follow their thread through every lantern they wrote in.'],
@@ -856,11 +894,15 @@ async function shareLink(url, what) {
   if (COARSE() && navigator.share) { try { await navigator.share({title: 'The Garden of Earthly Sounds', text: what, url}); return; } catch (err) { if (err && err.name === 'AbortError') return; } }
   try { await navigator.clipboard.writeText(url); toast(`Link copied · ${what}`); say('Link copied'); }
   catch (err) { toast(`Copy this link · ${what}<input readonly value="${url.replace(/"/g, '&quot;')}">`, 9000); const i = $('#toast input'); i.focus(); i.select(); } }
-function addShare() { const b = el('button', 'share', null, '⧉ Share'); b.title = 'Copy a link to this card'; b.setAttribute('aria-label', 'Share a link to this card');
-  b.onclick = () => shareLink(linkFor(), (panel.querySelector('h1,h2') || {}).textContent || 'this card'); panel.prepend(b); }
+function addShare() { const bar = el('div', 'cact', null); const id = sel;
+  if (id && N[id] && id !== 'commons') { const t = el('button', 'share', bar, trail.includes(id) ? '✓ In trail' : '＋ Trail'); t.title = 'Add this lantern to your trail'; t.onclick = () => { collect(id, {k: 'card'}); t.textContent = '✓ In trail'; say(N[id].t + ' added to your trail'); }; }
+  const b = el('button', 'share', bar, '⧉ Share'); b.title = 'Copy a link to this card'; b.setAttribute('aria-label', 'Share a link to this card');
+  b.onclick = () => shareLink(linkFor(), (panel.querySelector('h1,h2') || {}).textContent || 'this card'); panel.prepend(bar); }
 function readHash(h) {
   const Q = {}; (h || '').replace(/^#/, '').split('&').filter(Boolean).forEach(kv => { const i = kv.indexOf('='); Q[kv.slice(0, i)] = decodeURIComponent(kv.slice(i + 1)); });
   if (!Object.keys(Q).length) return false;
+  if (Q.j) { unpack(Q.j).then(o => o && openSharedJourney(o)).catch(() => toast('That journey link could not be read')); return true; }
+  if (Q.task) { unpack(Q.task).then(o => o && showTask(fromTaskPack(o), true)).catch(() => toast('That task link could not be read')); return true; }
   (Q.lens || '').split(',').filter(k => LENSES.some(L => L.k === k)).forEach(k => setLens(k, true));
   if (Q.n) { let ok = false; try { const S = GC.NSW.set(Q.n); ok = !!S && (S.size || S.length) > 0; } catch (err) {} if (ok) setCourse(Q.n); }
   if (Q.trail) { const t = Q.trail.split(',').filter(i => N[i] && LAY.nodes[i]); if (t.length) { shared = t; drawTrail(); } }
@@ -904,8 +946,220 @@ const lift = e => { if (!PT.has(e.pointerId)) return; PT.delete(e.pointerId); cl
   if (fingerTrace && !PT.size) { fingerTrace = false; setTimeout(clearTrace, 900); } };
 svg.addEventListener('pointerup', lift); svg.addEventListener('pointercancel', lift);
 
+
+/* ---------- Journeys: a listener's path through the Garden, with a work and a note at each stop; listening tasks set by a teacher ---------- */
+let walking = null, jpanel = false, inWalk = false;
+const LS = (k, d) => { try { return JSON.parse(localStorage.getItem(k) || 'null') || d; } catch (err) { return d; } };
+const LSset = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (err) { toast('This browser is full: share or delete a journey to make room'); return false; } };
+let JOURNEYS = LS('garden.journeys', []).filter(j => j && Array.isArray(j.stops)), TASKS = LS('garden.tasks', []), task = LS('garden.task', null);
+const saveJ = () => LSset('garden.journeys', JOURNEYS), saveTasks = () => LSset('garden.tasks', TASKS), saveTask = () => LSset('garden.task', task);
+const uid = p => p + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+const today = () => new Date().toLocaleDateString('en-AU', {day: 'numeric', month: 'long', year: 'numeric'});
+const HOWS = {trace: 'traced', travel: 'followed a line', pick: 'picked', card: 'added from its card', start: 'the starting lantern', search: 'found by search'};
+const ERANAME = id => (ERA[id] || {}).name || id;
+const FT = f => { const t = FN(f) || ''; return t.charAt(0).toUpperCase() + t.slice(1).toLowerCase(); };      // 'KEYBOARD' as it reads in a sentence: 'Keyboard'
+function linkBetween(a, b) {      // the Garden's own connection between two stops, if there is one
+  const p = (BY[a] || []).find(q => (q.dataset.a === a && q.dataset.b === b) || (q.dataset.b === a && q.dataset.a === b)); if (!p) return null;
+  const t = [...p.classList].find(c => VERB[c]) || 'p'; return `${N[a].t} ${VERB[t][p.dataset.a === a ? 0 : 1]} ${N[b].t}`; }
+function stepLine(j, i) { const s = j.stops[i]; if (!i) { if (s.how && s.how.k === 'start') return 'The starting lantern'; const f = s.how && s.how.from, l = f && N[f] ? linkBetween(f, s.id) : null; return l ? `Set out from ${N[f].t}: ${l}` : 'Where the journey begins'; }
+  const prev = j.stops[i - 1].id, l = linkBetween(prev, s.id); if (l) return l;
+  const via = s.how && s.how.from && s.how.from !== prev && N[s.how.from] ? linkBetween(s.how.from, s.id) : null;
+  return via ? `A leap from ${N[prev].t}, reached because ${via}` : `A leap from ${N[prev].t}`; }
+const workOf = s => s.w != null && s.w >= 0 && N[s.id].works && N[s.id].works[s.w] ? N[s.id].works[s.w] : null;
+const workText = w => w ? `${w[0]} · ${w[1]}${w[2] ? ', ' + w[2] : ''}` : '';
+function checkTask(j) { const T = j.task; if (!T) return null; const st = j.stops, out = [];
+  out.push([st.length >= T.n, `At least ${T.n} stops (${st.length} so far)`]);
+  if (T.s && N[T.s]) out.push([st[0] && st[0].id === T.s, `Begin at ${N[T.s].t}`]);
+  if (T.e) out.push([!!st.length && N[st[st.length - 1].id].period === T.e, `End in the ${ERANAME(T.e)} storey`]);
+  if (T.r) out.push([st.length > 0 && st.every(x => x.note.trim() && workOf(x)), 'A work and a note at every stop']);
+  return out; }
+
+// ---- packing for links: compact, then compressed where the browser can
+const b64u = bytes => btoa(String.fromCharCode(...bytes)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+const unb64u = s => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
+async function pack(o) { const raw = new TextEncoder().encode(JSON.stringify(o));
+  if (window.CompressionStream) { try { const z = new Uint8Array(await new Response(new Blob([raw]).stream().pipeThrough(new CompressionStream('deflate-raw'))).arrayBuffer()); let s = ''; for (let i = 0; i < z.length; i += 8192) s += String.fromCharCode(...z.subarray(i, i + 8192)); return '1' + btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); } catch (err) {} }
+  return '0' + b64u(raw); }
+async function unpack(code) { const v = code[0], bytes = unb64u(code.slice(1));
+  const raw = v === '1' ? new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer()) : bytes;
+  return JSON.parse(new TextDecoder().decode(raw)); }
+const taskPack = T => ({t: T.t, p: T.p, n: T.n, s: T.s || '', e: T.e || '', r: T.r ? 1 : 0});
+const fromTaskPack = o => ({id: uid('t'), t: String(o.t || '').slice(0, 90), p: String(o.p || '').slice(0, 900), n: Math.max(1, Math.min(30, +o.n || 5)), s: N[o.s] ? o.s : '', e: ERA[o.e] ? o.e : '', r: !!o.r});
+const jPack = j => ({v: 1, t: j.title, b: j.by, d: j.made, k: j.task ? taskPack(j.task) : 0, s: j.stops.map(x => [x.id, (x.how && x.how.k) || 'pick', (x.how && x.how.from) || '', x.w == null ? -1 : x.w, x.note])});
+const jUnpack = o => ({id: uid('j'), title: String(o.t || '').slice(0, 90), by: String(o.b || '').slice(0, 50), made: String(o.d || ''), task: o.k ? fromTaskPack(o.k) : null,
+  stops: (o.s || []).filter(x => N[x[0]] && LAY.nodes[x[0]]).map(x => ({id: x[0], how: {k: HOWS[x[1]] ? x[1] : 'pick', from: N[x[2]] ? x[2] : ''}, w: +x[3] >= 0 ? +x[3] : null, note: String(x[4] || '').slice(0, 280)}))});
+async function shareJourney(j) { const code = await pack(jPack(j)), url = HOME + '#j=' + code;
+  if (url.length > 7000) toast('This journey makes a very long link; some apps may cut it short. The sheet is a safer way to pass it on.', 5000);
+  shareLink(url, `“${j.title || 'A journey'}”, ${j.stops.length} stops`); }
+async function shareTask(T) { shareLink(HOME + '#task=' + await pack(taskPack(T)), `listening task “${T.t || 'Untitled'}”`); }
+
+// ---- the panel: editor, walk, task, task maker
+function openJPanel(build) { closeSheet(); clearThread(); clearEvent(); clearTrace(); hidePill(); sel = null; spot = null; jpanel = true; panel.innerHTML = ''; panel.scrollTop = 0;
+  const x = el('button', 'x', panel, '×'); x.setAttribute('aria-label', 'Close'); x.onclick = () => endJourneyPanel(); build(panel);
+  document.body.classList.add('pan', 'jmode'); measure(); clamp(view); apply(); }
+function endJourneyPanel() { const was = !!walking; walking = null; jpanel = false; document.body.classList.remove('jmode', 'walking'); if (was) light(null); document.body.classList.remove('pan'); measure(); clamp(view); drawTrail(); apply(); }
+function quitWalk() { if (inWalk) return; if (walking || jpanel) { walking = null; jpanel = false; document.body.classList.remove('jmode', 'walking'); drawTrail(); } }
+const H = (t, cls, par, txt) => el(t, cls, par, txt);
+
+function newJourneyFromTrail() { if (!trail.length) return toast('Collect a few lanterns into your trail first');
+  const j = {id: uid('j'), title: task ? task.t : '', by: '', made: today(), task: task ? {...task} : null, stops: trail.map(id => ({id, how: trailHow[id] || {k: 'pick'}, w: null, note: ''}))};
+  JOURNEYS.unshift(j); saveJ(); editJourney(j); }
+function editJourney(j) { openJPanel(P => {
+  H('div', 'k', P, 'Journey · ' + (j.made || ''));
+  const ti = H('input', 'jr-title', P); ti.placeholder = 'Name this journey'; ti.value = j.title; ti.maxLength = 90; ti.setAttribute('aria-label', 'Journey title'); ti.oninput = () => { j.title = ti.value; saveJ(); };
+  const by = H('input', 'jr-by', P); by.placeholder = 'Your name (optional; a first name is enough)'; by.value = j.by; by.maxLength = 50; by.setAttribute('aria-label', 'Your name'); by.oninput = () => { j.by = by.value; saveJ(); };
+  const tk = H('div', 'jr-task', P); const drawTask = () => { tk.innerHTML = ''; if (!j.task) { tk.style.display = 'none'; return; } tk.style.display = '';
+    H('div', 'jr-tk', tk, 'Listening task' + (j.task.t ? ' · ' + j.task.t : '')); if (j.task.p) H('p', '', tk, j.task.p);
+    const ul = H('ul', '', tk); checkTask(j).forEach(([ok, t]) => { const li = H('li', ok ? 'ok' : '', ul, (ok ? '✓ ' : '○ ') + t); }); };
+  drawTask();
+  const list = H('ol', 'jr-stops', P);
+  const draw = () => { list.innerHTML = ''; j.stops.forEach((s, i) => { const li = H('li', 'jr-stop', list), n = N[s.id];
+    const hd = H('div', 'jr-hd', li); H('em', '', hd, String(i + 1)); const nm = H('button', 'jr-nm', hd, n.t); nm.title = 'Show it on the map'; nm.onclick = () => { light(s.id); const q = LAY.nodes[s.id]; flyTo(Math.max(view.k, fitK * 2.4), q.x, q.y); };
+    H('small', '', hd, n.d || '');
+    const ctl = H('span', 'jr-ctl', hd); [['↑', -1, 'Move up'], ['↓', 1, 'Move down']].forEach(([t, d, lab]) => { const b = H('button', '', ctl, t); b.setAttribute('aria-label', lab + ': ' + n.t); b.disabled = !j.stops[i + d]; b.onclick = () => { [j.stops[i], j.stops[i + d]] = [j.stops[i + d], j.stops[i]]; saveJ(); draw(); drawTask(); }; });
+    const rm = H('button', '', ctl, '×'); rm.setAttribute('aria-label', 'Remove ' + n.t); rm.onclick = () => { j.stops.splice(i, 1); saveJ(); draw(); drawTask(); };
+    H('div', 'jr-line', li, stepLine(j, i));
+    const sw = H('select', 'jr-w', li); sw.setAttribute('aria-label', 'The work you listened to at ' + n.t); H('option', '', sw, '— the work I listened to —').value = -1;
+    (n.works || []).forEach((w, k) => { const o = H('option', '', sw, workText(w)); o.value = k; }); sw.value = s.w == null ? -1 : s.w; sw.onchange = () => { s.w = +sw.value < 0 ? null : +sw.value; saveJ(); drawTask(); };
+    const ta = H('textarea', 'jr-note', li); ta.maxLength = 280; ta.rows = 2; ta.placeholder = 'What did you hear? Why does it matter on this journey?'; ta.value = s.note; ta.setAttribute('aria-label', 'Your note at ' + n.t);
+    const cnt = H('div', 'jr-cnt', li, `${s.note.length} / 280`); ta.oninput = () => { s.note = ta.value; cnt.textContent = `${s.note.length} / 280`; saveJ(); drawTask(); }; });
+    const more = trail.filter(id => !j.stops.some(x => x.id === id)); if (more.length) { const add = H('select', 'jr-add', list); H('option', '', add, `＋ Add a stop from your trail (${more.length})`).value = '';
+      more.forEach(id => { H('option', '', add, N[id].t).value = id; }); add.onchange = () => { if (!add.value) return; j.stops.push({id: add.value, how: trailHow[add.value] || {k: 'pick'}, w: null, note: ''}); saveJ(); draw(); drawTask(); }; }
+    if (!j.stops.length) H('p', 'jr-empty', list, 'No stops yet. Collect lanterns into your trail, then add them here.'); };
+  draw();
+  const act = H('div', 'jr-act', P);
+  [['▸ Walk it', () => j.stops.length && walkJourney(j, 0)], ['⧉ Share link', () => shareJourney(j)], ['▤ Journey sheet', () => journeySheetPage(j)], ['Copy as text', () => copyText(j)]].forEach(([t, f]) => { const b = H('button', 'jr-b', act, t); b.onclick = f; });
+  const del = H('button', 'jr-del', act, 'Delete journey'); del.onclick = () => { if (del.dataset.sure) { JOURNEYS = JOURNEYS.filter(x => x !== j); saveJ(); endJourneyPanel(); toast('Journey deleted'); } else { del.dataset.sure = 1; del.textContent = 'Delete it? Click again'; } };
+  H('p', 'jr-small', P, 'Saved as you type, in this browser. A shared link carries the whole journey, notes and names included.');
+  setTimeout(() => !j.title && ti.focus(), 60); }); }
+
+function walkJourney(j, i, isShared) { i = Math.max(0, Math.min(j.stops.length - 1, i)); const s = j.stops[i], n = N[s.id];
+  inWalk = true; walking = {j, i, shared: !!isShared}; document.body.classList.add('walking');
+  openJPanel(P => {
+    H('div', 'k', P, `Journey · stop ${i + 1} of ${j.stops.length}`);
+    H('h1', 'jr-jt', P, j.title || 'A journey'); if (j.by || j.made) H('div', 'lin', P, [j.by && 'by ' + j.by, j.made].filter(Boolean).join(' · '));
+    if (j.task && i === 0) { const tk = H('div', 'jr-task', P); H('div', 'jr-tk', tk, 'Listening task' + (j.task.t ? ' · ' + j.task.t : '')); if (j.task.p) H('p', '', tk, j.task.p); }
+    const dots = H('div', 'jr-dots', P); j.stops.forEach((x, k) => { const d = H('button', k === i ? 'cur' : '', dots, String(k + 1)); d.setAttribute('aria-label', `Stop ${k + 1}: ${N[x.id].t}`); d.title = N[x.id].t; d.onclick = () => walkJourney(j, k, isShared); });
+    H('div', 'jr-line big', P, stepLine(j, i));
+    const h2 = H('h2', 'jr-stopname', P, n.t); H('div', 'lin', P, [n.d, FT(famOf(s.id)) + ' spire', ERANAME(n.period) + ' storey'].filter(Boolean).join(' · '));
+    const w = workOf(s); if (w) { const wp = H('div', 'jr-work', P); H('span', 'ic', wp, '♫'); wp.append(workText(w)); }
+    if (s.note.trim()) { const q = H('blockquote', 'jr-q', P, s.note); if (j.by) H('cite', '', q, j.by); }
+    if (n.brief) { const bt = n.brief.replace(/\*\*(.+?)\*\*/g, '$1').replace(/\*(.+?)\*/g, '$1').replace(/\[([^\]]+)\]\([^)]*\)/g, '$1'); H('p', 'jr-brief', P, bt.length > 260 ? bt.slice(0, 257).replace(/\s+\S*$/, '') + '…' : bt); }
+    const nav = H('div', 'jr-nav', P); const pv = H('button', 'jr-b', nav, '‹ Previous'); pv.disabled = !i; pv.onclick = () => walkJourney(j, i - 1, isShared);
+    const nx = H('button', 'jr-b gold', nav, i < j.stops.length - 1 ? 'Next ›' : 'End of the journey'); nx.disabled = i >= j.stops.length - 1; nx.onclick = () => walkJourney(j, i + 1, isShared);
+    const more = H('div', 'jr-act', P); const oc = H('button', 'jr-b', more, 'Open its card'); oc.onclick = () => { inWalk = false; choose(s.id, true); };
+    if (isShared) { const kp = H('button', 'jr-b', more, 'Keep a copy'); kp.onclick = () => { const c = {...j, id: uid('j'), stops: j.stops.map(x => ({...x}))}; JOURNEYS.unshift(c); if (saveJ()) { toast('Kept in your journeys'); kp.disabled = true; } }; }
+    else { const ed = H('button', 'jr-b', more, 'Edit'); ed.onclick = () => { inWalk = false; walking = null; document.body.classList.remove('walking'); editJourney(j); }; }
+    const sh = H('button', 'jr-b', more, '▤ Journey sheet'); sh.onclick = () => journeySheetPage(j);
+    setTimeout(() => h2 && (document.activeElement === document.body || !document.activeElement || P.contains(document.activeElement)) && nx.focus({preventScroll: true}), 60); });
+  light(s.id); drawTrail(); const q = LAY.nodes[s.id]; flyTo(Math.max(fitK * 2.6, Math.min(view.k, 6)), q.x, q.y); inWalk = false; say(`Stop ${i + 1} of ${j.stops.length}: ${n.t}. ${stepLine(j, i)}.`); }
+function openSharedJourney(o) { const j = jUnpack(o); if (!j.stops.length) return toast('That journey has no stops this Garden knows'); walkJourney(j, 0, true); }
+
+// ---- listening tasks
+function showTask(T, fromLink) { openJPanel(P => {
+  H('div', 'k', P, 'Listening task'); H('h1', 'jr-jt', P, T.t || 'A listening task'); if (T.p) H('p', 'jr-prompt', P, T.p);
+  const ul = H('ul', 'jr-rules', P); H('li', '', ul, `Collect at least ${T.n} lanterns into your trail, by tracing lines, following them, or adding them from their cards.`);
+  if (T.s && N[T.s]) H('li', '', ul, `Begin at ${N[T.s].t}.`); if (T.e) H('li', '', ul, `End somewhere in the ${ERANAME(T.e)} storey.`);
+  H('li', '', ul, T.r ? 'At every stop, choose the work you listened to and write a short note.' : 'At each stop you may choose a work and write a note.');
+  H('li', '', ul, 'Then save your trail as a journey, check it against the task, and share its link or sheet.');
+  const act = H('div', 'jr-act', P), go = H('button', 'jr-b gold', act, task && task.id === T.id ? 'This task is under way' : 'Begin this task'); go.disabled = !!(task && task.id === T.id);
+  go.onclick = () => { if (trail.length) { JOURNEYS.unshift({id: uid('j'), title: 'Trail set aside · ' + today(), by: '', made: today(), task: null, stops: trail.map(id => ({id, how: trailHow[id] || {k: 'pick'}, w: null, note: ''}))}); saveJ(); }
+    task = {...T}; saveTask(); trail = []; trailHow = {}; saveTrail(); endJourneyPanel();
+    if (T.s && N[T.s]) { collect(T.s, {k: 'start'}); spotlight(T.s); } toast(trail.length ? `Task begun at ${N[T.s].t}. Trace its lines to collect the next stops.` : 'Task begun. Collect lanterns into your trail.', 4500); };
+  if (fromLink) { const kp = H('button', 'jr-b', act, 'Keep this task'); kp.onclick = () => { if (!TASKS.some(x => x.t === T.t && x.p === T.p)) { TASKS.unshift({...T}); saveTasks(); } toast('Kept in your tasks'); kp.disabled = true; }; }
+  if (trail.length && !(task && task.id === T.id)) H('p', 'jr-small', P, `Your current trail (${trail.length} lanterns) will be kept as a journey before the task begins.`); }); }
+function editTask(T) { const isNew = !T; T = T || {id: uid('t'), t: '', p: '', n: 5, s: '', e: '', r: true};
+  openJPanel(P => {
+  H('div', 'k', P, isNew ? 'Set a listening task' : 'Edit listening task');
+  const f = (lab, node) => { const w = H('label', 'jr-f', P); H('span', '', w, lab); w.appendChild(node); return node; };
+  const t = f('Title', el('input', 'jr-title')); t.maxLength = 90; t.value = T.t; t.placeholder = 'e.g. From the fugue to now';
+  const p = f('What should the listener do?', el('textarea', 'jr-note')); p.rows = 4; p.maxLength = 900; p.value = T.p; p.placeholder = 'e.g. Start at the fugue and travel to music of today. At each stop, listen to one work and note one thing that has changed and one that has stayed.';
+  const n = f('Stops required', el('input', 'jr-num')); n.type = 'number'; n.min = 2; n.max = 30; n.value = T.n;
+  const sl = f('Begin at (optional)', el('input', 'jr-title')); sl.setAttribute('list', 'jr-names'); sl.placeholder = 'Any lantern'; sl.value = T.s && N[T.s] ? N[T.s].t : '';
+  const dl = el('datalist', '', P); dl.id = 'jr-names'; D.nodes.filter(x => LAY.nodes[x.id] && x.id !== 'commons').sort((a, b) => a.t.localeCompare(b.t)).forEach(x => { el('option', '', dl).value = x.t; });
+  const se = f('End in the storey (optional)', el('select', 'jr-w')); el('option', '', se, 'Anywhere').value = ''; LAY.eras.forEach(E => { el('option', '', se, E.name).value = E.id; }); se.value = T.e;
+  const rq = H('label', 'jr-chk', P); const cb = el('input', '', rq); cb.type = 'checkbox'; cb.checked = T.r; rq.append(' A work and a note required at every stop');
+  const read = () => { T.t = t.value.trim(); T.p = p.value.trim(); T.n = Math.max(2, Math.min(30, +n.value || 5)); const hit = D.nodes.find(x => x.t.toLowerCase() === sl.value.trim().toLowerCase()); T.s = hit ? hit.id : ''; T.e = se.value; T.r = cb.checked; };
+  const act = H('div', 'jr-act', P);
+  const sv = H('button', 'jr-b gold', act, 'Save task'); sv.onclick = () => { read(); if (!T.t) return t.focus(); const i = TASKS.findIndex(x => x.id === T.id); if (i < 0) TASKS.unshift(T); else TASKS[i] = T; saveTasks(); toast('Task saved'); journeySheetOpen(); };
+  const sh = H('button', 'jr-b', act, '⧉ Copy task link'); sh.onclick = () => { read(); if (!T.t) return t.focus(); shareTask(T); };
+  const pr = H('button', 'jr-b', act, 'Preview as a listener'); pr.onclick = () => { read(); showTask({...T}); };
+  if (!isNew) { const del = H('button', 'jr-del', act, 'Delete task'); del.onclick = () => { if (del.dataset.sure) { TASKS = TASKS.filter(x => x.id !== T.id); saveTasks(); endJourneyPanel(); journeySheetOpen(); } else { del.dataset.sure = 1; del.textContent = 'Delete it? Click again'; } }; }
+  H('p', 'jr-small', P, 'Students open the task link, collect their stops, then share their journey link or sheet back to you. Nothing is stored on any server.');
+  setTimeout(() => t.focus(), 60); }); }
+
+// ---- the Journeys sheet (rail)
+function journeySheetOpen() { const b = document.querySelector('.rail button[data-sheet="journeys"]'); if (!sheet.classList.contains('open') || sheet.dataset.kind !== 'journeys') openSheet('journeys', b); else journeySheet(); }
+function journeySheet() { sheet.innerHTML = ''; el('h3', '', sheet, 'JOURNEYS');
+  el('p', 'lnote', sheet, 'A journey is your trail kept with a work and a note at each stop. Walk it again, share its link, or print its sheet.');
+  const sv = el('button', 'jbig', sheet, trail.length ? `✎ Save your trail as a journey (${trail.length} lanterns)` : '✎ Save your trail as a journey'); sv.disabled = !trail.length; sv.onclick = () => { closeSheet(); newJourneyFromTrail(); };
+  if (!trail.length) el('p', 'lnote', sheet, 'Your trail is empty: trace lines, follow them, Shift-click lanterns or use ＋ Trail on a card.');
+  if (task) { el('h4', '', sheet, 'Task under way'); const r = el('div', 'jrow', sheet); const b = el('button', '', r, task.t || 'Listening task'); el('small', '', b, `${trail.length} of ${task.n} stops`); b.onclick = () => { closeSheet(); showTask(task); };
+    const lv = el('button', 'jx', r, 'Leave'); lv.title = 'Leave this task (your trail stays)'; lv.onclick = () => { task = null; saveTask(); drawTrail(); journeySheet(); }; }
+  el('h4', '', sheet, `Your journeys · ${JOURNEYS.length}`);
+  if (!JOURNEYS.length) el('p', 'lnote', sheet, 'None yet.');
+  JOURNEYS.forEach(j => { const r = el('div', 'jrow', sheet); const b = el('button', '', r, j.title || 'Untitled journey'); el('small', '', b, `${j.stops.length} stop${j.stops.length === 1 ? '' : 's'}${j.by ? ' · ' + j.by : ''}${j.made ? ' · ' + j.made : ''}${j.task ? ' · task' : ''}`);
+    b.title = 'Walk this journey'; b.onclick = () => { closeSheet(); j.stops.length ? walkJourney(j, 0) : editJourney(j); };
+    const e = el('button', 'jx', r, 'Edit'); e.onclick = () => { closeSheet(); editJourney(j); }; });
+  el('h4', '', sheet, 'Listening tasks · for teachers and guides');
+  const nt = el('button', 'jbig', sheet, '＋ Set a listening task'); nt.onclick = () => { closeSheet(); editTask(null); };
+  TASKS.forEach(T => { const r = el('div', 'jrow', sheet); const b = el('button', '', r, T.t || 'Untitled task'); el('small', '', b, `${T.n} stops${T.s && N[T.s] ? ' · from ' + N[T.s].t : ''}${T.e ? ' · to ' + ERANAME(T.e) : ''}`);
+    b.onclick = () => { closeSheet(); showTask(T); }; const sh = el('button', 'jx', r, 'Link'); sh.title = 'Copy the task link'; sh.onclick = () => shareTask(T); const e = el('button', 'jx', r, 'Edit'); e.onclick = () => { closeSheet(); editTask(T); }; });
+  el('p', 'lnote', sheet, 'Kept in this browser: as many as it will hold. A link is the safest copy.'); }
+
+// ---- copy as text, and the journey sheet (a printable page in the Garden's style)
+function journeyText(j) { const L = [(j.title || 'A journey') + (j.by ? ' · by ' + j.by : ''), 'The Garden of Earthly Sounds' + (j.made ? ' · ' + j.made : ''), ''];
+  if (j.task) { L.push('Listening task: ' + (j.task.t || '') + (j.task.p ? ' · ' + j.task.p : ''), ''); }
+  j.stops.forEach((s, i) => { const n = N[s.id], w = workOf(s); L.push(`${i + 1}. ${n.t}${n.d ? ' (' + n.d + ')' : ''}`); L.push('   ' + stepLine(j, i)); if (w) L.push('   ♫ ' + workText(w)); if (s.note.trim()) L.push('   “' + s.note.trim() + '”'); L.push(''); });
+  return L.join('\n'); }
+async function copyText(j) { const t = journeyText(j); try { await navigator.clipboard.writeText(t); toast('Journey copied as text'); } catch (err) { toast('Copy this text<textarea readonly style="width:min(520px,80vw);height:160px;display:block;margin-top:6px;background:#0b0906;color:#ece2c8;border:1px solid #3a3222;border-radius:6px;font:12px Outfit,sans-serif">' + t.replace(/</g, '&lt;') + '</textarea>', 15000); } }
+const esc = t => String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+async function journeySheetPage(j) {
+  const link = HOME + '#j=' + await pack(jPack(j)), W = 640, ids = j.stops.map(s => s.id);
+  // the little Garden: spires in their colours, storey lines, the commons, and the journey's path with numbered stops
+  const fx0 = Math.min(...FAMS.map(f => LAY.fams[f].x0)), fx1 = Math.max(...FAMS.map(f => LAY.fams[f].x1)), xs = [fx0 - 14, fx1 + 14], ys = [LAY.present - 40, LAY.ground + 70], sc = W / (xs[1] - xs[0]), Hh = (ys[1] - ys[0]) * sc, X = x => (x - xs[0]) * sc, Y = y => (y - ys[0]) * sc;
+  let g = `<svg viewBox="0 0 ${W} ${Hh.toFixed(0)}" width="100%" role="img" aria-label="The journey drawn on the Garden">`;
+  LAY.eras.forEach(E => { g += `<line x1="0" x2="${W}" y1="${Y(E.top).toFixed(1)}" y2="${Y(E.top).toFixed(1)}" class="era"/><text x="4" y="${(Y(E.top) + 11).toFixed(1)}" class="eran">${esc(E.name)}</text>`; });
+  FAMS.forEach(f => { const F = LAY.fams[f]; if (f === 'commons') return; g += `<rect x="${X(F.x0).toFixed(1)}" y="${Y(LAY.present).toFixed(1)}" width="${((F.x1 - F.x0) * sc).toFixed(1)}" height="${((F.open - LAY.present) * sc).toFixed(1)}" fill="${F.c}" class="sp"/><line x1="${X((F.x0 + F.x1) / 2).toFixed(1)}" x2="${X((F.x0 + F.x1) / 2).toFixed(1)}" y1="${Y(F.open).toFixed(1)}" y2="${Y(LAY.ground).toFixed(1)}" stroke="${F.c}" class="root"/><text x="${X((F.x0 + F.x1) / 2).toFixed(1)}" y="${(Y(LAY.present) - 6).toFixed(1)}" class="fn" fill="${F.c}">${esc(F.name.toUpperCase())}</text>`; });
+  const c = LAY.fams.commons, cx = X((c.x0 + c.x1) / 2); g += `<rect x="${X(c.x0).toFixed(1)}" y="${Y(LAY.present).toFixed(1)}" width="${((c.x1 - c.x0) * sc).toFixed(1)}" height="${((LAY.ground - LAY.present) * sc).toFixed(1)}" fill="${c.c}" class="sp"/><path d="M${cx - 520 * sc},${Y(LAY.ground)} L${cx + 520 * sc},${Y(LAY.ground)} L${cx},${Y(LAY.ground + 66)} Z" class="soil"/><text x="${cx.toFixed(1)}" y="${(Y(LAY.ground) + 14).toFixed(1)}" class="fn" fill="#4f7a3a">THE COMMONS</text>`;
+  const pts = ids.map(i => [X(LAY.nodes[i].x), Y(LAY.nodes[i].y)]);
+  if (pts.length > 1) g += `<path d="M${pts.map(p => p.map(v => v.toFixed(1)).join(',')).join(' L')}" class="path"/>`;
+  pts.forEach(([x, y], i) => { g += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="7.5" class="dot"/><text x="${x.toFixed(1)}" y="${(y + 3.4).toFixed(1)}" class="dn">${i + 1}</text>`; });
+  g += '</svg>';
+  const stops = j.stops.map((s, i) => { const n = N[s.id], w = workOf(s);
+    return `<li><div class="sh"><span class="num">${i + 1}</span><span class="nm">${esc(n.t)}</span><span class="dt">${esc([n.d, FT(famOf(s.id)) + ' spire', ERANAME(n.period)].filter(Boolean).join(' · '))}</span></div>
+    <div class="ln">${esc(stepLine(j, i))}</div>${w ? `<div class="wk">♫ ${esc(workText(w))}</div>` : ''}${s.note.trim() ? `<blockquote>${esc(s.note.trim())}</blockquote>` : ''}</li>`; }).join('');
+  const chk = checkTask(j), taskHTML = j.task ? `<section class="task"><h3>Listening task${j.task.t ? ' · ' + esc(j.task.t) : ''}</h3>${j.task.p ? `<p>${esc(j.task.p)}</p>` : ''}<ul>${chk.map(([ok, t]) => `<li class="${ok ? 'ok' : ''}">${ok ? '✓' : '○'} ${esc(t)}</li>`).join('')}</ul></section>` : '';
+  const F = HOME.replace(/[^/]*$/, '') + 'fonts/';
+  const html = `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(j.title || 'A journey')} · The Garden of Earthly Sounds</title><style>
+@font-face{font-family:Outfit;src:url(${F}Outfit-Regular.ttf)}@font-face{font-family:Outfit;font-weight:700;src:url(${F}Outfit-Bold.ttf)}@font-face{font-family:"Poiret One";src:url(${F}PoiretOne-Regular.ttf)}
+:root{--bg:#f7f1e3;--ink:#2a2216;--gold:#a8822e;--muted:#7a6d55;--rule:#d9cdb2;--card:#fffaf0}
+body.night{--bg:#0b0906;--ink:#ece2c8;--gold:#c9a24a;--muted:#9c927c;--rule:#2a2418;--card:#12100b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 Outfit,system-ui,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.bar{position:sticky;top:0;display:flex;gap:10px;justify-content:center;padding:10px;background:#0d0b07;border-bottom:1px solid #2a2418;z-index:2}.bar button{font:13px Outfit,sans-serif;background:#15120b;color:#ece2c8;border:1px solid #c9a24a;border-radius:16px;padding:6px 14px;cursor:pointer}
+main{max-width:760px;margin:0 auto;padding:36px 44px 50px}
+.over{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--gold)}h1{font:400 40px/1.1 "Poiret One",sans-serif;margin:8px 0 6px;letter-spacing:1px}
+.by{color:var(--muted);margin-bottom:22px}.map{border:1px solid var(--rule);border-radius:12px;padding:10px;background:var(--card);margin:6px 0 26px}
+svg .era{stroke:var(--rule);stroke-width:.6}svg .eran{font:9px Outfit,sans-serif;fill:var(--muted);letter-spacing:1px}svg .sp{opacity:.22}svg .root{stroke-width:1;opacity:.5}svg .fn{font:8px Outfit,sans-serif;text-anchor:middle;letter-spacing:1.4px}
+svg .soil{fill:#6fbf5a;opacity:.28}svg .path{fill:none;stroke:var(--gold);stroke-width:2;stroke-dasharray:1 4;stroke-linecap:round}svg .dot{fill:var(--card);stroke:var(--gold);stroke-width:1.6}svg .dn{font:700 9px Outfit,sans-serif;fill:var(--ink);text-anchor:middle}
+.task{border-left:3px solid var(--gold);background:var(--card);padding:10px 16px;border-radius:0 10px 10px 0;margin:0 0 24px}.task h3{font:400 18px "Poiret One",sans-serif;margin:2px 0 4px;color:var(--gold)}.task ul{list-style:none;padding:0;margin:6px 0 2px;font-size:13.5px;color:var(--muted)}.task li.ok{color:var(--ink)}
+ol{list-style:none;padding:0;margin:0}li{break-inside:avoid;padding:14px 0 16px;border-top:1px solid var(--rule)}
+.sh{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}.num{font:700 12px Outfit,sans-serif;color:var(--bg);background:var(--gold);border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;flex:none;transform:translateY(-2px)}
+.nm{font:400 24px "Poiret One",sans-serif;letter-spacing:.5px}.dt{font-size:12px;color:var(--muted)}.ln{font-style:italic;color:var(--muted);margin:4px 0 6px 34px;font-size:14px}.wk{margin:0 0 6px 34px}
+blockquote{margin:6px 0 0 34px;padding:4px 0 4px 14px;border-left:2px solid #8fbf6a;font-size:15.5px}
+footer{margin-top:28px;padding-top:14px;border-top:1px solid var(--rule);font-size:12px;color:var(--muted)}footer a{color:var(--gold);word-break:break-all}
+@media print{.bar{display:none}main{padding:0 6mm}@page{margin:14mm}}
+</style></head><body><div class="bar"><button onclick="print()">Print or save as PDF</button><button onclick="document.body.classList.toggle('night')">Paper · Night</button></div><main>
+<div class="over">A journey through the Garden of Earthly Sounds</div><h1>${esc(j.title || 'A journey')}</h1><div class="by">${esc([j.by && 'by ' + j.by, j.made, j.stops.length + ' stops'].filter(Boolean).join(' · '))}</div>
+${taskHTML}<div class="map">${g}</div><ol>${stops}</ol>
+<footer>Walk this journey in the Garden: <a href="${esc(link)}">${esc(link.length > 160 ? link.slice(0, 120) + '…' : link)}</a><br>The Garden of Earthly Sounds is a living document in the form of an interactive page. Please e-mail shmungfroi@gmail.com to make any suggestions, comments or corrections.</footer>
+</main></body></html>`;
+  const url = URL.createObjectURL(new Blob([html], {type: 'text/html'})); let w = null; try { w = window.open(url, '_blank'); } catch (err) {}
+  if (!w) { const a = document.createElement('a'); a.href = url; a.download = (j.title || 'journey').replace(/[^\w\- ]+/g, '').trim().replace(/\s+/g, '-').toLowerCase() + '.html'; document.body.appendChild(a); a.click(); a.remove(); toast('The journey sheet was downloaded: open it to print or save as PDF', 4000); }
+  window.__lastSheet = html; }
+
 readHash(location.hash); drawTrail();
-window.__map = {spot: () => spot, trail: () => trail, pin, STAR, reachOf, drawReach, fitBox, LENSES, drawLens, lens, setLens, setCourse, view, home, goFamily, goEra, goLevel, spotlight, choose, level, LAY, frameNet, showThread, tkey: () => tkey, showEvent, ekey: () => ekey};
+window.__map = {spot: () => spot, trail: () => trail, pin, travel, STAR, reachOf, drawReach, fitBox, LENSES, drawLens, lens, setLens, setCourse, view, home, goFamily, goEra, goLevel, spotlight, choose, level, LAY, frameNet, showThread, tkey: () => tkey, showEvent, ekey: () => ekey};
 })();
 </script>
 </body></html>
