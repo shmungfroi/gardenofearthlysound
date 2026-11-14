@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><link rel="icon" href="data:,"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Garden of Earthly Sounds · 2D map</title>
+<style>
+@font-face{font-family:Outfit;src:url(fonts/Outfit-Regular.ttf)}
+@font-face{font-family:Outfit;font-weight:700;src:url(fonts/Outfit-Bold.ttf)}
+@font-face{font-family:"Poiret One";src:url(fonts/PoiretOne-Regular.ttf)}
+:root{--ink:#0b0906;--panel:#12100b;--line:#2a2418;--gold:#c9a24a;--goldhi:#f0d48a;--ivory:#ece2c8;--muted:#9c927c;--red:#c8473b;--green:#8fbf6a;--rail:64px;--gut:118px;--top:56px}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--ink);color:var(--ivory);font-family:Outfit,system-ui,sans-serif}
+button{font:inherit;color:inherit}
+.disp{font-family:"Poiret One",Outfit,sans-serif}
+
+/* the map */
+#map{position:absolute;left:calc(var(--rail) + var(--gut));top:var(--top);width:calc(100vw - var(--rail) - var(--gut));height:calc(100vh - var(--top));touch-action:none;cursor:grab;display:block}
+body.pan #map{width:calc(100vw - var(--rail) - var(--gut) - 380px)}
+#map.drag{cursor:grabbing}
+#map #chrome,#map #gut text{display:none}
+#map .fm{cursor:pointer}
+#map .fm text{transition:opacity .25s}
+#map.far .fm:not(.soil) text{opacity:0}
+#map.far .fm.on:not(.soil) text,#map.far .fm.me:not(.soil) text{opacity:1}
+#map.near .famname{opacity:0;transition:opacity .3s}
+#map .famname{transition:opacity .3s}
+/* focus: everything falls quiet, the chosen web lights in gold */
+#map.focus .fm:not(.on):not(.me){opacity:.2}
+#map.focus .lk{stroke-opacity:.035}
+#map .lk.on{stroke:var(--goldhi);stroke-opacity:.95;stroke-width:.75}
+#map .lk.on.i{stroke-width:.55;stroke-dasharray:.6 2.4}
+#map .lk.on.r{stroke:var(--red)}
+#map .lk.on.c{stroke:var(--green)}
+#map .fm.on text{fill:var(--ivory);fill-opacity:1;opacity:1}
+#map .fm.on circle{fill:var(--goldhi);fill-opacity:1}
+#map .fm.me text{fill:var(--goldhi);fill-opacity:1;font-weight:700;opacity:1}
+#map .fm.me circle{fill:var(--goldhi);fill-opacity:1;r:1.4px}
+#map .fm:not(.soil):hover text{fill:var(--goldhi)}
+
+/* the frame: fixed on every side */
+.rail{position:absolute;left:0;top:0;bottom:0;width:var(--rail);background:#0f0d09;border-right:1px solid var(--line);padding-top:72px;z-index:5}
+.rail .logo{position:absolute;top:14px;left:0;width:100%;text-align:center;font-size:22px;color:var(--green)}
+.rail button{all:unset;display:flex;flex-direction:column;align-items:center;gap:4px;width:100%;padding:12px 0;cursor:pointer;color:var(--ivory);font-size:18px}
+.rail button small{font-size:9px;letter-spacing:.9px;color:var(--muted);text-transform:uppercase}
+.rail button:hover,.rail button.on{color:var(--goldhi)} .rail button:focus-visible{outline:1px solid var(--gold)}
+.top{position:absolute;left:var(--rail);right:0;top:0;height:var(--top);display:flex;align-items:center;gap:24px;padding:0 20px;background:#0d0b07;border-bottom:1px solid var(--line);z-index:5}
+.top .t{letter-spacing:4px;font-size:15px;white-space:nowrap;color:var(--ivory)}
+.crumbs{display:flex;align-items:center;gap:2px;font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden}
+.crumbs button{all:unset;cursor:pointer;padding:3px 5px;border-radius:5px} .crumbs button:hover{color:var(--ivory);background:#1d1910}
+.crumbs button.last{color:var(--goldhi)} .crumbs em{font-style:normal;color:#5d5546}
+.search{margin-left:auto;position:relative}
+.search input{width:280px;height:34px;border-radius:17px;border:1px solid #3a3222;background:#14110b;color:var(--ivory);padding:0 16px;font:14px Outfit,sans-serif;outline:none}
+.search input:focus{border-color:var(--gold)}
+#res{position:absolute;right:0;top:40px;width:340px;max-height:60vh;overflow:auto;background:var(--panel);border:1px solid #3a3222;border-radius:12px;display:none;z-index:9;padding:6px}
+#res button{all:unset;display:block;width:100%;padding:7px 10px;border-radius:7px;cursor:pointer;font-size:14px}
+#res button small{display:block;color:var(--muted);font-size:11.5px}
+#res button:hover,#res button:focus{background:#221d13;outline:none}
+.gut{position:absolute;left:var(--rail);top:var(--top);bottom:0;width:var(--gut);background:linear-gradient(90deg,#0d0b07 78%,#0d0b0700);z-index:3;pointer-events:none}
+.era{position:absolute;left:var(--rail);width:calc(var(--gut) - 14px);text-align:right;z-index:4;cursor:pointer;line-height:1.15;padding:2px 0}
+.era b{display:block;font-weight:400;font-size:12px;letter-spacing:1.8px;color:var(--gold)}
+.era span{font-size:10px;color:var(--muted)}
+.era:hover b,.era.cur b{color:var(--goldhi)} .era.cur b{text-decoration:underline;text-underline-offset:4px;text-decoration-color:#5d5546}
+.tick{position:absolute;left:calc(var(--rail) + var(--gut) - 10px);width:10px;border-top:1px solid #4a4030;z-index:4}
+.fam{position:absolute;top:var(--top);height:26px;display:flex;align-items:center;justify-content:center;font-size:11px;letter-spacing:2.4px;border-bottom:2px solid;background:#0d0b07e8;z-index:4;white-space:nowrap;cursor:pointer;overflow:visible}
+.fam.n{font-size:9.5px;letter-spacing:.8px} .fam:hover,.fam.cur{background:#1a160e}
+.mm{position:absolute;left:calc(var(--rail) + 6px);bottom:12px;width:calc(var(--gut) - 12px);height:84px;border:1px solid #3a3222;border-radius:9px;background:#0d0b07ee;z-index:5;overflow:hidden;cursor:pointer}
+.mm svg{width:100%;height:100%;display:block}
+.ladder{position:absolute;right:18px;bottom:16px;display:flex;flex-direction:column;gap:2px;background:#0f0d09ee;border:1px solid #3a3222;border-radius:14px;padding:8px;z-index:5}
+body.pan .ladder{right:398px}
+.ladder .pm{display:flex;gap:6px;justify-content:center;margin:2px 0 6px}
+.ladder .pm button{all:unset;width:34px;height:34px;border-radius:50%;background:var(--ivory);color:#111;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer}
+.ladder .pm button:hover{background:var(--goldhi)}
+.ladder .rung{all:unset;display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--muted);padding:6px 10px;border-radius:8px;cursor:pointer}
+.ladder .rung i{width:8px;height:8px;border-radius:50%;border:1.5px solid #6d6350}
+.ladder .rung:hover{color:var(--ivory)} .ladder .rung.cur{color:#111;background:var(--goldhi)} .ladder .rung.cur i{border-color:#111;background:#111}
+#hint{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);background:#15120b;border:1px solid var(--gold);border-radius:18px;padding:7px 16px;font-size:14px;display:none;z-index:6;cursor:pointer;white-space:nowrap}
+#hint b{color:var(--goldhi);font-weight:500} #hint:hover{background:#221d13}
+aside{position:absolute;right:0;top:var(--top);bottom:0;width:380px;background:var(--panel);border-left:1px solid var(--line);padding:22px 26px 40px;overflow:auto;z-index:6;display:none;font-size:14.5px;line-height:1.58}
+body.pan aside{display:block}
+aside .x{position:absolute;right:14px;top:14px;all:unset;position:absolute;right:16px;top:14px;width:30px;height:30px;border-radius:50%;border:1px solid #3a3222;display:flex;align-items:center;justify-content:center;cursor:pointer}
+aside .k{padding-right:40px;font-size:10.5px;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
+aside h1{font:400 30px "Poiret One",Outfit,sans-serif;letter-spacing:1px;margin:8px 0 2px;color:var(--goldhi);line-height:1.15}
+aside .d{color:var(--muted);margin:0 0 10px}
+aside .tags span{font-size:11px;color:#111;border-radius:10px;padding:2px 9px;margin:0 6px 6px 0;display:inline-block}
+aside h4{font-size:10.5px;letter-spacing:2px;color:var(--gold);font-weight:500;margin:18px 0 7px;text-transform:uppercase}
+aside .chips button{all:unset;display:inline-block;border:1px solid #3a3222;border-radius:13px;padding:2px 11px;margin:0 6px 7px 0;font-size:13px;cursor:pointer}
+aside .chips button:hover{border-color:var(--gold);color:var(--goldhi)}
+aside ol{padding-left:18px;margin:0} aside li{margin-bottom:6px} aside li small{color:var(--muted)}
+aside b{color:var(--goldhi);font-weight:500}
+.sheet{position:absolute;left:var(--rail);top:var(--top);width:300px;max-height:calc(100% - var(--top) - 20px);overflow:auto;background:var(--panel);border:1px solid #3a3222;border-left:0;border-radius:0 12px 12px 0;z-index:7;display:none;padding:12px}
+.sheet.open{display:block}
+.sheet h3{font:400 15px "Poiret One",sans-serif;letter-spacing:2px;color:var(--gold);margin:4px 6px 10px}
+.sheet button{all:unset;display:block;width:100%;padding:6px 8px;border-radius:7px;cursor:pointer;font-size:14px}
+.sheet button:hover{background:#221d13;color:var(--goldhi)} .sheet button small{color:var(--muted);margin-left:6px}
+.sheet p{font-size:13.5px;line-height:1.55;margin:6px}
+.sheet .sw{display:inline-block;width:22px;border-top:2px solid var(--gold);vertical-align:middle;margin-right:8px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head>
+<body>
+<svg id="map" role="img" aria-label="The Garden of Earthly Sounds: eight spires growing from the commons, storeys rising from 800 at the ground to today at the top, lanterns for the forms"><g id="cam">%%MAP%%</g></svg>
+
+<nav class="rail" aria-label="Tools">
+  <div class="logo" aria-hidden="true">❦</div>
+  <button data-sheet="search" title="Search (/)">⌕<small>Search</small></button>
+  <button data-sheet="families">▥<small>Spires</small></button>
+  <button data-sheet="eras">☰<small>Storeys</small></button>
+  <button data-sheet="az">Az<small>A–Z</small></button>
+  <button data-sheet="guide">?<small>Guide</small></button>
+</nav>
+<div class="sheet" id="sheet" role="dialog"></div>
+<header class="top">
+  <span class="t disp">THE GARDEN OF EARTHLY SOUNDS</span>
+  <nav class="crumbs" id="crumbs" aria-label="Where you are"></nav>
+  <div class="search"><input id="q" type="search" placeholder="Find a lantern (any form)…" autocomplete="off" aria-label="Find a form"><div id="res" role="listbox"></div></div>
+</header>
+<div class="gut"></div><div id="eras"></div><div id="fams"></div>
+<div class="mm" id="mm" title="The whole garden: click to go there"></div>
+<div class="ladder" aria-label="Zoom levels">
+  <div class="pm"><button id="zin" aria-label="Zoom in">+</button><button id="zout" aria-label="Zoom out">−</button></div>
+  <button class="rung" data-l="0"><i></i>Garden</button><button class="rung" data-l="1"><i></i>Spire</button><button class="rung" data-l="2"><i></i>Storey</button><button class="rung" data-l="3"><i></i>Lantern</button>
+</div>
+<div id="hint" role="status"></div>
+<aside id="panel" aria-live="polite"></aside>
+
+<script src="gx_data.js"></script>
+<script>
+(() => {
+const LAY = %%LAYOUT%%;
+const G = window.GX, D = G.DATA, N = {}; D.nodes.forEach(n => N[n.id] = n);
+const $ = s => document.querySelector(s), svg = $('#map'), cam = $('#cam'), panel = $('#panel');
+const el = (t, cls, parent, text) => { const e = document.createElement(t); if (cls) e.className = cls; if (text != null) e.textContent = text; if (parent) parent.appendChild(e); return e; };
+const FAMS = Object.keys(LAY.fams), FN = f => LAY.fams[f].name, FC = f => LAY.fams[f].c;
+const NODE = {}; document.querySelectorAll('#map .fm').forEach(g => NODE[g.dataset.id] = g);
+const BY = {}; document.querySelectorAll('#map .lk').forEach(p => { [p.dataset.a, p.dataset.b].forEach(id => (BY[id] = BY[id] || []).push(p)); });
+const famOf = id => (LAY.nodes[id] || {}).f || 'commons';
+const eraOf = id => N[id].period;
+const ERA = {}; LAY.eras.forEach(e => ERA[e.id] = e);
+const B = LAY.bounds;     // the sheet's edges: the view never leaves them
+
+/* ---------- camera: map units to screen ---------- */
+const view = {k: 1, tx: 0, ty: 0}; let aw = 0, ah = 0, fitK = 1, anim = null;
+function measure() { const r = svg.getBoundingClientRect(); aw = r.width; ah = r.height; fitK = Math.min(aw / (B[2] - B[0]), ah / (B[3] - B[1])); }
+const KMAX = 14, KMIN = () => fitK * .9;
+function clamp(v) {
+  v.k = Math.max(KMIN(), Math.min(KMAX, v.k));
+  const mw = (B[2] - B[0]) * v.k, mh = (B[3] - B[1]) * v.k;
+  v.tx = mw <= aw ? (aw - mw) / 2 - B[0] * v.k : Math.min(-B[0] * v.k, Math.max(aw - B[2] * v.k, v.tx));
+  v.ty = mh <= ah ? (ah - mh) / 2 - B[1] * v.k : Math.min(-B[1] * v.k, Math.max(ah - B[3] * v.k, v.ty));
+  return v; }
+function apply() {
+  cam.setAttribute('transform', `translate(${view.tx},${view.ty}) scale(${view.k})`);
+  const fs = 3.4 * view.k; svg.classList.toggle('far', fs < 7.5); svg.classList.toggle('near', view.k > fitK * 2.6);
+  // names in a lit web stay readable when the view is wide
+  const s = Math.max(1, 2.3 / view.k);
+  document.querySelectorAll('#map .fm.on:not(.soil),#map .fm.me:not(.soil)').forEach(g => { const p = LAY.nodes[g.dataset.id]; g.setAttribute('transform', s > 1 ? `translate(${p.x},${p.y}) scale(${s}) translate(${-p.x},${-p.y})` : ''); });
+  chrome(); }
+const centre = () => [(aw / 2 - view.tx) / view.k, (ah / 2 - view.ty) / view.k];
+function flyTo(k, x, y, dur = 650) {           // one eased move that puts map point (x, y) at the centre of the view
+  const a = {...view}, b = clamp({k, tx: aw / 2 - x * k, ty: ah / 2 - y * k}), t0 = performance.now();
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) dur = 0;
+  cancelAnimationFrame(anim);
+  const ca = [(aw / 2 - a.tx) / a.k, (ah / 2 - a.ty) / a.k], cb = [(aw / 2 - b.tx) / b.k, (ah / 2 - b.ty) / b.k];
+  const step = now => { const u = dur ? Math.min(1, (now - t0) / dur) : 1, e = u < .5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;
+    const k1 = a.k * Math.pow(b.k / a.k, e); view.k = k1;
+    view.tx = aw / 2 - (ca[0] + (cb[0] - ca[0]) * e) * k1; view.ty = ah / 2 - (ca[1] + (cb[1] - ca[1]) * e) * k1; apply();
+    if (u < 1) anim = requestAnimationFrame(step); };
+  anim = requestAnimationFrame(step); }
+function fitBox(x0, y0, x1, y1, kmax = KMAX) { const k = Math.min(kmax, aw / (x1 - x0), ah / (y1 - y0)); flyTo(k, (x0 + x1) / 2, (y0 + y1) / 2); }
+
+/* ---------- where you are: garden, family, era, form ---------- */
+let sel = null, spot = null, curFam = null, curEra = null, nav = 0;
+const K_FAMILY = () => Math.max(fitK * 2.2, 2.4), K_ERA = () => Math.max(fitK * 3.6, 3.8);
+function level() { if (sel) return 3; if (nav != null) return nav; if (view.k >= K_ERA() * .95) return 2; if (view.k >= K_FAMILY() * .9) return 1; return 0; }
+function famAt(x) { let best = null, d = 1e9; FAMS.forEach(f => { const F = LAY.fams[f], c = (F.x0 + F.x1) / 2, dd = x < F.x0 ? F.x0 - x : x > F.x1 ? x - F.x1 : 0; if (dd < d || (dd === d && Math.abs(c - x) < Math.abs((LAY.fams[best]?.x0 + LAY.fams[best]?.x1) / 2 - x))) { d = dd; best = f; } }); return best; }
+function eraAt(y) { return (LAY.eras.find(e => y >= e.top && y <= e.bottom) || (y < LAY.eras[LAY.eras.length - 1].top ? LAY.eras[LAY.eras.length - 1] : LAY.eras[0])).id; }
+function home() { closePanel(); clearSpot(); curFam = curEra = null; nav = 0; flyTo(fitK, (B[0] + B[2]) / 2, (B[1] + B[3]) / 2); }
+function goFamily(f, keepY) { const F = LAY.fams[f]; curFam = f; curEra = null; nav = 1; const w = F.x1 - F.x0, k = Math.max(K_FAMILY(), Math.min(aw / (w + 220), K_ERA() * .85));
+  const y = keepY != null ? keepY : Math.min(F.open, centre()[1]); flyTo(k, (F.x0 + F.x1) / 2, Math.max(LAY.present + ah / k / 2 - 30, y)); }
+function goEra(f, e) { f = f || curFam || famAt(centre()[0]); const F = LAY.fams[f], E = ERA[e]; curFam = f; curEra = e; nav = 2;
+  const k = Math.max(K_ERA(), Math.min(KMAX, ah / (E.bottom - E.top + 24), aw / (F.x1 - F.x0 + 160))); flyTo(k, (F.x0 + F.x1) / 2, (E.top + E.bottom) / 2); }
+function goLevel(l) {
+  const [cx, cy] = centre(), f = curFam || famAt(cx), e = curEra || eraAt(cy);
+  if (l <= 0) return home();
+  if (l === 1) { closePanel(); clearSpot(); return goFamily(f, cy); }
+  if (l === 2) { closePanel(); clearSpot(); return goEra(f, e); }
+  if (l >= 3) { if (sel) return frameNet(sel, true); flyTo(Math.min(KMAX, view.k * 1.6), cx, cy); } }
+
+/* ---------- light a form's web ---------- */
+function light(id) {
+  svg.classList.toggle('focus', !!id);
+  document.querySelectorAll('#map .on,#map .me').forEach(x => { x.classList.remove('on', 'me'); if (x.classList.contains('fm')) x.removeAttribute('transform'); });
+  if (id) { NODE[id] && NODE[id].classList.add('me'); (BY[id] || []).forEach(p => { p.classList.add('on'); [p.dataset.a, p.dataset.b].forEach(j => j !== id && NODE[j] && NODE[j].classList.add('on')); p.parentNode.appendChild(p); }); }
+  apply(); }
+function web(id) { const s = new Set([id]); (BY[id] || []).forEach(p => { s.add(p.dataset.a); s.add(p.dataset.b); }); return [...s].filter(j => LAY.nodes[j]); }
+function frameNet(id, withPanel) {           // the form with every form it connects to, as large as fits
+  const ids = web(id), xs = ids.map(j => LAY.nodes[j].x), ys = ids.map(j => LAY.nodes[j].y);
+  const x0 = Math.min(...xs) - 45, x1 = Math.max(...xs) + 45, y0 = Math.min(...ys) - 18, y1 = Math.max(...ys) + 14;
+  const avail = withPanel ? aw : aw; const k = Math.max(KMIN(), Math.min(6, avail / (x1 - x0), (ah - 60) / (y1 - y0)));
+  flyTo(k, (x0 + x1) / 2, (y0 + y1) / 2 + 6); }
+function spotlight(id) {      // search: highlight, connect, frame the whole web; a click then opens it
+  closePanel(); sel = null; spot = id; light(id); frameNet(id, false);
+  const n = (BY[id] || []).length, h = $('#hint'); h.innerHTML = ''; el('b', '', h, N[id].t); h.append(` · ${n} connection${n === 1 ? '' : 's'} · click it to open`); h.style.display = 'block'; chrome(); }
+function clearSpot() { spot = null; $('#hint').style.display = 'none'; if (!sel) light(null); }
+function choose(id, frame) {
+  $('#hint').style.display = 'none'; spot = null; sel = id; curFam = famAt(LAY.nodes[id].x); curEra = eraOf(id);
+  light(id); card(id); document.body.classList.add('pan'); measure(); clamp(view); if (frame) frameNet(id, true); else apply(); }
+function closePanel() { if (!sel) return; sel = null; document.body.classList.remove('pan'); measure(); clamp(view); light(spot); }
+
+/* ---------- the card ---------- */
+const bold = s => { const f = document.createDocumentFragment(); s.split(/(\*\*[^*]+\*\*)/).forEach(p => { if (/^\*\*/.test(p)) el('b', '', f, p.slice(2, -2)); else f.append(p); }); return f; };
+function card(id) {
+  const n = N[id]; panel.innerHTML = '';
+  const x = el('button', 'x', panel, '×'); x.setAttribute('aria-label', 'Close'); x.onclick = () => { closePanel(); light(null); };
+  el('div', 'k', panel, `Lantern · ${FN(famAt(LAY.nodes[id].x)).replace(/^THE /, '')} spire · ${(ERA[n.period] || {}).name || ''} storey`);
+  el('h1', '', panel, n.t); el('p', 'd', panel, n.d || '');
+  const tg = el('div', 'tags', panel); [famOf(id), ...(n.also || [])].filter((f, i, a) => LAY.fams[f] && a.indexOf(f) === i).forEach(f => { const s = el('span', '', tg, FN(f).toLowerCase().replace(/^./, c => c.toUpperCase())); s.style.background = FC(f); s.style.color = '#fff'; });
+  if (n.brief) el('p', '', panel).append(bold(n.brief));
+  const L = D.links.filter(l => l[0] === id || l[1] === id);
+  const groups = [['Grew from', l => l[1] === id && l[2] === 'p', 0], ['Influenced by', l => l[1] === id && l[2] === 'i', 0], ['Reacted against', l => l[1] === id && l[2] === 'r', 0],
+                  ['Led to', l => l[0] === id && l[2] === 'p', 1], ['Went on to influence', l => l[0] === id && l[2] === 'i', 1], ['Provoked a reaction in', l => l[0] === id && l[2] === 'r', 1]];
+  groups.forEach(([h, f, side]) => { const ls = L.filter(f); if (!ls.length) return; el('h4', '', panel, h); const c = el('div', 'chips', panel);
+    ls.forEach(l => { const o = side ? l[1] : l[0]; if (!N[o]) return; const b = el('button', '', c, N[o].t); b.onclick = () => choose(o, true); }); });
+  if (n.works && n.works.length) { el('h4', '', panel, 'Listen'); const ol = el('ol', '', panel); n.works.slice(0, 6).forEach(w => { const li = el('li', '', ol); el('i', '', li, w[0]); li.append(el('br')); el('small', '', li, [w[1], w[2]].filter(Boolean).join(' · ')); }); }
+}
+
+/* ---------- the frame: breadcrumb, eras, family strip, minimap, ladder ---------- */
+const ERAEL = {}, FAMEL = {};
+LAY.eras.forEach(e => { const d = el('div', 'era', $('#eras')); el('b', 'disp', d, e.name.toUpperCase()); el('span', '', d, e.id === 'contemporary' ? '1980–today' : `${e.start}–${e.end}`); d.onclick = () => goEra(null, e.id); const t = el('div', 'tick', $('#eras')); ERAEL[e.id] = [d, t]; });
+FAMS.forEach(f => { const d = el('div', 'fam disp', $('#fams'), FN(f)); d.style.color = FC(f); d.style.borderColor = FC(f); d.onclick = () => { closePanel(); clearSpot(); goFamily(f); }; FAMEL[f] = d; });
+const mmw = 106, mmh = 84, ms = Math.min(mmw / (B[2] - B[0]), mmh / (B[3] - B[1])), mox = (mmw - (B[2] - B[0]) * ms) / 2, moy = (mmh - (B[3] - B[1]) * ms) / 2;
+const mx = x => mox + (x - B[0]) * ms, my = y => moy + (y - B[1]) * ms;
+{ let s = `<svg viewBox="0 0 ${mmw} ${mmh}" aria-hidden="true">`;
+  FAMS.forEach(f => { const F = LAY.fams[f]; if (f === 'commons') s += `<rect x="${mx(F.x0)}" y="${my(LAY.present)}" width="${(F.x1 - F.x0) * ms}" height="${(LAY.ground - LAY.present) * ms}" fill="${F.c}" opacity=".7"/>`;
+    else s += `<rect x="${mx(F.x0)}" y="${my(LAY.present)}" width="${(F.x1 - F.x0) * ms}" height="${(F.open - LAY.present) * ms}" fill="${F.c}" opacity=".6"/><line x1="${mx((F.x0 + F.x1) / 2)}" x2="${mx((F.x0 + F.x1) / 2)}" y1="${my(F.open)}" y2="${my(LAY.ground)}" stroke="${F.c}" stroke-width="1"/>`; });
+  const c = LAY.fams.commons, cx = mx((c.x0 + c.x1) / 2);
+  s += `<line x1="${mx(B[0] + 10)}" x2="${mx(B[2] - 10)}" y1="${my(LAY.ground)}" y2="${my(LAY.ground)}" stroke="#6fbf5a" stroke-width=".8"/><path d="M${cx - 520 * ms},${my(LAY.ground)} L${cx + 520 * ms},${my(LAY.ground)} L${cx},${my(LAY.ground + 168)} Z" fill="#4f7a3a" opacity=".8"/><circle cx="${cx}" cy="${my(LAY.ground + 168)}" r="1.6" fill="#f0d48a"/>`;
+  s += `<rect id="mmv" fill="#f0d48a22" stroke="#f0d48a" stroke-width="1.2" rx="1.5"/></svg>`; $('#mm').innerHTML = s; }
+const mmv = () => $('#mmv');
+$('#mm').addEventListener('click', e => { nav = null; const r = $('#mm').getBoundingClientRect(), x = B[0] + (e.clientX - r.left - mox) / ms, y = B[1] + (e.clientY - r.top - moy) / ms; flyTo(Math.max(view.k, K_FAMILY()), x, y); });
+function chrome() {
+  const sx = x => view.tx + x * view.k, sy = y => view.ty + y * view.k, ox = svg.getBoundingClientRect().left, oy = svg.getBoundingClientRect().top;
+  const [cx, cy] = centre(), lv = level(), f = sel ? famAt(LAY.nodes[sel].x) : (lv >= 1 ? (curFam || famAt(cx)) : null), e = sel ? eraOf(sel) : (lv >= 1 ? eraAt(cy) : null);
+  LAY.eras.forEach(E => { const [d, t] = ERAEL[E.id], top = oy + sy(E.top), bot = oy + sy(E.bottom), vis = bot > oy + 4 && top < innerHeight - 4;
+    d.style.display = t.style.display = vis && top < innerHeight - 110 ? '' : 'none'; if (!vis || top >= innerHeight - 110) return;
+    const mid = Math.max(oy + 30, Math.min(innerHeight - 124, (Math.max(top, oy) + Math.min(bot, innerHeight)) / 2)); d.style.top = (mid - 15) + 'px'; t.style.top = top + 'px'; t.style.display = top > oy + 2 ? '' : 'none'; d.classList.toggle('cur', E.id === e); });
+  const right = ox + aw;
+  FAMS.forEach(F => { const d = FAMEL[F], a = Math.max(ox, ox + sx(LAY.fams[F].x0)), b = Math.min(right, ox + sx(LAY.fams[F].x1)); if (b - a < 24) { d.style.display = 'none'; return; }
+    d.style.display = ''; d.style.left = a + 'px'; d.style.width = (b - a) + 'px'; d.classList.toggle('n', b - a < 9.5 * FN(F).length); d.classList.toggle('cur', F === f); });
+  const v = mmv(); if (v) { const x0 = Math.max(B[0], -view.tx / view.k), y0 = Math.max(B[1], -view.ty / view.k), x1 = Math.min(B[2], (aw - view.tx) / view.k), y1 = Math.min(B[3], (ah - view.ty) / view.k);
+    v.setAttribute('x', mx(x0)); v.setAttribute('y', my(y0)); v.setAttribute('width', Math.max(2, (x1 - x0) * ms)); v.setAttribute('height', Math.max(2, (y1 - y0) * ms)); }
+  document.querySelectorAll('.rung').forEach(r => r.classList.toggle('cur', +r.dataset.l === lv));
+  const cr = $('#crumbs'); cr.innerHTML = ''; const add = (t, fn, last) => { if (cr.childNodes.length) el('em', '', cr, '›'); const b = el('button', last ? 'last' : '', cr, t); b.onclick = fn; };
+  const steps = [['Garden', home]]; if (f) steps.push([FN(f).replace(/^THE /, '').toLowerCase().replace(/^./, c => c.toUpperCase()), () => { closePanel(); clearSpot(); goFamily(f); }]);
+  if (e && (lv >= 2 || sel)) steps.push([ERA[e].name, () => { closePanel(); clearSpot(); goEra(f, e); }]);
+  if (sel) steps.push([N[sel].t, () => frameNet(sel, true)]);
+  steps.forEach(([t, fn], i) => add(t, fn, i === steps.length - 1)); }
+
+/* ---------- pointer, wheel, keys ---------- */
+let drag = null, moved = false;
+svg.addEventListener('pointerdown', e => { drag = {x: e.clientX, y: e.clientY, tx: view.tx, ty: view.ty, t: performance.now()}; moved = false; });
+addEventListener('pointermove', e => { if (!drag) return; const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+  if (!moved && Math.hypot(dx, dy) > 4) { moved = true; svg.classList.add('drag'); cancelAnimationFrame(anim); }
+  if (moved) { view.tx = drag.tx + dx; view.ty = drag.ty + dy; nav = null; clamp(view); apply(); } });
+addEventListener('pointerup', () => { drag = null; svg.classList.remove('drag'); });
+svg.addEventListener('wheel', e => { e.preventDefault(); cancelAnimationFrame(anim); const r = svg.getBoundingClientRect(), px = e.clientX - r.left, py = e.clientY - r.top;
+  const k = Math.max(KMIN(), Math.min(KMAX, view.k * Math.exp(-e.deltaY * (e.ctrlKey ? .01 : .0016)))), q = k / view.k;
+  view.tx = px - (px - view.tx) * q; view.ty = py - (py - view.ty) * q; view.k = k; nav = null; curEra = null; clamp(view); apply(); }, {passive: false});
+svg.addEventListener('click', e => { if (moved) return; const g = e.target.closest('.fm'); if (g) { e.stopPropagation(); return choose(g.dataset.id, view.k < 2.2); } if (sel) closePanel(); light(null); clearSpot(); });
+svg.addEventListener('mouseover', e => { const g = e.target.closest('.fm'); if (g && !sel && !spot) light(g.dataset.id); });
+svg.addEventListener('mouseout', e => { const g = e.target.closest('.fm'); if (g && !sel && !spot && !(e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest('.fm') === g)) light(null); });
+$('#zin').onclick = () => goLevel(level() + 1); $('#zout').onclick = () => { if (sel) { closePanel(); light(null); return goLevel(2); } goLevel(level() - 1); };
+document.querySelectorAll('.rung').forEach(r => r.onclick = () => goLevel(+r.dataset.l));
+$('#hint').onclick = () => spot && choose(spot, true);
+addEventListener('keydown', e => {
+  if (e.target.closest('input')) return;
+  if (e.key === '/') { e.preventDefault(); $('#q').focus(); return; }
+  if (e.key === '+' || e.key === '=') return goLevel(level() + 1);
+  if (e.key === '-' || e.key === '_') return $('#zout').click();
+  if (e.key === 'Escape') { if ($('#sheet').classList.contains('open')) return closeSheet(); if (sel) { closePanel(); light(null); return; } if (spot) return clearSpot(); return goLevel(level() - 1); }
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { e.preventDefault(); const f = curFam || famAt(centre()[0]), i = FAMS.indexOf(f) + (e.key === 'ArrowRight' ? 1 : -1); if (i < 0 || i >= FAMS.length) return; closePanel(); clearSpot();
+    return level() >= 2 ? goEra(FAMS[i], curEra || eraAt(centre()[1])) : goFamily(FAMS[i], centre()[1]); }
+  if (e.key === 'ArrowUp' || e.key === 'ArrowDown') { e.preventDefault(); const ids = LAY.eras.map(x => x.id), cur = curEra || eraAt(centre()[1]), i = ids.indexOf(cur) + (e.key === 'ArrowUp' ? 1 : -1); if (i < 0 || i >= ids.length) return; closePanel(); clearSpot(); return goEra(curFam || famAt(centre()[0]), ids[i]); } });
+
+/* ---------- search: find, highlight, connect, then choose ---------- */
+const q = $('#q'), res = $('#res');
+function results(s) { s = s.trim().toLowerCase(); if (!s) return [];
+  return D.nodes.filter(n => LAY.nodes[n.id] && n.t.toLowerCase().includes(s)).map(n => { const t = n.t.toLowerCase(); return [t === s ? 0 : t.startsWith(s) ? 1 : t.split(/[\s&,():-]+/).some(w => w.startsWith(s)) ? 2 : 3, n]; })
+    .sort((a, b) => a[0] - b[0] || a[1].t.localeCompare(b[1].t)).map(x => x[1]).slice(0, 12); }
+q.addEventListener('input', () => { res.innerHTML = ''; const r = results(q.value); res.style.display = r.length ? 'block' : 'none';
+  r.forEach(n => { const b = el('button', '', res, n.t); b.setAttribute('role', 'option'); el('small', '', b, `${n.d || ''} · ${FN(famOf(n.id)).toLowerCase()} · ${(ERA[n.period] || {}).name || ''}`);
+    b.onmouseenter = b.onfocus = () => { if (!sel) light(n.id); }; b.onclick = () => { res.style.display = 'none'; q.value = ''; q.blur(); spotlight(n.id); }; }); });
+q.addEventListener('keydown', e => { if (e.key === 'Enter' && res.firstChild) res.firstChild.click(); if (e.key === 'ArrowDown' && res.firstChild) { e.preventDefault(); res.firstChild.focus(); } if (e.key === 'Escape') { q.value = ''; res.style.display = 'none'; q.blur(); if (!sel && !spot) light(null); } });
+res.addEventListener('keydown', e => { const b = document.activeElement; if (e.key === 'ArrowDown' && b.nextSibling) { e.preventDefault(); b.nextSibling.focus(); } if (e.key === 'ArrowUp') { e.preventDefault(); (b.previousSibling || q).focus(); } if (e.key === 'Escape') { res.style.display = 'none'; q.focus(); } });
+q.addEventListener('blur', () => setTimeout(() => { if (!res.contains(document.activeElement)) { res.style.display = 'none'; if (!sel && !spot) light(null); } }, 150));
+
+/* ---------- the rail's sheets ---------- */
+const sheet = $('#sheet');
+function closeSheet() { sheet.classList.remove('open'); document.querySelectorAll('.rail button').forEach(b => b.classList.remove('on')); }
+function openSheet(kind, btn) {
+  if (sheet.classList.contains('open') && sheet.dataset.kind === kind) return closeSheet();
+  closeSheet(); if (kind === 'search') { q.focus(); return; }
+  sheet.innerHTML = ''; sheet.dataset.kind = kind; sheet.classList.add('open'); btn.classList.add('on');
+  if (kind === 'families') { el('h3', '', sheet, 'THE SPIRES'); FAMS.forEach(f => { const b = el('button', '', sheet, FN(f)); b.style.color = FC(f); b.onclick = () => { closeSheet(); closePanel(); clearSpot(); goFamily(f); }; }); }
+  if (kind === 'eras') { el('h3', '', sheet, 'THE STOREYS'); LAY.eras.slice().reverse().forEach(E => { const b = el('button', '', sheet, E.name); el('small', '', b, E.id === 'contemporary' ? '1980–today' : `${E.start}–${E.end}`); b.onclick = () => { closeSheet(); closePanel(); clearSpot(); goEra(null, E.id); }; }); }
+  if (kind === 'az') { el('h3', '', sheet, 'EVERY LANTERN, A–Z'); D.nodes.filter(n => LAY.nodes[n.id]).sort((a, b) => a.t.localeCompare(b.t)).forEach(n => { const b = el('button', '', sheet, n.t); el('small', '', b, n.d || ''); b.onclick = () => { closeSheet(); spotlight(n.id); }; }); }
+  if (kind === 'guide') { el('h3', '', sheet, 'HOW TO READ THE GARDEN');
+    [['Storeys rise.', ' The ground is the year 800; the top is today. Each storey (period) is named on the left.'], ['The commons is the central spire.', ' Folk song, dance and work song rises from one seed at the bottom: the origin. From it, roots fan out to every spire, and its green branches reach the lanterns it fed.'],
+     ['Spires are the families.', ' Each grows from a root in the ground and blooms where its oldest form begins. Inside, its minarets (genres) stand side by side.'], ['Lanterns are the forms.', ' A small gold point with its name. Click one to light its links and open its card.'],
+     ['Links:', ' solid gold = grew from, dotted gold = influenced, red = reacted against, green = from the commons.'],
+     ['Move:', ' drag, scroll or pinch; + and − or the ladder step Garden › Spire › Storey › Lantern; arrow keys move to the next spire or storey; / searches.']]
+      .forEach(([b, t]) => { const p = el('p', '', sheet); el('b', '', p, b); p.append(t); }); }
+}
+document.querySelectorAll('.rail button').forEach(b => b.onclick = () => openSheet(b.dataset.sheet, b));
+
+addEventListener('resize', () => { measure(); clamp(view); apply(); });
+measure(); view.k = fitK; clamp(view); apply();
+window.__map = {view, home, goFamily, goEra, goLevel, spotlight, choose, level, LAY, frameNet};
+})();
+</script>
+</body></html>
