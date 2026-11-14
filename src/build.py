@@ -354,18 +354,38 @@ o.append((crown3 if CROWN_STYLE == 'fractal' else crown)('commons', sx - SPW / 2
 o.append(f'<text class="famname" transform="translate({sx+5},{(GROUND+PRESENT)/2}) rotate(-90)" fill="{GREEN}" fill-opacity=".7" class="disp" font-size="20" letter-spacing="3" text-anchor="middle" font-weight="300">THE COMMONS</text>')
 MW, MD = 520, 168          # the mound, inverted: wide at the ground, narrowing to one seed point, the origin
 SEED = (sx, GROUND + MD)
-mound = f'M{sx-MW},{GROUND} L{sx+MW},{GROUND} L{SEED[0]},{SEED[1]} Z'
-o.append(f'<path d="{mound}" fill="url(#py)" stroke="#6fbf5a" stroke-opacity=".6" stroke-width=".8"/>')
-for f2, _, c2 in FAMS:             # roots: from the seed, one to the foot of every spire
-    if f2 == 'commons': continue
-    fx = X[f2] + width(f2) / 2; my = GROUND + MD * .45
-    o.append(f'<path class="root" d="M{SEED[0]},{SEED[1]} C{SEED[0] + (fx - SEED[0]) * .15},{my} {fx},{GROUND + 40} {fx},{GROUND}" fill="none" stroke="{c2}" stroke-opacity=".55" stroke-width=".9" stroke-linecap="round"/>')
-o.append(f'<path d="M{sx},{SEED[1]} L{sx},{GROUND}" stroke="#6fbf5a" stroke-opacity=".8" stroke-width="1.6"/>')      # the central root, up into the spire
+# the commons as grass: blades spring from the seed; the eight longest reach the foot of every spire and run on into its stem
+import random as _rnd, math as _m
+def _cub(P0, P1, P2, P3, t):
+    u = 1 - t; return (u*u*u*P0[0] + 3*u*u*t*P1[0] + 3*u*t*t*P2[0] + t*t*t*P3[0], u*u*u*P0[1] + 3*u*u*t*P1[1] + 3*u*t*t*P2[1] + t*t*t*P3[1])
+def blade(P0, P1, P2, P3, w0, wt, n=48):      # a broad blade along a cubic centre line: rounded at the seed, full above it, then easing to the stem's own width at the tip
+    L, R, mid = [], [], []
+    for k in range(n + 1):
+        t = k / n; x, y = _cub(P0, P1, P2, P3, t); x2, y2 = _cub(P0, P1, P2, P3, min(1, t + .01)); x1, y1 = _cub(P0, P1, P2, P3, max(0, t - .01))
+        dx, dy = x2 - x1, y2 - y1; d = _m.hypot(dx, dy) or 1; nx, ny = -dy / d, dx / d
+        w = (min(1, t / .07) ** .5) * (wt + (w0 - wt) * (1 - t) ** 1.3)
+        L.append((x + nx * w, y + ny * w)); R.append((x - nx * w, y - ny * w)); mid.append((x, y))
+    f = lambda P: ' L'.join(f'{a:.1f},{b:.1f}' for a, b in P)
+    return 'M' + f(L + R[::-1]) + 'Z', 'M' + f(mid[4:])
+gdefs = []
+for f2, _, c2 in FAMS:      # each blade darkens to the seed and, at its tip, takes on its spire's stem exactly (colour and strength)
+    top = .22 if f2 == 'commons' else .75
+    gdefs.append(f'<linearGradient id="gb-{f2}" gradientUnits="userSpaceOnUse" x1="0" x2="0" y1="{SEED[1]}" y2="{GROUND}"><stop offset="0" stop-color="#2c4a22" stop-opacity=".95"/><stop offset=".45" stop-color="#4f8a3a" stop-opacity=".9"/><stop offset=".85" stop-color="{c2}" stop-opacity="{(top + .9) / 2:.2f}"/><stop offset="1" stop-color="{c2}" stop-opacity="{top}"/></linearGradient>')
+o.append('<defs>' + ''.join(gdefs) + '</defs>')
+g = ['<g class="grass" pointer-events="none">']
+for f2, _, c2 in FAMS:      # one blade for every spire: from the seed to the foot of its stem, and on into it
+    fx = X[f2] + (SPW if f2 == 'commons' else width(f2)) / 2
+    P1 = (SEED[0] + (fx - SEED[0]) * .15, GROUND + MD * .45); P2 = (fx, GROUND + 40); P3 = (fx, GROUND)
+    wt = 1.5                                                    # the stem's foot is 3 wide
+    if f2 == 'commons': P1, P2, wt = (SEED[0], SEED[1] - 60), (SEED[0], GROUND + 40), SPW / 2 + 4      # the central blade opens into the commons spire's foot
+    body, rib = blade(SEED, P1, P2, P3, 7.5 if f2 != 'commons' else 6, wt)
+    g.append(f'<path class="root" d="{body}" fill="url(#gb-{f2})"/><path d="{rib}" fill="none" stroke="#b9e08f" stroke-opacity=".22" stroke-width=".7" stroke-linecap="round"/>')
+g.append('</g>'); o.append(''.join(g))
 o.append(f'<circle cx="{SEED[0]}" cy="{SEED[1]}" r="3.2" fill="{GOLD_HI}"/><circle cx="{SEED[0]}" cy="{SEED[1]}" r="7" fill="none" stroke="{GOLD_HI}" stroke-opacity=".45" stroke-width=".6"/>')
 o.append(f'<g class="fm soil" data-id="commons"><circle class="seedring" cx="{SEED[0]}" cy="{SEED[1]}" r="7" fill="none"/><circle class="hit" cx="{SEED[0]}" cy="{SEED[1]}" r="14" fill="transparent"/>')      # only the seed answers the pointer, not the whole mound
-o.append(f'<text class="famname moundname disp" x="{sx}" y="{GROUND+34}" fill="{GOLD_HI}" font-size="24" text-anchor="middle" letter-spacing="4">THE COMMONS</text>')
-o.append(f'<text class="famname moundname" x="{sx}" y="{GROUND+52}" fill="{IVORY}" fill-opacity=".75" font-size="10" text-anchor="middle" letter-spacing="2">FOLK SONG · DANCE · WORK SONG</text>')
-o.append(f'<text class="famname moundname" x="{sx}" y="{GROUND+66}" fill="{IVORY}" fill-opacity=".6" font-size="9" font-style="italic" text-anchor="middle" letter-spacing=".6">the ground all music springs from</text></g>')
+o.append(f'<text class="famname moundname disp" x="{sx}" y="{GROUND+34}" stroke="#0b0906" stroke-width="5" stroke-opacity=".85" paint-order="stroke" fill="{GOLD_HI}" font-size="24" text-anchor="middle" letter-spacing="4">THE COMMONS</text>')
+o.append(f'<text class="famname moundname" x="{sx}" y="{GROUND+52}" stroke="#0b0906" stroke-width="4" stroke-opacity=".85" paint-order="stroke" fill="{IVORY}" fill-opacity=".75" font-size="10" text-anchor="middle" letter-spacing="2">FOLK SONG · DANCE · WORK SONG</text>')
+o.append(f'<text class="famname moundname" x="{sx}" y="{GROUND+66}" stroke="#0b0906" stroke-width="4" stroke-opacity=".85" paint-order="stroke" fill="{IVORY}" fill-opacity=".6" font-size="9" font-style="italic" text-anchor="middle" letter-spacing=".6">the ground all music springs from</text></g>')
 # hairlines: straight, faint at rest; the focus web bright
 for a, b, t in D['links']:
     if a not in POS or b not in POS: continue
