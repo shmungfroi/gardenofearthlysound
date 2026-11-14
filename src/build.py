@@ -161,7 +161,8 @@ for f, name, c in FAMS:
     sx = x0 + w / 2
     o.append(f'<path d="M{sx-1.5},{GROUND} L{sx-1.5},{fy+60} Q{sx-1.5},{fy+28} {x0},{fy+14} L{x0},{PRESENT} L{x0+w},{PRESENT} L{x0+w},{fy+14} Q{sx+1.5},{fy+28} {sx+1.5},{fy+60} L{sx+1.5},{GROUND} Z" fill="url(#st-{f})"/>')
     o.append(f'<line x1="{sx}" x2="{sx}" y1="{GROUND}" y2="{fy+40}" stroke="{c}" stroke-opacity=".75" stroke-width="1.6"/>')      # the stem
-    o.append(f'<path d="M{x0},{fy+14} L{x0},{PRESENT} L{x0+w},{PRESENT} L{x0+w},{fy+14}" fill="none" stroke="{GOLD}" stroke-opacity=".45" stroke-width=".6"/>')
+    top = f'M{x0+w},{PRESENT}' if os.environ.get('CROWNS', 'fractal') == 'fractal' else f'L{x0+w},{PRESENT}'      # an integrated crown flows into the spire, so no seam across the top
+    o.append(f'<path d="M{x0},{fy+14} L{x0},{PRESENT} {top} L{x0+w},{fy+14}" fill="none" stroke="{GOLD}" stroke-opacity=".45" stroke-width=".6"/>')
     for k in range(1, len(fam_cols[f])):
         o.append(f'<line x1="{x0+k*CW}" x2="{x0+k*CW}" y1="{fy+20}" y2="{PRESENT}" stroke="{GOLD}" stroke-opacity=".08" stroke-width=".4" stroke-dasharray="2 3"/>')
     fs = min(26, w * .5, (fy - PRESENT - 40) / (len(name) * .75))
@@ -220,12 +221,136 @@ def crown(f, x0, w, c):
         for k in range(3): q.append(C(*pt(r * .62, k * 2 * math.pi / 3 - math.pi / 2), r, cg if k == 0 else g))
         q.append(C(sx, cy, R))
     return '<g class="crown">' + ''.join(q) + '</g>'
+
+# ---- crown, integrated (draft for approval): the figure fills the dome and its lattice runs down into the spire, fading as it goes
+def crown2(f, x0, w, c):
+    sx, P = x0 + w / 2, PRESENT
+    H = max(46, min(108, w * .58)); FADE = 210; R2 = min(w * .3, H * .4); cy = P - H * .4
+    L = f'M{x0:.1f},{P} C{x0:.1f},{P-H*.42:.1f} {sx-w*.36:.1f},{P-H*.52:.1f} {sx-w*.2:.1f},{P-H*.64:.1f} C{sx-w*.08:.1f},{P-H*.73:.1f} {sx-1:.1f},{P-H*.82:.1f} {sx:.1f},{P-H:.1f}'
+    Rt = f'C{sx+1:.1f},{P-H*.82:.1f} {sx+w*.08:.1f},{P-H*.73:.1f} {sx+w*.2:.1f},{P-H*.64:.1f} C{sx+w*.36:.1f},{P-H*.52:.1f} {x0+w:.1f},{P-H*.42:.1f} {x0+w:.1f},{P} Z'
+    dome = f'{L} {Rt}'
+    q = [f'<defs><clipPath id="cc-{f}"><path d="{dome}"/><path d="M{x0},{P-.5} C{x0},{P+FADE*.32:.1f} {sx-w*.12:.1f},{P+FADE*.74:.1f} {sx},{P+FADE} C{sx+w*.12:.1f},{P+FADE*.74:.1f} {x0+w},{P+FADE*.32:.1f} {x0+w},{P-.5} Z"/></clipPath>'
+         f'<linearGradient id="cf-{f}" gradientUnits="userSpaceOnUse" x1="0" x2="0" y1="{P-H}" y2="{P+FADE}"><stop offset="0" stop-color="#fff"/><stop offset="{H/(H+FADE):.3f}" stop-color="#fff" stop-opacity=".9"/><stop offset="{(H+FADE*.45)/(H+FADE):.3f}" stop-color="#fff" stop-opacity=".32"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>'
+         f'<mask id="cm-{f}" maskUnits="userSpaceOnUse" x="{x0-5}" y="{P-H-5}" width="{w+10}" height="{H+FADE+10}"><rect x="{x0-5}" y="{P-H-5}" width="{w+10}" height="{H+FADE+10}" fill="url(#cf-{f})"/></mask></defs>']
+    q.append(f'<path d="{dome}" fill="{c}" fill-opacity=".34"/><path d="{dome[:-2]}" fill="none" stroke="{GOLD}" stroke-opacity=".5" stroke-width=".6"/>')
+    ty = P - H - 9
+    q.append(f'<line x1="{sx:.1f}" x2="{sx:.1f}" y1="{P-H:.1f}" y2="{ty+2.5:.1f}" stroke="{GOLD}" stroke-width=".6"/>')
+    q.append(f'<path d="M{sx:.1f},{ty-3.2:.1f} L{sx+.9:.1f},{ty-.9:.1f} L{sx+3.2:.1f},{ty:.1f} L{sx+.9:.1f},{ty+.9:.1f} L{sx:.1f},{ty+3.2:.1f} L{sx-.9:.1f},{ty+.9:.1f} L{sx-3.2:.1f},{ty:.1f} L{sx-.9:.1f},{ty-.9:.1f} Z" fill="{GOLD_HI}"/>')
+    g = []; r = R2 / 2
+    hl = f'fill="none" stroke="{GOLD_HI}" stroke-width=".4"'
+    # the lattice: the rose window's own circles, repeated on a triangular grid down the spire
+    dy = r * math.sqrt(3) / 2; row = 0; y = cy + R2 * .95
+    while y < P + FADE + r:
+        off = (r / 2) if row % 2 else 0; x = sx - math.ceil((w / 2 + r) / r) * r + off
+        while x < x0 + w + r:
+            g.append(f'<circle cx="{x:.2f}" cy="{y:.2f}" r="{r:.2f}" {hl} stroke-opacity=".42"/>'); x += r
+        y += dy; row += 1
+    # the rose itself: twelve petals, its outer rings, a glowing heart
+    for k in range(12):
+        a = k * math.pi / 6; g.append(f'<circle cx="{sx + r*math.cos(a):.2f}" cy="{cy + r*math.sin(a):.2f}" r="{r:.2f}" {hl} stroke-opacity=".9"/>')
+    g.append(f'<circle cx="{sx:.2f}" cy="{cy:.2f}" r="{R2:.2f}" fill="none" stroke="{GOLD}" stroke-width=".8"/>')
+    g.append(f'<circle cx="{sx:.2f}" cy="{cy:.2f}" r="{R2*1.12:.2f}" fill="none" stroke="{GOLD}" stroke-opacity=".6" stroke-width=".4"/>')
+    g.append(f'<circle cx="{sx:.2f}" cy="{cy:.2f}" r="{R2*.18:.2f}" fill="{c}" fill-opacity=".5" stroke="{GOLD_HI}" stroke-width=".5"/>')
+    # a soft column of the family's colour under the rose, so the dome pours into the spire
+    g.append(f'<rect x="{x0}" y="{P-H}" width="{w}" height="{H+FADE}" fill="{c}" fill-opacity=".12"/>')
+    g.append(f'<path d="M{x0},{P} C{x0},{P+FADE*.32:.1f} {sx-w*.12:.1f},{P+FADE*.74:.1f} {sx},{P+FADE} C{sx+w*.12:.1f},{P+FADE*.74:.1f} {x0+w},{P+FADE*.32:.1f} {x0+w},{P}" fill="none" stroke="{GOLD}" stroke-opacity=".55" stroke-width=".5"/>')
+    q.append(f'<g clip-path="url(#cc-{f})" mask="url(#cm-{f})">' + ''.join(g) + '</g>')
+    return '<g class="crown">' + ''.join(q) + '</g>'
+
+# ---- crowns, fractal (14 Nov 20:45): the family's figure at the heart of the dome, smaller copies packed out to the dome's very edges,
+#      and a short pendant of still smaller copies that fades into the spire within one storey
+import numpy as np
+def _circ(x, y, r): return f'M{x-r:.1f},{y:.1f}a{r:.1f},{r:.1f} 0 1,0 {2*r:.1f},0a{r:.1f},{r:.1f} 0 1,0 {-2*r:.1f},0'
+def _poly(pts): return 'M' + 'L'.join(f'{x:.1f},{y:.1f}' for x, y in pts) + 'Z'
+def figure(f, x, y, R):
+    """the family's figure inside a circle of radius R, as path data: (gold lines, family-colour lines)"""
+    g, c = [_circ(x, y, R)], []
+    P = lambda r, a: (x + r * math.cos(a), y + r * math.sin(a))
+    if R < 2.2: return g, c
+    if f == 'keyboard':
+        r = R / 2; c.append(_circ(x, y, r)); g += [_circ(*P(r, k * math.pi / 3 - math.pi / 2), r) for k in range(6)]
+    elif f == 'chamber':
+        r = R * .62; g += [_circ(x - r / 2, y, r), _circ(x + r / 2, y, r)]; h = r * math.sqrt(3) / 2
+        c.append(f'M{x:.1f},{y-h:.1f}A{r:.1f},{r:.1f} 0 0 1 {x:.1f},{y+h:.1f}A{r:.1f},{r:.1f} 0 0 1 {x:.1f},{y-h:.1f}Z')
+    elif f == 'concerto':
+        g.append(_poly([P(R * .92, k * 2 * math.pi / 3 - math.pi / 2) for k in range(3)])); c.append(_poly([P(R * .46, k * 2 * math.pi / 3 + math.pi / 2) for k in range(3)])); c.append(_circ(x, y, R * .14))
+    elif f == 'sacred':
+        r = R / 2; g += [_circ(*P(r, k * math.pi / 6), r) for k in range(12 if R > 5 else 6)]; c.append(_circ(x, y, R * .18))
+    elif f == 'song':
+        phi = (1 + 5 ** .5) / 2; s0 = R * 1.3; x0, y0 = x - s0 / 2, y - s0 / phi / 2; a = s0 / phi
+        g.append(_poly([(x0, y0), (x0 + s0, y0), (x0 + s0, y0 + a), (x0, y0 + a)])); g.append(f'M{x0+a:.1f},{y0:.1f}V{y0+a:.1f}')
+        d = f'M{x0:.1f},{y0+a:.1f}'; px, py, sz = x0, y0 + a, a
+        for k in range(7 if R > 5 else 3):
+            dx, dy = [(1, -1), (1, 1), (-1, 1), (-1, -1)][k % 4]; px, py = px + dx * sz, py + dy * sz; d += f'A{sz:.1f},{sz:.1f} 0 0 1 {px:.1f},{py:.1f}'; sz /= phi
+        c.append(d)
+    elif f == 'stage':
+        s2 = R / math.sqrt(2); c.append(_poly([(x - s2, y - s2), (x + s2, y - s2), (x + s2, y + s2), (x - s2, y + s2)])); g.append(_circ(x, y, s2))
+    elif f == 'orch':
+        r = R / 3; c.append(_circ(x, y, r))
+        rings = [(r, 6, 0), (r * math.sqrt(3), 6, math.pi / 6), (2 * r, 6, 0)] if R > 6 else [(r, 6, 0)]
+        for rr, n, o in rings: g += [_circ(*P(rr, k * math.pi / 3 + o - math.pi / 2), r) for k in range(n)]
+    elif f == 'commons':
+        r = R * .5; c.append(_circ(*P(r * .62, -math.pi / 2), r)); g += [_circ(*P(r * .62, k * 2 * math.pi / 3 - math.pi / 2), r) for k in (1, 2)]
+    return g, c
+def _bez(p0, p1, p2, p3, n=24): return [((1-t)**3*p0[0]+3*(1-t)**2*t*p1[0]+3*(1-t)*t*t*p2[0]+t**3*p3[0], (1-t)**3*p0[1]+3*(1-t)**2*t*p1[1]+3*(1-t)*t*t*p2[1]+t**3*p3[1]) for t in [i/n for i in range(n+1)]]
+def crown3(f, x0, w, c):
+    sx, P = x0 + w / 2, PRESENT
+    H = max(46, min(108, w * .58)); FADE = 44; R2 = min(w * .3, H * .4); cy = P - H * .4
+    a = [(x0, P), (x0, P-H*.42), (sx-w*.36, P-H*.52), (sx-w*.2, P-H*.64)], [(sx-w*.2, P-H*.64), (sx-w*.08, P-H*.73), (sx-1, P-H*.82), (sx, P-H)]
+    L = f'M{x0:.1f},{P} C{x0:.1f},{P-H*.42:.1f} {sx-w*.36:.1f},{P-H*.52:.1f} {sx-w*.2:.1f},{P-H*.64:.1f} C{sx-w*.08:.1f},{P-H*.73:.1f} {sx-1:.1f},{P-H*.82:.1f} {sx:.1f},{P-H:.1f}'
+    Rt = f'C{sx+1:.1f},{P-H*.82:.1f} {sx+w*.08:.1f},{P-H*.73:.1f} {sx+w*.2:.1f},{P-H*.64:.1f} C{sx+w*.36:.1f},{P-H*.52:.1f} {x0+w:.1f},{P-H*.42:.1f} {x0+w:.1f},{P}'
+    dome = f'{L} {Rt} Z'
+    # the dome as a polygon, to pack circles inside it
+    left = _bez(*a[0]) + _bez(*a[1])[1:]; poly = left + [(2 * sx - x, y) for x, y in reversed(left)][1:]
+    E = np.array(poly); A, B = E, np.roll(E, -1, axis=0)
+    gx, gy = np.meshgrid(np.arange(x0 + .3, x0 + w, .45), np.arange(P - H + .3, P, .45)); pts = np.stack([gx.ravel(), gy.ravel()], 1)
+    # inside test and distance to the border
+    inside = np.zeros(len(pts), bool); dist = np.full(len(pts), 1e9)
+    for (ax, ay), (bx, by) in zip(A, B):
+        if (ay > pts[:, 1]).any() or True:
+            cond = ((ay > pts[:, 1]) != (by > pts[:, 1])) & (pts[:, 0] < (bx - ax) * (pts[:, 1] - ay) / ((by - ay) or 1e-9) + ax); inside ^= cond
+        vx, vy = bx - ax, by - ay; t = np.clip(((pts[:, 0] - ax) * vx + (pts[:, 1] - ay) * vy) / (vx * vx + vy * vy or 1), 0, 1)
+        dist = np.minimum(dist, np.hypot(pts[:, 0] - (ax + t * vx), pts[:, 1] - (ay + t * vy)))
+    pts, clear = pts[inside], dist[inside] - .5
+    circles = [(sx, cy, R2)]
+    clear = np.minimum(clear, np.hypot(pts[:, 0] - sx, pts[:, 1] - cy) - R2 - .6)
+    while len(circles) < 160:
+        i = int(np.argmax(clear)); r = clear[i]
+        if r < 1.1: break
+        r = min(r, R2 * .62); x, y = pts[i]; circles.append((x, y, r))
+        clear = np.minimum(clear, np.hypot(pts[:, 0] - x, pts[:, 1] - y) - r - .45)
+    # the pendant: rows of smaller copies, narrowing as they fall, gone within one storey
+    pend = []; y = P + 1.2; r = max(1.2, R2 * .13); k = 0
+    while y < P + FADE and r > .8:
+        n = int(w // (2 * r * 1.04)) + 2; off = r * 1.04 if k % 2 else 0
+        for j in range(-n // 2 - 1, n // 2 + 2): pend.append((sx + j * 2 * r * 1.04 + off, y + r, r))
+        y += 2 * r * .93; r *= .88; k += 1
+    buckets = {}
+    def put(lst, tag):
+        for (x, y, r) in lst:
+            gg, cc = figure(f, x, y, r); sw = .5 if r >= 10 else .32 if r >= 4 else .2
+            buckets.setdefault((tag, 'g', sw), []).extend(gg); buckets.setdefault((tag, 'c', sw), []).extend(cc)
+    put(circles, 'd'); put(pend, 'p')
+    q = [f'<defs><clipPath id="cc-{f}"><path d="{dome}"/></clipPath>'
+         f'<linearGradient id="cf-{f}" gradientUnits="userSpaceOnUse" x1="0" x2="0" y1="{P}" y2="{P+FADE}"><stop offset="0" stop-color="#fff" stop-opacity=".6"/><stop offset=".5" stop-color="#fff" stop-opacity=".2"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>'
+         f'<clipPath id="cp-{f}"><path d="M{x0},{P} C{x0},{P+FADE*.32:.1f} {sx-w*.12:.1f},{P+FADE*.74:.1f} {sx},{P+FADE} C{sx+w*.12:.1f},{P+FADE*.74:.1f} {x0+w},{P+FADE*.32:.1f} {x0+w},{P} Z"/></clipPath><mask id="cm-{f}" maskUnits="userSpaceOnUse" x="{x0-5}" y="{P}" width="{w+10}" height="{FADE+5}"><rect x="{x0-5}" y="{P}" width="{w+10}" height="{FADE+5}" fill="url(#cf-{f})"/></mask></defs>']
+    q.append(f'<path d="{dome}" fill="{c}" fill-opacity=".34"/>')
+    dom = [f'<path d="{"".join(v)}" fill="none" stroke="{GOLD_HI if k[1] == "g" else c}" stroke-opacity="{.85 if k[1] == "g" else 1}" stroke-width="{k[2]}"/>' for k, v in buckets.items() if k[0] == 'd' and v]
+    q.append(f'<g clip-path="url(#cc-{f})">' + ''.join(dom) + f'<circle cx="{sx:.1f}" cy="{cy:.1f}" r="{R2:.1f}" fill="none" stroke="{GOLD}" stroke-width=".8"/>' + (f'<circle cx="{sx:.1f}" cy="{cy:.1f}" r="{R2*.16:.1f}" fill="{c}" fill-opacity=".45"/>' if f in ('sacred', 'keyboard', 'orch') else '') + '</g>')
+    pen = [f'<path d="{"".join(v)}" fill="none" stroke="{GOLD_HI if k[1] == "g" else c}" stroke-opacity="{.8 if k[1] == "g" else 1}" stroke-width="{k[2]}"/>' for k, v in buckets.items() if k[0] == 'p' and v]
+    q.append(f'<g mask="url(#cm-{f})"><g clip-path="url(#cp-{f})">' + ''.join(pen) + '</g></g>')
+    q.append(f'<path d="{L} {Rt}" fill="none" stroke="{GOLD}" stroke-opacity=".55" stroke-width=".6"/>')
+    ty = P - H - 9
+    q.append(f'<line x1="{sx:.1f}" x2="{sx:.1f}" y1="{P-H:.1f}" y2="{ty+2.5:.1f}" stroke="{GOLD}" stroke-width=".6"/>')
+    q.append(f'<path d="M{sx:.1f},{ty-3.2:.1f} L{sx+.9:.1f},{ty-.9:.1f} L{sx+3.2:.1f},{ty:.1f} L{sx+.9:.1f},{ty+.9:.1f} L{sx:.1f},{ty+3.2:.1f} L{sx-.9:.1f},{ty+.9:.1f} L{sx-3.2:.1f},{ty:.1f} L{sx-.9:.1f},{ty-.9:.1f} Z" fill="{GOLD_HI}"/>')
+    return '<g class="crown">' + ''.join(q) + '</g>'
+CROWN_STYLE = os.environ.get('CROWNS', 'fractal')
 for f, name, c in FAMS:
-    if f != 'commons': o.append(crown(f, X[f], width(f), c))
+    if f != 'commons': o.append((crown3 if CROWN_STYLE == 'fractal' else crown)(f, X[f], width(f), c))
 # the spire and the pyramid
 sx = CX
 o.append(f'<path d="M{sx-SPW/2+6},{PRESENT} L{sx+SPW/2-6},{PRESENT} L{sx+SPW/2+4},{GROUND} L{sx-SPW/2-4},{GROUND} Z" fill="#6fbf5a" fill-opacity=".22" stroke="#6fbf5a" stroke-opacity=".5" stroke-width=".8"/>')
-o.append(crown('commons', sx - SPW / 2 + 6, SPW - 12, '#6fbf5a'))
+o.append((crown3 if CROWN_STYLE == 'fractal' else crown)('commons', sx - SPW / 2 + 6, SPW - 12, '#6fbf5a'))
 o.append(f'<text class="famname" transform="translate({sx+5},{(GROUND+PRESENT)/2}) rotate(-90)" fill="{GREEN}" fill-opacity=".7" class="disp" font-size="20" letter-spacing="3" text-anchor="middle" font-weight="300">THE COMMONS</text>')
 MW, MD = 520, 168          # the mound, inverted: wide at the ground, narrowing to one seed point, the origin
 SEED = (sx, GROUND + MD)
