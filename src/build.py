@@ -166,9 +166,66 @@ for f, name, c in FAMS:
         o.append(f'<line x1="{x0+k*CW}" x2="{x0+k*CW}" y1="{fy+20}" y2="{PRESENT}" stroke="{GOLD}" stroke-opacity=".08" stroke-width=".4" stroke-dasharray="2 3"/>')
     fs = min(26, w * .5, (fy - PRESENT - 40) / (len(name) * .75))
     o.append(f'<text class="famname" transform="translate({x0+w/2+fs*.35:.1f},{fy-10:.1f}) rotate(-90)" fill="{c}" fill-opacity=".75" class="disp" font-size="{fs:.1f}" letter-spacing="3" font-weight="300">{name}</text>')
+
+# ---- crowns: a sacred-geometry roundel in an ogee crown on top of every spire (one shared form, a different figure for each family)
+import math
+def crown(f, x0, w, c):
+    sx, P = x0 + w / 2, PRESENT
+    H = max(46, min(108, w * .58)); R = min(w * .25, H * .26, 24); cy = P - H * .38
+    q = []
+    # the ogee: rises straight, swells out, then draws in to a point (both sides mirrored)
+    L = f'M{x0:.1f},{P} C{x0:.1f},{P-H*.42:.1f} {sx-w*.36:.1f},{P-H*.52:.1f} {sx-w*.2:.1f},{P-H*.64:.1f} C{sx-w*.08:.1f},{P-H*.73:.1f} {sx-1:.1f},{P-H*.82:.1f} {sx:.1f},{P-H:.1f}'
+    Rt = f'C{sx+1:.1f},{P-H*.82:.1f} {sx+w*.08:.1f},{P-H*.73:.1f} {sx+w*.2:.1f},{P-H*.64:.1f} C{sx+w*.36:.1f},{P-H*.52:.1f} {x0+w:.1f},{P-H*.42:.1f} {x0+w:.1f},{P} Z'
+    q.append(f'<path d="{L} {Rt}" fill="{c}" fill-opacity=".34" stroke="{GOLD}" stroke-opacity=".5" stroke-width=".6"/>')
+    q.append(f'<path d="{L} {Rt}" fill="none" stroke="{c}" stroke-opacity=".5" stroke-width=".35" transform="translate({sx:.1f},{P}) scale(.86) translate({-sx:.1f},{-P})"/>')
+    # the finial: a thin rod and a small four-point star
+    ty = P - H - 9
+    q.append(f'<line x1="{sx:.1f}" x2="{sx:.1f}" y1="{P-H:.1f}" y2="{ty+2.5:.1f}" stroke="{GOLD}" stroke-width=".6"/>')
+    q.append(f'<path d="M{sx:.1f},{ty-3.2:.1f} L{sx+.9:.1f},{ty-.9:.1f} L{sx+3.2:.1f},{ty:.1f} L{sx+.9:.1f},{ty+.9:.1f} L{sx:.1f},{ty+3.2:.1f} L{sx-.9:.1f},{ty+.9:.1f} L{sx-3.2:.1f},{ty:.1f} L{sx-.9:.1f},{ty-.9:.1f} Z" fill="{GOLD_HI}"/>')
+    # the roundel
+    q.append(f'<circle cx="{sx:.1f}" cy="{cy:.1f}" r="{R+1.6:.2f}" fill="{INK}" fill-opacity=".55" stroke="{GOLD}" stroke-width=".7"/>')
+    g = f'fill="none" stroke="{GOLD_HI}" stroke-opacity=".85" stroke-width=".45"'
+    cg = f'fill="{c}" fill-opacity=".22" stroke="{c}" stroke-width=".55"'
+    C = lambda x, y, r, a=g: f'<circle cx="{x:.2f}" cy="{y:.2f}" r="{r:.2f}" {a}/>'
+    pt = lambda r, a: (sx + r * math.cos(a), cy + r * math.sin(a))
+    poly = lambda pts, a=g: '<path d="M' + ' L'.join(f'{x:.2f},{y:.2f}' for x, y in pts) + f' Z" {a}/>'
+    if f == 'keyboard':            # seed of life: seven circles, like the seven naturals of the octave
+        r = R / 2; q.append(C(sx, cy, r, cg)); [q.append(C(*pt(r, k * math.pi / 3 - math.pi / 2), r)) for k in range(6)]; q.append(C(sx, cy, R))
+    elif f == 'chamber':           # vesica piscis: two voices, one shared space
+        r = R * .62; q.append(C(sx - r / 2, cy, r)); q.append(C(sx + r / 2, cy, r)); h = r * math.sqrt(3) / 2
+        q.append(f'<path d="M{sx:.2f},{cy-h:.2f} A{r:.2f},{r:.2f} 0 0 1 {sx:.2f},{cy+h:.2f} A{r:.2f},{r:.2f} 0 0 1 {sx:.2f},{cy-h:.2f} Z" {cg}/>')
+    elif f == 'concerto':          # the one and the many: a point within a triangle within the circle
+        q.append(poly([pt(R * .92, k * 2 * math.pi / 3 - math.pi / 2) for k in range(3)])); q.append(poly([pt(R * .46, k * 2 * math.pi / 3 + math.pi / 2) for k in range(3)], cg)); q.append(C(sx, cy, R * .16, f'fill="{GOLD_HI}"'))
+    elif f == 'sacred':            # rose window: twelve petals turning about one centre
+        r = R * .5; [q.append(C(*pt(r, k * math.pi / 6), r)) for k in range(12)]; q.append(C(sx, cy, R * .2, cg)); q.append(C(sx, cy, R))
+    elif f == 'song':              # the golden spiral: one breath, one line, unfolding
+        phi = (1 + 5 ** .5) / 2; s0 = R * 1.18; x, y = sx - s0 / 2, cy - s0 / phi / 2; d = f'M{x:.2f},{y + s0/phi:.2f}'; a = s0 / phi
+        dirs = [(1, -1), (1, 1), (-1, 1), (-1, -1)]; cx_, cy_ = x + a, y + a; px, py = x, y + a
+        seq = []
+        sz = a
+        for k in range(7):
+            dx, dy = dirs[k % 4]; nx, ny = px + dx * sz, py + dy * sz
+            seq.append(f'A{sz:.2f},{sz:.2f} 0 0 1 {nx:.2f},{ny:.2f}'); px, py = nx, ny; sz /= phi
+        q.append(f'<path d="M{x:.2f},{y + a:.2f} ' + ' '.join(seq) + f'" fill="none" stroke="{c}" stroke-width=".7"/>')
+        q.append(f'<rect x="{x:.2f}" y="{y:.2f}" width="{s0:.2f}" height="{s0/phi:.2f}" {g}/>'); q.append(f'<line x1="{x+a:.2f}" x2="{x+a:.2f}" y1="{y:.2f}" y2="{y+a:.2f}" {g}/>'); q.append(C(sx, cy, R))
+    elif f == 'stage':             # circle and square: the round audience about the square stage
+        q.append(C(sx, cy, R)); s2 = R / math.sqrt(2); q.append(f'<rect x="{sx-s2:.2f}" y="{cy-s2:.2f}" width="{2*s2:.2f}" height="{2*s2:.2f}" {cg}/>'); q.append(C(sx, cy, s2)); q.append(f'<line x1="{sx-s2:.2f}" x2="{sx+s2:.2f}" y1="{cy+s2:.2f}" y2="{cy+s2:.2f}" stroke="{GOLD_HI}" stroke-width=".9"/>')
+    elif f == 'orch':              # flower of life: many circles, one pattern
+        r = R / 3
+        for ring, n in [(0, 1), (r, 6), (r * math.sqrt(3), 6), (2 * r, 6)]:
+            for k in range(n): a = k * math.pi / 3 + (math.pi / 6 if ring == r * math.sqrt(3) else 0) - math.pi / 2; q.append(C(*pt(ring, a), r, cg if ring == 0 else g))
+        q.append(C(sx, cy, R))
+    elif f == 'commons':           # three rings bound together: song, dance and work song
+        r = R * .5
+        for k in range(3): q.append(C(*pt(r * .62, k * 2 * math.pi / 3 - math.pi / 2), r, cg if k == 0 else g))
+        q.append(C(sx, cy, R))
+    return '<g class="crown">' + ''.join(q) + '</g>'
+for f, name, c in FAMS:
+    if f != 'commons': o.append(crown(f, X[f], width(f), c))
 # the spire and the pyramid
 sx = CX
 o.append(f'<path d="M{sx-SPW/2+6},{PRESENT} L{sx+SPW/2-6},{PRESENT} L{sx+SPW/2+4},{GROUND} L{sx-SPW/2-4},{GROUND} Z" fill="#6fbf5a" fill-opacity=".22" stroke="#6fbf5a" stroke-opacity=".5" stroke-width=".8"/>')
+o.append(crown('commons', sx - SPW / 2 + 6, SPW - 12, '#6fbf5a'))
 o.append(f'<text class="famname" transform="translate({sx+5},{(GROUND+PRESENT)/2}) rotate(-90)" fill="{GREEN}" fill-opacity=".7" class="disp" font-size="20" letter-spacing="3" text-anchor="middle" font-weight="300">THE COMMONS</text>')
 MW, MD = 520, 168          # the mound, inverted: wide at the ground, narrowing to one seed point, the origin
 SEED = (sx, GROUND + MD)
@@ -229,7 +286,7 @@ if LIVE:
     json.dump({'nodes': {i: {'x': round(POS[i][0], 2), 'y': round(POS[i][1], 2), 'f': HOME.get(i) or N[i].get('lane') or 'song'} for i in POS},
                'fams': {f: {'x0': X[f], 'x1': X[f] + (SPW if f == 'commons' else width(f)), 'open': first[f], 'name': nm, 'c': c} for f, nm, c in FAMS},
                'eras': [{'id': p['id'], 'name': 'Now' if p['id'] == 'contemporary' else p['name'], 'start': p['start'], 'end': p['end'], 'top': p['y1'], 'bottom': p['y0']} for p in PER],
-               'present': PRESENT, 'ground': GROUND, 'bounds': [150, 40, W - 60, GROUND + 188]}, open(os.path.join(OUT, 'layout.json'), 'w'))
+               'present': PRESENT, 'ground': GROUND, 'bounds': [150, PRESENT - 150, W - 60, GROUND + 188]}, open(os.path.join(OUT, 'layout.json'), 'w'))
     print('live map written')
 open(os.path.join(OUT, 'preview.svg'), 'w').write(svg)
 print('forms placed', len(LAB), 'focus', N[FOCUS]['t'] if FOCUS else '-', len(web) - 1, 'links')

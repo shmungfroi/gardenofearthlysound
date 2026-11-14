@@ -16,7 +16,7 @@ button{font:inherit;color:inherit}
 body.pan #map{width:calc(100vw - var(--rail) - var(--gut) - 420px)}
 #map.drag{cursor:grabbing}
 #map #chrome,#map #gut text{display:none}
-#map .fm{cursor:pointer}
+#map .fm{cursor:pointer} #map .lk,#map #evlayer path,#map #lens path{pointer-events:none}
 #map .fm text{transition:opacity .25s}
 #map.far .fm:not(.soil) text{opacity:0}
 #map.far .fm.on:not(.soil) text,#map.far .fm.me:not(.soil) text,#map.far .fm.rtn:not(.soil) text{opacity:1}
@@ -195,6 +195,15 @@ body.pan #lensbar{right:438px;max-width:calc(100vw - var(--rail) - var(--gut) - 
 .sheet .nres{font-size:12.5px;color:var(--muted);margin:8px 6px} .sheet .nres b{color:var(--goldhi);font-weight:500}
 .sheet .stops button{font-size:13px;padding:5px 8px} .sheet .stops button em{font-style:normal;color:var(--gold);margin-right:8px;font-size:11.5px}
 .sheet .lnote{font-size:12px;color:var(--muted);margin:12px 6px 0;line-height:1.5}
+#map #hit path{fill:none;stroke:#000;stroke-opacity:0;stroke-width:14px;vector-effect:non-scaling-stroke;pointer-events:stroke;cursor:pointer}
+#map .lk.hov{stroke-width:1.5!important;stroke-opacity:1!important} #map #lens .rt-line.hov{stroke-width:1.3;stroke-opacity:1;stroke-dasharray:none}
+#tip{position:fixed;display:none;z-index:20;pointer-events:none;background:#15120b;border:1px solid var(--gold);border-radius:9px;padding:5px 10px;font-size:12.5px;max-width:300px;line-height:1.35}
+#tip b{color:var(--goldhi);font-weight:500} #tip small{display:block;color:var(--muted);font-size:11px}
+aside .routes{margin:10px 0 4px} aside .routes small{display:block;font-size:10.5px;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold);margin-bottom:4px}
+aside .rt-b{all:unset;cursor:pointer;display:block;border:1px solid #3a3222;border-radius:9px;padding:5px 10px;margin:0 0 6px;font-size:13px} aside .rt-b:hover{border-color:var(--gold)}
+aside .rt-b em{display:block;font-style:normal;font-size:11.5px;color:var(--goldhi)}
+aside .rt-leave{all:unset;cursor:pointer;font-size:11.5px;color:var(--muted);margin-top:4px} aside .rt-leave:hover{color:var(--ivory)}
+#res .rres{order:4;color:var(--ivory)} #res .rres small{color:var(--gold)}
 aside .route{border-color:var(--gold)} aside .route .rname{font-size:12.5px;color:var(--muted);margin:2px 0 6px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style></head>
@@ -224,7 +233,7 @@ aside .route{border-color:var(--gold)} aside .route .rname{font-size:12.5px;colo
   <div class="pm"><button id="zin" aria-label="Zoom in">+</button><button id="zout" aria-label="Zoom out">−</button></div>
   <button class="rung" data-l="0"><i></i>Garden</button><button class="rung" data-l="1"><i></i>Spire</button><button class="rung" data-l="2"><i></i>Storey</button><button class="rung" data-l="3"><i></i>Lantern</button><button class="rung" data-l="4" hidden><i></i>Voice</button>
 </div>
-<div id="hint" role="status"></div>
+<div id="hint" role="status"></div><div id="tip" role="tooltip"></div>
 <aside id="panel" aria-live="polite"></aside>
 
 <script src="gx_data.js"></script>
@@ -302,7 +311,7 @@ function light(id) {
   svg.classList.toggle('focus', !!id);
   document.querySelectorAll('#map .on,#map .me').forEach(x => { x.classList.remove('on', 'me'); if (x.classList.contains('fm')) x.removeAttribute('transform'); });
   if (id) { NODE[id] && NODE[id].classList.add('me'); (BY[id] || []).forEach(p => { p.classList.add('on'); [p.dataset.a, p.dataset.b].forEach(j => j !== id && NODE[j] && NODE[j].classList.add('on')); p.parentNode.appendChild(p); }); }
-  apply(); }
+  hits(); apply(); }
 function web(id) { const s = new Set([id]); (BY[id] || []).forEach(p => { s.add(p.dataset.a); s.add(p.dataset.b); }); return [...s].filter(j => LAY.nodes[j]); }
 function frameNet(id, withPanel) {           // the form with every form it connects to, as large as fits
   const ids = web(id), xs = ids.map(j => LAY.nodes[j].x), ys = ids.map(j => LAY.nodes[j].y);
@@ -323,13 +332,15 @@ const MINARET = {}; G.MIN.genres.forEach(g => g.lanterns.forEach(id => MINARET[i
 function card(id) {
   const f = famAt(LAY.nodes[id].x), n = N[id];
   const fams = [famOf(id), ...(n.also || [])].filter((x, i, a) => LAY.fams[x] && a.indexOf(x) === i).map(x => ({name: FN(x), c: FC(x)}));
-  window.GardenCard.render(panel, id, {go: o => choose(o, true), close: () => { closePanel(); light(null); }, thread: k => showThread(k), event: e => showEvent(e), route: lens.n && lens.n.startsWith('r-') ? lens.n.slice(2) : null, famName: FN(f), eraName: (ERA[n.period] || {}).name || '', fams, minaret: MINARET[id] || ''});
+  window.GardenCard.render(panel, id, {go: o => choose(o, true), close: () => { closePanel(); light(null); }, thread: k => showThread(k), event: e => showEvent(e), route: lens.n && lens.n.startsWith('r-') ? lens.n.slice(2) : null, walk: k => setCourse(k ? 'r-' + k : ''), famName: FN(f), eraName: (ERA[n.period] || {}).name || '', fams, minaret: MINARET[id] || ''});
 }
 
 /* ---------- F2 voices: a composer's gold thread through every lantern they wrote in ---------- */
 const VOICES = window.GardenCard.VOICES, SVGNS = 'http://www.w3.org/2000/svg';
 const gThread = document.createElementNS(SVGNS, 'g'); gThread.setAttribute('id', 'thread'); cam.insertBefore(gThread, cam.querySelector(':scope > .fm'));
 let tkey = null;
+function segs(pts) { const out = []; for (let i = 0; i < pts.length - 1; i++) { const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
+  out.push(`M${p1[0]},${p1[1]} C${p1[0] + (p2[0] - p0[0]) / 6},${p1[1] + (p2[1] - p0[1]) / 6} ${p2[0] - (p3[0] - p1[0]) / 6},${p2[1] - (p3[1] - p1[1]) / 6} ${p2[0]},${p2[1]}`); } return out; }
 function smooth(pts) { if (pts.length < 2) return ''; let d = `M${pts[0][0]},${pts[0][1]}`;
   for (let i = 0; i < pts.length - 1; i++) { const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
     d += ` C${p1[0] + (p2[0] - p0[0]) / 6},${p1[1] + (p2[1] - p0[1]) / 6} ${p2[0] - (p3[0] - p1[0]) / 6},${p2[1] - (p3[1] - p1[1]) / 6} ${p2[0]},${p2[1]}`; } return d; }
@@ -370,15 +381,30 @@ function showEvent(id) {
   const to = (e.to || []).filter(i => LAY.nodes[i]); to.forEach(i => NODE[i] && NODE[i].classList.add('on'));
   gEvent.innerHTML = ''; const mk = (t, a) => { const z = document.createElementNS(SVGNS, t); for (const k in a) z.setAttribute(k, a[k]); gEvent.appendChild(z); return z; };
   mk('line', {x1: B[0], x2: B[2], y1: e.wy, y2: e.wy, class: 'ev-line'});
-  to.forEach(i => { const p = LAY.nodes[i], mx = (B[0] + p.x) / 2; mk('path', {d: `M${B[0] + 4},${e.wy} Q${p.x},${e.wy} ${p.x},${p.y}`, class: 'ev-link'}); mk('circle', {cx: p.x, cy: p.y, r: 2.4, class: 'ev-ring'}); });
+  to.forEach(i => { const p = LAY.nodes[i], mx = (B[0] + p.x) / 2; mk('path', {d: `M${B[0] + 4},${e.wy} Q${p.x},${e.wy} ${p.x},${p.y}`, class: 'ev-link'}).dataset.to = i; mk('circle', {cx: p.x, cy: p.y, r: 2.4, class: 'ev-ring'}); });
   window.GardenCard.renderEvent(panel, id, {go: o => { clearEvent(); choose(o, true); }, close: () => { clearEvent(); closePanel(); light(null); }, famName: i => FN(famAt(LAY.nodes[i].x))});
   document.body.classList.add('pan'); measure(); clamp(view);
   const xs = to.map(i => LAY.nodes[i].x).concat([B[0] + 20]), ys = to.map(i => LAY.nodes[i].y).concat([e.wy]);
   const x0 = Math.min(...xs) - 40, x1 = Math.max(...xs) + 50, y0 = Math.min(...ys) - 22, y1 = Math.max(...ys) + 16;
-  flyTo(Math.max(KMIN(), Math.min(6, aw / (x1 - x0), (ah - 60) / (y1 - y0))), (x0 + x1) / 2, (y0 + y1) / 2 + 6); apply(); }
-function clearEvent() { if (!ekey) return; ekey = null; gEvent.innerHTML = ''; if (nav === 3) nav = null; }
-svg.addEventListener('mousemove', e => { if (ekey || drag) return; const r = svg.getBoundingClientRect(), wy = (e.clientY - r.top - view.ty) / view.k, yr = yearOfY(wy); if (yr == null) return previewYear(null); previewYear(wy, 'c.' + yr); });
+  flyTo(Math.max(KMIN(), Math.min(6, aw / (x1 - x0), (ah - 60) / (y1 - y0))), (x0 + x1) / 2, (y0 + y1) / 2 + 6); hits(); apply(); }
+function clearEvent() { if (!ekey) return; ekey = null; gEvent.innerHTML = ''; if (nav === 3) nav = null; hits(); }
+svg.addEventListener('mousemove', e => { if (ekey || drag) return; if (e.target.closest('#hit')) return previewYear(null); const r = svg.getBoundingClientRect(), wy = (e.clientY - r.top - view.ty) / view.k, yr = yearOfY(wy); if (yr == null) return previewYear(null); previewYear(wy, 'c.' + yr); });
 svg.addEventListener('mouseleave', () => { if (!ekey) previewYear(null); });
+
+/* ---------- connections you can click: a lit link, a route step or an event's line travels to the lantern at its other end ---------- */
+const gHit = document.createElementNS(SVGNS, 'g'); gHit.setAttribute('id', 'hit'); cam.insertBefore(gHit, cam.querySelector(':scope > .fm')); const tip = $('#tip');
+const VERB = {p: ['grew into', 'grew from'], i: ['influenced', 'was influenced by'], r: ['provoked a reaction in', 'reacted against'], c: ['fed', 'branches from']};
+function hits() { gHit.innerHTML = ''; const here = sel || spot; const add = (src, info) => { const z = document.createElementNS(SVGNS, 'path'); z.setAttribute('d', src.getAttribute('d')); z._src = src; z._info = info; gHit.appendChild(z); };
+  if (here) (BY[here] || []).forEach(p => { const a = p.dataset.a, b = p.dataset.b, t = [...p.classList].find(c => VERB[c]) || 'p', fwd = a === here, to = fwd ? b : a;
+    add(p, () => ({to, html: `<b>${N[here].t}</b> ${VERB[t][fwd ? 0 : 1]} <b>${N[to].t}</b><small>click to travel there</small>`})); });
+  document.querySelectorAll('#lens .rt-line').forEach(p => add(p, ev => { const a = p.dataset.a, b = p.dataset.b, ia = +p.dataset.ia, ib = +p.dataset.ib;
+    let to = sel === a ? b : sel === b ? a : null; if (!to && ev) { const r = svg.getBoundingClientRect(), wx = (ev.clientX - r.left - view.tx) / view.k, wy = (ev.clientY - r.top - view.ty) / view.k, A = LAY.nodes[a], B2 = LAY.nodes[b]; to = Math.hypot(A.x - wx, A.y - wy) < Math.hypot(B2.x - wx, B2.y - wy) ? a : b; }
+    to = to || b; const n = to === a ? ia : ib; return {to, html: `Route step ${ia + 1} → ${ib + 1}<small>to stop ${n + 1}: ${N[to].t}</small>`}; }));
+  document.querySelectorAll('#evlayer .ev-link').forEach(p => add(p, () => ({to: p.dataset.to, html: `<b>${EVENTS[ekey].t}</b> made possible <b>${N[p.dataset.to].t}</b><small>click to travel there</small>`}))); }
+gHit.addEventListener('mousemove', e => { const z = e.target; if (!z._info) return; const info = z._info(e); document.querySelectorAll('#map .hov').forEach(x => x !== z._src && x.classList.remove('hov')); z._src.classList.add('hov');
+  tip.innerHTML = info.html; tip.style.display = 'block'; tip.style.left = Math.min(innerWidth - 310, e.clientX + 14) + 'px'; tip.style.top = (e.clientY + 16) + 'px'; });
+gHit.addEventListener('mouseout', e => { if (e.target._src) e.target._src.classList.remove('hov'); tip.style.display = 'none'; });
+gHit.addEventListener('click', e => { const z = e.target; if (!z._info || moved) return; e.stopPropagation(); tip.style.display = 'none'; const {to} = z._info(e); if (to && LAY.nodes[to]) { clearThread(); clearEvent(); choose(to, true); } });
 
 /* ---------- F5 lenses: who wrote it, where it came from, and the NSW course it serves ---------- */
 const GC = window.GardenCard, gLens = document.createElementNS(SVGNS, 'g'); gLens.setAttribute('id', 'lens'); cam.insertBefore(gLens, gEvent);
@@ -400,9 +426,9 @@ function drawLens() {
     mk('circle', {cx: p.x, cy: p.y, r: 1.9 + i * .75, stroke: c}); }));
   if (lens.n.startsWith('r-')) { const c = GC.COURSES[lens.n.slice(2)], pts = c.stops.map(s => LAY.nodes[s.id]).filter(Boolean);      // a route walks its stops in teaching order
     c.stops.forEach(s => NODE[s.id] && NODE[s.id].classList.add('rtn'));
-    if (pts.length > 1) mk('path', {class: 'rt-line', d: smooth(pts.map(p => [p.x, p.y]))});
+    const sp = c.stops.map((st, i) => [st, i]).filter(([st]) => LAY.nodes[st.id]); segs(sp.map(([st]) => [LAY.nodes[st.id].x, LAY.nodes[st.id].y])).forEach((d, j) => { const z = mk('path', {class: 'rt-line', d}); z.dataset.a = sp[j][0].id; z.dataset.b = sp[j + 1][0].id; z.dataset.ia = sp[j][1]; z.dataset.ib = sp[j + 1][1]; });
     c.stops.forEach((s, i) => { const p = LAY.nodes[s.id]; if (!p) return; const g = mk('g', {class: 'rt-b'}); g.dataset.x = p.x; g.dataset.y = p.y; mk('circle', {class: 'rt-dot', cx: p.x, cy: p.y, r: 1.6}, g); mk('text', {class: 'rt-n', x: p.x, y: p.y + .05}, g).textContent = i + 1; }); }
-  apply();
+  hits(); apply();
   const bar = $('#lensbar'); bar.innerHTML = ''; bar.style.display = any ? 'flex' : 'none';
   const chip = (c, t, n, off) => { const sp = el('span', '', bar); sp.style.setProperty('--lc', c); el('i', '', sp); sp.append(t + ' '); el('small', '', sp, n + ''); const x = el('button', '', sp, '×'); x.title = 'Turn this lens off'; x.setAttribute('aria-label', 'Turn off ' + t); x.onclick = off; };
   LENSES.filter(L => lens.on.has(L.k)).forEach(L => chip(L.c, L.t, L.set.size, () => setLens(L.k, false)));
@@ -488,11 +514,13 @@ q.addEventListener('input', () => { res.innerHTML = ''; const r = results(q.valu
   const vs = sv.length < 3 ? [] : Object.values(VOICES).filter(V => V.name.toLowerCase().includes(sv)).sort((a, b) => b.forms.length - a.forms.length).slice(0, 5);
   res.style.display = r.length || vs.length ? 'flex' : 'none';
   const es = sv.length < 3 ? [] : EVL.filter(e => e.t.toLowerCase().includes(sv)).slice(0, 4); if (es.length) res.style.display = 'flex';
+  const rs = sv.length < 3 ? [] : Object.entries(window.GardenCard.COURSES).filter(([k, c]) => c.name.toLowerCase().includes(sv)).slice(0, 4); if (rs.length) res.style.display = 'flex';
+  rs.forEach(([k, c]) => { const b = el('button', 'rres', res, '⟿ ' + c.name.replace('HSC Preliminary year · ', '').replace('Thread: the ', 'The ').replace('Thread: ', '')); b.setAttribute('role', 'option'); el('small', '', b, `${c.group === 'Threads' ? 'thread' : 'course route'} · ${c.stops.length} stops`); b.onclick = () => { res.style.display = 'none'; q.value = ''; q.blur(); closePanel(); clearSpot(); setCourse('r-' + k); }; });
   es.forEach(e => { const b = el('button', 'eres', res, '◆ ' + e.t); b.setAttribute('role', 'option'); el('small', '', b, `event · ${e.d}`); b.onclick = () => { res.style.display = 'none'; q.value = ''; q.blur(); showEvent(e.id); }; });
   vs.forEach(V => { const b = el('button', 'vres', res, '♪ ' + V.name); b.setAttribute('role', 'option'); el('small', '', b, `composer · ${V.forms.length} lantern${V.forms.length === 1 ? '' : 's'}`); b.onclick = () => { res.style.display = 'none'; q.value = ''; q.blur(); showThread(V.key); }; });
   r.forEach(n => { const b = el('button', '', res, n.t); b.setAttribute('role', 'option'); el('small', '', b, `${n.d || ''} · ${FN(famOf(n.id)).toLowerCase()} · ${(ERA[n.period] || {}).name || ''}`);
     b.onmouseenter = b.onfocus = () => { if (!sel) light(n.id); }; b.onclick = () => { res.style.display = 'none'; q.value = ''; q.blur(); spotlight(n.id); }; }); });
-q.addEventListener('keydown', e => { if (e.key === 'Enter' && res.firstChild) (res.querySelector('button:not(.vres):not(.eres)') || res.firstChild).click(); if (e.key === 'ArrowDown' && res.firstChild) { e.preventDefault(); res.firstChild.focus(); } if (e.key === 'Escape') { q.value = ''; res.style.display = 'none'; q.blur(); if (!sel && !spot && !tkey) light(null); } });
+q.addEventListener('keydown', e => { if (e.key === 'Enter' && res.firstChild) (res.querySelector('button:not(.vres):not(.eres):not(.rres)') || res.firstChild).click(); if (e.key === 'ArrowDown' && res.firstChild) { e.preventDefault(); res.firstChild.focus(); } if (e.key === 'Escape') { q.value = ''; res.style.display = 'none'; q.blur(); if (!sel && !spot && !tkey) light(null); } });
 res.addEventListener('keydown', e => { const b = document.activeElement; if (e.key === 'ArrowDown' && b.nextSibling) { e.preventDefault(); b.nextSibling.focus(); } if (e.key === 'ArrowUp') { e.preventDefault(); (b.previousSibling || q).focus(); } if (e.key === 'Escape') { res.style.display = 'none'; q.focus(); } });
 q.addEventListener('blur', () => setTimeout(() => { if (!res.contains(document.activeElement)) { res.style.display = 'none'; if (!sel && !spot && !tkey && !ekey) light(null); } }, 150));
 
@@ -534,6 +562,7 @@ function openSheet(kind, btn) {
     [['Storeys rise.', ' The ground is the year 800; the top is today. Each storey (period) is named on the left.'], ['The commons is the central spire.', ' Folk song, dance and work song rises from one seed at the bottom: the origin. From it, roots fan out to every spire, and its green branches reach the lanterns it fed.'],
      ['Spires are the families.', ' Each grows from a root in the ground and blooms where its oldest form begins. Inside, its minarets (genres) stand side by side.'], ['Lanterns are the forms.', ' A small gold point with its name. Click one to light its links and open its card.'],
      ['Links:', ' solid gold = grew from, dotted gold = influenced, red = reacted against, green = from the commons.'],
+     ['Every line is a path:', ' when a lantern is open, hover any of its links to read the connection and click it to travel to the lantern at the other end. Route steps and event lines work the same way.'],
      ['Lenses ◎:', ' light the lanterns that answer one question (women composers, the Americas & Australia, oral & folk sources, Aboriginal and Torres Strait Islander music) or serve one NSW course, topic or route. Each wears its own ring; a route also shows its stops in teaching order.'],
      ['Move:', ' drag, scroll or pinch; + and − or the ladder step Garden › Spire › Storey › Lantern; arrow keys move to the next spire or storey; / searches.']]
       .forEach(([b, t]) => { const p = el('p', '', sheet); el('b', '', p, b); p.append(t); }); }
@@ -542,7 +571,7 @@ document.querySelectorAll('.rail button').forEach(b => b.onclick = () => openShe
 
 addEventListener('resize', () => { measure(); clamp(view); apply(); });
 measure(); view.k = fitK; clamp(view); apply();
-window.__map = {lens, setLens, setCourse, view, home, goFamily, goEra, goLevel, spotlight, choose, level, LAY, frameNet, showThread, tkey: () => tkey, showEvent, ekey: () => ekey};
+window.__map = {fitBox, LENSES, drawLens, lens, setLens, setCourse, view, home, goFamily, goEra, goLevel, spotlight, choose, level, LAY, frameNet, showThread, tkey: () => tkey, showEvent, ekey: () => ekey};
 })();
 </script>
 </body></html>

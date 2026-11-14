@@ -170,11 +170,17 @@ function render(panel, id, ctx) {
   if (n.brief) rich(h('p', 'brief', panel), n.brief); else if (F.note) h('p', 'brief', panel, F.note);
   if (!(n.works || []).length && !n.brief) h('p', 'status', panel, 'This form is still being researched.');
 
-  // F5: the course route chosen in the lenses, as a stop on that route (threads below show for every card)
-  if (ctx.route && COURSES[ctx.route] && COURSES[ctx.route].group !== 'Threads') { const c = COURSES[ctx.route], i = c.stops.findIndex(s => s.id === id);
-    if (i >= 0) { const s = c.stops[i], p = h('div', 'thread route', panel); h('small', '', p, `Course route · stop ${i + 1} of ${c.stops.length}`); h('p', 'rname', p, c.name.replace('HSC Preliminary year · ', ''));
+  // F5 routes: the route being walked shows this stop (with ‹ previous and next ›); every other route or thread through this lantern is one click away
+  { const rname = c => c.name.replace('HSC Preliminary year · ', '').replace('Thread: ', 'Thread · '), at = c => c.stops.findIndex(s => s.id === id);
+    const on = Object.entries(COURSES).filter(([, c]) => at(c) >= 0), act = on.find(([k]) => k === ctx.route);
+    if (act) { const [, c] = act, i = at(c), s = c.stops[i], p = h('div', 'thread route', panel);
+      h('small', '', p, `${c.group === 'Threads' ? 'Thread' : 'Course route'} · stop ${i + 1} of ${c.stops.length}`); h('p', 'rname', p, rname(c));
       h('p', '', p, `${s.week}${s.pages ? ' · ' + s.pages : ''}. ${s.role}: ${s.works.join('; ')}.`);
-      const nv = h('p', 'thread-nav', p); if (i > 0 && N[c.stops[i - 1].id]) nav(nv, c.stops[i - 1].id, '‹ ' + N[c.stops[i - 1].id].t); if (i < c.stops.length - 1 && N[c.stops[i + 1].id]) nav(nv, c.stops[i + 1].id, N[c.stops[i + 1].id].t + ' ›'); } }
+      const nv = h('p', 'thread-nav', p); if (i > 0 && N[c.stops[i - 1].id]) nav(nv, c.stops[i - 1].id, '‹ ' + N[c.stops[i - 1].id].t); else h('span', '', nv); if (i < c.stops.length - 1 && N[c.stops[i + 1].id]) nav(nv, c.stops[i + 1].id, N[c.stops[i + 1].id].t + ' ›');
+      if (ctx.walk) { const x = h('button', 'rt-leave', p, 'Leave this route'); x.type = 'button'; x.addEventListener('click', () => ctx.walk(null)); } }
+    const rest = on.filter(([k]) => k !== ctx.route);
+    if (rest.length && ctx.walk) { const d = h('div', 'routes', panel); h('small', '', d, act ? 'Also on' : 'On ' + (rest.length === 1 ? 'a route' : rest.length + ' routes'));
+      rest.forEach(([k, c]) => { const b = h('button', 'rt-b', d); b.type = 'button'; h('span', '', b, rname(c)); h('em', '', b, `stop ${at(c) + 1} of ${c.stops.length} · walk it ›`); b.title = 'Show this route on the map and walk it stop by stop'; b.addEventListener('click', () => ctx.walk(k)); }); } }
   // G3 Listen: every work, with its recording, score and a Spotify search
   if ((n.works || []).length) { h('h3', '', panel, 'Listen'); const ol = h('ol', 'plist', panel);
     n.works.forEach((w, i) => { const m = (F.media || [])[i] || [], nr = m[2] === 'NO_RECORDING', li = h('li', '', ol), b = h('b', '', li, w[0]);
@@ -221,9 +227,6 @@ function render(panel, id, ctx) {
   // G6 the Garden's own sections: how the design adapts, where a band runs, threads through time
   if (n.adapts) { h('h3', '', panel, 'How the design adapts'); n.adapts.forEach(a => { const p = h('p', 'adapt', panel); h('b', '', p, (a.genre || a.t || '') + ' '); rich(p, a.text || ''); if (a.example) h('em', '', p, ' ' + a.example); }); }
   if (n.attached) { h('h3', '', panel, 'Where the band runs'); const ul = h('ul', '', panel); n.attached.forEach(a => { const li = h('li', '', ul); h('cite', '', li, a.work); li.append(`, ${a.movement} · `); if (N[a.form]) nav(li, a.form, N[a.form].t); }); }
-  Object.values(COURSES).filter(c => c.group === 'Threads').forEach(c => { const i = c.stops.findIndex(s => s.id === id); if (i < 0) return; const s = c.stops[i];
-    const p = h('div', 'thread', panel); h('small', '', p, `${c.name.replace('Thread: ', 'Thread · ')} · stop ${i + 1} of ${c.stops.length}`); h('p', '', p, `${s.week}. ${s.role}: ${s.works.join('; ')}.`);
-    const nv = h('p', 'thread-nav', p); if (i > 0 && N[c.stops[i - 1].id]) nav(nv, c.stops[i - 1].id, '‹ ' + N[c.stops[i - 1].id].t); if (i < c.stops.length - 1 && N[c.stops[i + 1].id]) nav(nv, c.stops[i + 1].id, N[c.stops[i + 1].id].t + ' ›'); });
 
   // G10 NSW syllabus · for teachers (the Garden's suggestions, to check against the syllabus)
   { const d = h('details', 'nsw', panel); h('summary', '', d, 'NSW syllabus · for teachers'); const box = h('div', 'nsw-in', d);
