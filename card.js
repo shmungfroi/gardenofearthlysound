@@ -227,9 +227,10 @@ function render(panel, id, ctx) {
       h('span', 'st', qm, 'Stage ' + q.stage);
       if (q.stage === 6) { const t = h('span', 'crs', qm, q.verb === 'evaluate' ? 'Music 2 Y12' : 'Music 1 Y12 · Music 2 Y11'); t.title = q.verb === 'evaluate' ? 'Music 2 Year 12 outcomes evaluate the ways Music context and Music language shape meaning' : 'Music 1 Year 12 and Music 2 Year 11 outcomes analyse the ways Music context and Music language shape music'; }
       h('span', 'verb', qm, v.w).title = v.def; elLabels(qm, q.el); h('p', 'qt', li, q.q);
-      if (q.stage === 6 && /^(Analyse|Evaluate) /.test(q.q)) { const d1 = h('p', 'qt m1y11', li), c1 = h('span', 'crs', d1, 'Music 1 Y11 · Describe'); c1.title = 'Music 1 Year 11 outcomes describe the ways Music context and Music language shape music'; d1.append(' ' + q.q.replace(/^(Analyse|Evaluate) /, 'Describe ')); }
+      if (q.stage === 6 && /^(Analyse|Evaluate) /.test(q.q)) { const d1 = h('p', 'qt m1y11', li), c1 = h('span', 'crs', d1, 'Music 1 Y11'); c1.title = 'Music 1 Year 11 outcomes describe the ways Music context and Music language shape music'; d1.append(' ' + q.q.replace(/^(Analyse|Evaluate) /, 'Describe ')); }
       if (w) { const lw = h('p', 'lw', li); h('b', '', lw, 'Listen to '); if (m[0]) ext(lw, m[0], w[0] + ' ↗'); else lw.append(w[0]); lw.append(', ' + w[1] + (m[2] === 'NO_RECORDING' ? ' (no reliable recording yet; try its Spotify search above)' : '')); }
-      if (q.hint) { const d = h('details', '', li); h('summary', '', d, 'Hint'); rich(h('p', '', d), q.hint); } });
+      if (q.hint) { const d = h('details', '', li); h('summary', '', d, 'Hint'); rich(h('p', '', d), q.hint); }
+      if (q.research) { const r = h('div', 'research', li); h('small', '', r, 'Research challenge'); rich(h('p', '', r), q.research); } });      // an optional task that sends the student out to find a source for themselves
     if ((ATLAS.ladder || []).length) { const d = h('details', 'ladder-d', panel); h('summary', '', d, 'What a strong answer does'); const lo = h('ol', '', d); ATLAS.ladder.forEach(r => { const li = h('li', '', lo); h('b', '', li, r.h + ' '); li.append(r.p); });
       if ((ATLAS.checklist || []).length) { h('p', '', d, 'Check before you hand it in:'); const cu = h('ul', '', d); ATLAS.checklist.forEach(c => h('li', '', cu, c)); } } }
 
