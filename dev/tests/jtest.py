@@ -1,0 +1,65 @@
+import asyncio, subprocess, time, re
+from playwright.async_api import async_playwright
+srv = subprocess.Popen(['python3','/home/claude/tools/serve.py','8918','/home/claude/gardenofearthlysound'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL); time.sleep(1)
+O='/home/claude/shots/journey'; U='http://localhost:8918/index.html'
+import os; os.makedirs(O, exist_ok=True)
+async def main():
+    async with async_playwright() as p:
+        b = await p.chromium.launch(executable_path='/usr/bin/google-chrome')
+        ctx = await b.new_context(viewport={'width':1600,'height':1000}); await ctx.grant_permissions(['clipboard-read','clipboard-write'], origin='http://localhost:8918')
+        pg = await ctx.new_page(); errs=[]
+        pg.on('pageerror', lambda e: errs.append(str(e))); pg.on('console', lambda m: m.type=='error' and errs.append(m.text))
+        await pg.goto(U); await pg.evaluate('localStorage.clear()'); await pg.reload(); await pg.wait_for_timeout(1500)
+        ev = lambda js: pg.evaluate(js)
+        # build a trail: pin fugue, travel along 3 links; then card +Trail for a searched lantern
+        await ev("__map.pin('fugue')"); 
+        for i in range(3):
+            await ev("""(()=>{const h=__map.spot();const p=[...document.querySelectorAll('#map .lk')].find(p=>(p.dataset.a===h||p.dataset.b===h)&&!__map.trail().includes(p.dataset.a===h?p.dataset.b:p.dataset.a)&&(p.dataset.a===h?p.dataset.b:p.dataset.a)!=='commons');const r=p.getBoundingClientRect();})()""")
+            to = await ev("""(()=>{const h=__map.spot();const p=[...document.querySelectorAll('#map .lk')].find(p=>(p.dataset.a===h||p.dataset.b===h)&&!__map.trail().includes(p.dataset.a===h?p.dataset.b:p.dataset.a)&&(p.dataset.a===h?p.dataset.b:p.dataset.a)!=='commons'&&(p.dataset.a===h?p.dataset.b:p.dataset.a)!=='fugue');return p.dataset.a===h?p.dataset.b:p.dataset.a})()""")
+            await ev(f"__map.travel('{to}')"); await pg.wait_for_timeout(300)
+        await pg.click('#q'); await pg.keyboard.type('sonata form', delay=20); await pg.keyboard.press('Enter'); await pg.wait_for_timeout(900)
+        print('after search', await ev("[document.body.classList.contains('pan'), (document.querySelector('#panel h1')||{}).textContent, document.querySelectorAll('#panel .cact').length, document.querySelector('#panel').firstElementChild&&document.querySelector('#panel').firstElementChild.className]")); await pg.click('#panel .cact .share >> nth=0'); await pg.wait_for_timeout(200)
+        await pg.keyboard.press('Escape'); await pg.keyboard.press('Escape'); await pg.wait_for_timeout(400)
+        print('trail', await ev("[...document.querySelectorAll('#trail .tc')].map(c=>c.textContent.replace('×',''))"))
+        await pg.click('#trail .tsh >> text=Save as journey'); await pg.wait_for_timeout(500)
+        await pg.fill('#panel .jr-title', 'From the fugue outward'); await pg.fill('#panel .jr-by', 'Justin')
+        n = await ev("document.querySelectorAll('#panel .jr-stop').length"); print('stops in editor', n)
+        for i in range(n):
+            await pg.select_option(f'#panel .jr-stop >> nth={i} >> select.jr-w', index=1)
+            await pg.fill(f'#panel .jr-stop >> nth={i} >> textarea', f'Note {i+1}: the line keeps moving even when the voices change.')
+        print('lines', await ev("[...document.querySelectorAll('#panel .jr-line')].map(x=>x.textContent)"))
+        await pg.screenshot(path=f'{O}/1_editor.png')
+        await pg.click('#panel .jr-b >> text=Walk it'); await pg.wait_for_timeout(900); await pg.screenshot(path=f'{O}/2_walk1.png')
+        await pg.click('#panel .jr-b >> text=Next'); await pg.wait_for_timeout(900); await pg.screenshot(path=f'{O}/3_walk2.png')
+        print('walk stop', await ev("document.querySelector('#panel .k').textContent"), '|', await ev("document.querySelector('#panel .jr-line.big').textContent"))
+        # share link and reopen in a fresh context
+        await pg.click('#panel .jr-b >> text=Journey sheet'); await pg.wait_for_timeout(800)
+        sheet = await ev('window.__lastSheet'); open(f'{O}/sheet.html','w').write(sheet)
+        await pg.keyboard.press('Escape'); await pg.wait_for_timeout(300)
+        await ev("document.querySelector('.rail button[data-sheet=journeys]').click()"); await pg.wait_for_timeout(300)
+        await pg.click('.sheet .jrow .jx >> text=Edit'); await pg.wait_for_timeout(400)
+        await pg.click('#panel .jr-b >> text=Share link'); await pg.wait_for_timeout(600)
+        link = await ev('navigator.clipboard.readText()'); print('journey link length', len(link), link[:80])
+        await pg.click('#panel .jr-b >> text=Copy as text'); await pg.wait_for_timeout(300); print((await ev('navigator.clipboard.readText()'))[:300])
+        c2 = await b.new_context(viewport={'width':1600,'height':1000}); p2 = await c2.new_page(); p2.on('pageerror', lambda e: errs.append('P2 '+str(e)))
+        await p2.goto(link.replace('https://shmungfroi.github.io/gardenofearthlysound/', U)); await p2.wait_for_timeout(1800)
+        print('shared opens:', await p2.evaluate("[document.querySelector('#panel .k')&&document.querySelector('#panel .k').textContent, (document.querySelector('#panel .jr-jt')||{}).textContent, (document.querySelector('#panel .jr-q')||{}).textContent]"))
+        await p2.screenshot(path=f'{O}/4_shared.png')
+        await p2.click('#panel .jr-b >> text=Keep a copy'); await p2.wait_for_timeout(300); print('kept', await p2.evaluate("JSON.parse(localStorage.getItem('garden.journeys')).length"))
+        # teacher task
+        await ev("document.querySelector('.rail button[data-sheet=journeys]').click()"); await pg.wait_for_timeout(300)
+        await pg.click('.sheet .jbig >> text=Set a listening task'); await pg.wait_for_timeout(400)
+        await pg.fill('#panel label.jr-f >> nth=0 >> input', 'Five steps from the fugue')
+        await pg.fill('#panel label.jr-f >> nth=1 >> textarea', 'Start at the fugue and travel towards today. At each stop listen to one work and note one thing that changed and one that stayed.')
+        await pg.fill('#panel label.jr-f >> nth=2 >> input', '5'); await pg.fill('#panel label.jr-f >> nth=3 >> input', 'Fugue'); await pg.select_option('#panel label.jr-f >> nth=4 >> select', 'contemporary')
+        await pg.screenshot(path=f'{O}/5_task_maker.png')
+        await pg.click('#panel .jr-b >> text=Copy task link'); await pg.wait_for_timeout(500); tlink = await ev('navigator.clipboard.readText()'); print('task link', len(tlink))
+        await pg.click('#panel .jr-b >> text=Save task'); await pg.wait_for_timeout(300)
+        c3 = await b.new_context(viewport={'width':390,'height':844}, is_mobile=True, has_touch=True, device_scale_factor=2); p3 = await c3.new_page(); p3.on('pageerror', lambda e: errs.append('P3 '+str(e)))
+        await p3.goto(tlink.replace('https://shmungfroi.github.io/gardenofearthlysound/', U)); await p3.wait_for_timeout(1800); await p3.screenshot(path=f'{O}/6_task_phone.png')
+        await p3.click('#panel .jr-b >> text=Begin this task'); await p3.wait_for_timeout(1200)
+        print('task begun', await p3.evaluate("[__map.trail(), (document.querySelector('#trail .ttask')||{}).textContent]"))
+        await p3.screenshot(path=f'{O}/7_task_begun_phone.png')
+        print('errors', errs); await b.close()
+try: asyncio.run(main())
+finally: srv.kill()
