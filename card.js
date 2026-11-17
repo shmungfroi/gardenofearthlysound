@@ -110,12 +110,144 @@ function glossKey(t) { const k = String(t || '').toLowerCase().replace(/\s+/g, '
 // text with **bold** terms; those in the glossary open their definition in place
 function rich(parent, text) { String(text || '').split('**').forEach((part, i) => { if (!part) return; if (i % 2) { const key = glossKey(part); if (key) { const b = h('button', 'kw', parent, part); b.type = 'button'; b.setAttribute('aria-expanded', 'false'); b.addEventListener('click', () => toggleGloss(b, key)); } else h('b', '', parent, part); } else parent.append(part); }); return parent; }
 function elLabels(parent, codes) { if (!codes || !codes.length) return; const sp = h('span', 'gel', parent); codes.forEach(c => h('i', '', sp, elName(c))); }
+/* Appends the optional parts of a definition to the box d (div.gdef).
+   M = {listen: [strings], hear: {lantern, work, composer, where}, now: ""}
+   Call it after the example paragraph and before para.after(d). Returns the wrapper, or null when M has none of the three. */
+function glossExtras(d, M) {
+  M = M || {};
+  var listen = (M.listen || []).filter(function (s) { return s && String(s).trim(); }).slice(0, 3);
+  var hear = M.hear && M.hear.work ? M.hear : null;
+  var now = M.now ? String(M.now).trim() : '';
+  if (!listen.length && !hear && !now) return null;
+  var mk = function (tag, cls, parent, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; if (parent) parent.appendChild(e); return e; };
+  var x = mk('div', 'gd-x', d);
+  var part = function (cls, label) { var s = mk('div', 'gd-s ' + cls, x); mk('small', 'gd-k', s, label); return s; };
+  if (listen.length) { var ul = mk('ul', '', part('gd-listen', 'Listen for')); listen.forEach(function (t) { mk('li', '', ul, String(t).trim()); }); }
+  if (hear) {
+    var p = mk('p', '', part('gd-hear', 'Hear it in'));
+    if (hear.composer) { mk('span', 'gd-by', p, hear.composer); p.appendChild(document.createTextNode(', ')); }
+    if (hear.lantern) {
+      var b = mk('button', 'gd-go', p, hear.work); b.type = 'button';
+      b.setAttribute('aria-label', hear.work + (hear.composer ? ', ' + hear.composer : '') + ': open its lantern');
+      b.addEventListener('click', function () { if (window.__openLantern) window.__openLantern(hear.lantern); });
+    } else mk('span', 'gd-by', p, hear.work);
+    if (hear.where) mk('span', 'gd-wh', p, ' · ' + hear.where);
+  }
+  if (now) mk('p', '', part('gd-now', 'Then and now'), now);
+  return x;
+}
+
+/* See it on the page: score crops in a card, each opening large in an in-page overlay.
+   pagesPanel(parent, P, h, rich)
+     parent  the node to append to (the "Learning about music" section)
+     P       {title, intro, items:[{src, year, label, cap, credit, alt, w, h}]}  (w and h are optional pixel sizes)
+     h       card.js helper h(tag, cls, parent, text)
+     rich    optional card.js rich(parent, text); when given, captions in the card may carry **glossary** terms
+   Returns the block, or null when there is nothing to show. DOM APIs only. */
+function pagesPanel(parent, P, h, rich) {
+  const items = ((P && P.items) || []).filter(it => it && it.src);
+  if (!items.length) return null;
+  const box = h('div', 'about pages', parent);
+  h('small', '', box, P.title || 'See it on the page');
+  if (P.intro) h('p', 'pg-i', box, P.intro);
+  h('p', 'pg-how', box, 'Select a page to see it large.');
+  const ol = h('ol', '', box);
+
+  /* year and label run into the caption as its heading */
+  const caption = (it, into, useRich) => {
+    const p = h('p', 'pg-c', into);
+    if (it.year) h('span', 'pg-y', p, it.year);
+    if (it.label) h('b', 'pg-n', p, it.label);
+    if (it.cap) { if (useRich && rich) rich(p, it.cap); else p.append(String(it.cap).split('**').join('')); }
+    if (it.credit) h('p', 'pg-cr', into, it.credit);
+  };
+  const name = it => [it.year, it.label].filter(Boolean).join(', ');
+  const size = (img, it) => { if (it.w && it.h) { img.width = it.w; img.height = it.h; } };
+
+  items.forEach((it, i) => {
+    const li = h('li', '', ol), b = h('button', 'pg-b', li), img = h('img', '', b);
+    b.type = 'button'; b.setAttribute('aria-haspopup', 'dialog'); b.setAttribute('aria-label', 'See the ' + (name(it) || 'page') + ' large');
+    img.src = it.src; img.alt = it.alt || ''; img.loading = 'lazy'; img.decoding = 'async'; size(img, it);
+    b.addEventListener('click', () => open(i, b));
+    caption(it, li, true);
+  });
+
+  let lb = null, at = 0, from = null;
+  function close() {
+    if (!lb) return;
+    document.removeEventListener('keydown', onKey, true);
+    lb.remove(); lb = null;
+    if (from && from.isConnected) from.focus();
+  }
+  function onKey(e) {
+    if (!lb) return;
+    if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); close(); return; }
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+      const st = lb.querySelector('.pg-st');
+      if (document.activeElement === st && st.scrollWidth > st.clientWidth) return;      /* the arrows slide the sheet when it has the focus on a phone */
+      e.preventDefault(); e.stopPropagation(); show(at + (e.key === 'ArrowRight' ? 1 : -1)); return;
+    }
+    if (e.key === 'Tab') {      /* keep the focus inside the overlay */
+      const f = Array.from(lb.querySelectorAll('button:not([hidden]),[tabindex="0"]')), first = f[0], last = f[f.length - 1];
+      if (!lb.contains(document.activeElement)) { e.preventDefault(); first.focus(); }
+      else if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+    e.stopPropagation();      /* the map's own shortcuts stay quiet while a page is open */
+  }
+  function show(i) {
+    if (i < 0 || i >= items.length) return;
+    at = i;
+    const it = items[i], st = lb.querySelector('.pg-st'), tx = lb.querySelector('.pg-tx'), img = document.createElement('img');
+    const prev = lb.querySelector('.pg-pv'), next = lb.querySelector('.pg-nx'), had = document.activeElement;
+    img.alt = it.alt || ''; size(img, it);
+    img.addEventListener('load', () => { if (img.naturalHeight) lb.querySelector('.pg-in').style.setProperty('--ar', (img.naturalWidth / img.naturalHeight).toFixed(3)); fit(st); });      /* --ar lets the CSS keep a tall page inside a short window */
+    img.src = it.src;
+    st.replaceChildren(img); st.scrollLeft = 0;
+    tx.replaceChildren(); caption(it, tx, false);
+    lb.setAttribute('aria-label', (name(it) || 'Page') + ', page ' + (i + 1) + ' of ' + items.length);
+    prev.hidden = i === 0; next.hidden = i === items.length - 1;
+    if (!prev.hidden) { prev.textContent = '‹ ' + (items[i - 1].year || 'Earlier'); prev.setAttribute('aria-label', 'Earlier page: ' + name(items[i - 1])); }
+    if (!next.hidden) { next.textContent = (items[i + 1].year || 'Later') + ' ›'; next.setAttribute('aria-label', 'Later page: ' + name(items[i + 1])); }
+    lb.querySelector('.pg-of').textContent = (i + 1) + ' of ' + items.length;
+    if (had && had.hidden) (prev.hidden ? next : prev).focus();
+    fit(st);
+  }
+  /* on a phone the sheet is wider than the screen: make it a focusable, scrollable region and show the hint */
+  function fit(st) {
+    const wide = st.scrollWidth > st.clientWidth + 2;
+    st.classList.toggle('wide', wide);
+    if (wide) { st.tabIndex = 0; st.setAttribute('role', 'group'); st.setAttribute('aria-label', 'The page. Slide sideways to read along the line.'); }
+    else { st.removeAttribute('tabindex'); st.removeAttribute('role'); st.removeAttribute('aria-label'); }
+  }
+  function open(i, trigger) {
+    close(); from = trigger || null;
+    lb = h('div', 'pg-lb', document.body); lb.setAttribute('role', 'dialog'); lb.setAttribute('aria-modal', 'true');
+    const x = h('button', 'pg-x', lb, '×'); x.type = 'button'; x.setAttribute('aria-label', 'Close');
+    const inner = h('div', 'pg-in', lb);
+    h('div', 'pg-st', inner);
+    h('p', 'pg-slide', inner, 'Slide the page sideways to read along the line.');
+    const ft = h('div', 'pg-ft', inner); h('div', 'pg-tx', ft);
+    const nav = h('div', 'pg-nav', ft), pv = h('button', 'pg-pv', nav), of = h('span', 'pg-of', nav), nx = h('button', 'pg-nx', nav);
+    pv.type = nx.type = 'button'; of.setAttribute('aria-hidden', 'true');
+    if (items.length < 2) nav.hidden = true;
+    pv.addEventListener('click', () => show(at - 1)); nx.addEventListener('click', () => show(at + 1));
+    x.addEventListener('click', close);
+    lb.addEventListener('click', e => { if (e.target === lb || e.target === inner || e.target === ft) close(); });      /* a tap outside the page and its caption closes */
+    document.addEventListener('keydown', onKey, true);
+    show(i);
+    x.focus();
+    requestAnimationFrame(() => { if (lb) lb.classList.add('on'); });
+  }
+  return box;
+}
+
 function toggleGloss(k, key) {
   const para = k.closest('.tags,.ecard,p,li,div'), open = k.getAttribute('aria-expanded') === 'true';
   card.querySelectorAll('.gdef').forEach(x => x.remove()); card.querySelectorAll('button.kw[aria-expanded=true]').forEach(x => x.setAttribute('aria-expanded', 'false'));
   if (open) return; k.setAttribute('aria-expanded', 'true');
   const M = GMETA[key] || {}, d = h('div', 'gdef'); d.setAttribute('role', 'note'); const hd = h('div', 'gd-h', d); h('b', '', hd, cap1(key)); elLabels(hd, M.el);
-  h('p', '', d, GLOSS[key]); if (M.ex) h('p', 'gex', d, M.ex);
+  h('p', '', d, GLOSS[key]); if (M.ex) h('p', 'gex', d, M.ex); glossExtras(d, M);
   const x = h('button', 'gx', d, '×'); x.setAttribute('aria-label', 'Close definition'); x.addEventListener('click', () => { d.remove(); k.setAttribute('aria-expanded', 'false'); });
   para.after(d);
 }
@@ -264,7 +396,7 @@ function render(panel, id, ctx) {
   if (F.figures || F.centres || F.who || F.where || F.tech || F.now || F.deep) { const sec = h('details', 'sec', panel); h('summary', '', sec, 'Learning about music');
     if (F.figures) { const d = h('div', 'people', sec); h('small', '', d, 'Key figures'); h('p', '', d, F.figures.join(' · ')); }
     if (F.centres) { const d = h('div', 'people', sec); h('small', '', d, 'Centres'); h('p', '', d, F.centres.join(' · ')); }
-    [['Who made it, who paid', F.who], ['Where it was heard', F.where], ['Technology', F.tech], ['Then and now', F.now], ['Stage 6', F.deep]].forEach(([t, v]) => { if (!v) return; const d = h('div', 'about', sec); h('small', '', d, t); rich(h('p', '', d), v); }); }
+    [['Who made it, who paid', F.who], ['Where it was heard', F.where], ['Technology', F.tech], ['Then and now', F.now], ['Stage 6', F.deep]].forEach(([t, v]) => { if (!v) return; const d = h('div', 'about', sec); h('small', '', d, t); rich(h('p', '', d), v); if (t === 'Technology' && F.pages) pagesPanel(sec, F.pages, h, rich); }); }
 
   // G8 Connections, each with the Garden's reason (folded, open by default)
   if (Lg.direct + k.ev.length) { const sec = h('details', 'sec', panel); sec.open = true; h('summary', '', sec, 'Connections');
