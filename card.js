@@ -114,7 +114,7 @@ function toggleGloss(k, key) {
   const para = k.closest('.tags,.ecard,p,li,div'), open = k.getAttribute('aria-expanded') === 'true';
   card.querySelectorAll('.gdef').forEach(x => x.remove()); card.querySelectorAll('button.kw[aria-expanded=true]').forEach(x => x.setAttribute('aria-expanded', 'false'));
   if (open) return; k.setAttribute('aria-expanded', 'true');
-  const M = GMETA[key] || {}, d = h('aside', 'gdef'); d.setAttribute('role', 'note'); const hd = h('div', 'gd-h', d); h('b', '', hd, cap1(key)); elLabels(hd, M.el);
+  const M = GMETA[key] || {}, d = h('div', 'gdef'); d.setAttribute('role', 'note'); const hd = h('div', 'gd-h', d); h('b', '', hd, cap1(key)); elLabels(hd, M.el);
   h('p', '', d, GLOSS[key]); if (M.ex) h('p', 'gex', d, M.ex);
   const x = h('button', 'gx', d, '×'); x.setAttribute('aria-label', 'Close definition'); x.addEventListener('click', () => { d.remove(); k.setAttribute('aria-expanded', 'false'); });
   para.after(d);
