@@ -5,7 +5,7 @@ Each approved state is kept on its own branch, so it can be restored with one co
 ## baseline-2 (14 Nov 2026, 15:18): approved by Justin, "this is so much better. lock it again"
 **Restore:**
 ```
-git clone --branch baseline-2 https://github.com/shmungfroi/gardenofearthlysound garden-baseline-2
+git clone --branch baseline-2 https://github.com/shmungfroi/thegardenofearthlysounds garden-baseline-2
 ```
 
 What this baseline is:

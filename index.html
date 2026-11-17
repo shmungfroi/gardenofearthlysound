@@ -2615,7 +2615,7 @@ addEventListener('resize', () => { measure(); clamp(view); apply(); });
 measure(); view.k = fitK; clamp(view); apply();
 
 /* ---------- F6: deep links and sharing ---------- */
-const HOME = /github\.io$|^localhost$|^127\./.test(location.hostname) ? location.origin + location.pathname : 'https://shmungfroi.github.io/gardenofearthlysound/';
+const HOME = /github\.io$|^localhost$|^127\./.test(location.hostname) ? location.origin + location.pathname : 'https://shmungfroi.github.io/thegardenofearthlysounds/';
 function hashOf() { const P = [], pan = document.body.classList.contains('pan');
   if (tkey) P.push((pan ? 'v=' : 'vp=') + tkey); else if (ekey) P.push((pan ? 'e=' : 'ep=') + ekey); else if (sel && pan) P.push('l=' + sel); else if (spot) P.push('p=' + spot);
   if (lens.on.size) P.push('lens=' + [...lens.on].join(',')); if (lens.n) P.push('n=' + encodeURIComponent(lens.n)); return P.join('&'); }

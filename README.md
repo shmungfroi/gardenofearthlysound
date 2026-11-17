@@ -31,4 +31,6 @@ The lantern card (`card.js`) follows the Garden's card: notices, Listen (recordi
 - **Everything else:** text, links, lanterns and the frame use gold, red, green and ivory on warm black.
 - **Type:** Outfit (names) and Poiret One (display), both under the SIL Open Font License.
 
-The earlier painted, zoomable Garden is kept in [thegardenofearthlysounds](https://github.com/shmungfroi/thegardenofearthlysounds) (branch `painted-garden`).
+**Live:** https://shmungfroi.github.io/thegardenofearthlysounds/
+
+The earlier painted, zoomable Garden is kept in [theoldgardenofearthlysounds](https://github.com/shmungfroi/theoldgardenofearthlysounds) (branch `painted-garden`).
