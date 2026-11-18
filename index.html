@@ -222,6 +222,8 @@ aside .reach-note{font-size:12.5px;color:var(--muted)} aside .reach{list-style:n
 #map #stars .stn{font:500 1.55px Outfit,sans-serif;fill:var(--ivory);fill-opacity:.75;display:none;pointer-events:none;dominant-baseline:central}
 #map.closer #stars .stn{display:block} #map.closer #stars .stn.hid{display:none} #map #stars .st.me .stn{fill:var(--goldhi);fill-opacity:1;display:block}
 #map.focus #stars .st:not(.me){opacity:.35}
+/* living stems: a Now lantern's line up to its latest work */
+#map #lstems line{stroke-width:.32;stroke-linecap:round;stroke-opacity:.42} #map #lstems circle{fill-opacity:.6} #map.focus #lstems{opacity:.3} #map #lstems .on line{stroke-opacity:.9} #map #lstems .on circle{fill-opacity:1}
 #foot{position:absolute;left:calc(var(--rail) + var(--gut) + 12px);bottom:6px;font-size:11px;color:var(--muted);z-index:4;background:#0b0906d9;border-radius:6px;padding:2px 8px;max-width:calc(100vw - var(--rail) - var(--gut) - 220px);line-height:1.4}
 #foot a{color:var(--gold)} #foot a:hover{color:var(--goldhi)} body.pan #foot{max-width:calc(100vw - var(--rail) - var(--gut) - 640px)}
 aside .living{font-size:12px;color:var(--muted);margin-top:6px} aside .living a{color:var(--goldhi)}
@@ -2424,8 +2426,22 @@ gHit.addEventListener('mousemove', e => { const z = e.target; if (!z._info || (z
 gHit.addEventListener('mouseout', e => { if (e.target._src) e.target._src.classList.remove('hov'); tip.style.display = 'none'; });
 gHit.addEventListener('click', e => { const z = e.target; if (!z._info || moved) return; e.stopPropagation(); tip.style.display = 'none'; const {to} = z._info(e); if (to && LAY.nodes[to]) travel(to); });
 
-/* ---------- makers of the Now storey: every composer of a Now work is a small star beside their lantern; click to follow their thread ---------- */
+/* ---------- makers of the Now storey: every composer of a Now work is a small star at the year of that work, beside their lantern's stem; click to follow their thread ---------- */
+const nowYr = s => { const m = String(s || '').match(/\d{4}/); return m ? +m[0] : null; };
+const gStems = document.createElementNS(SVGNS, 'g'); gStems.setAttribute('id', 'lstems'); cam.appendChild(gStems);
 const gStars = document.createElementNS(SVGNS, 'g'); gStars.setAttribute('id', 'stars'); cam.appendChild(gStars);
+const STEM = {};
+(() => {      /* living stems: each Now lantern grows a faint line up to its most recent work; lanterns sharing a column sit side by side */
+  const NOWE = LAY.eras.find(e => e.id === 'contemporary'), cols = {}, boxes = [];
+  document.querySelectorAll('#map .fm:not(.soil)').forEach(g => g.querySelectorAll('text').forEach(t => { const b = t.getBBox(); if (b.width) boxes.push({id: g.dataset.id, x0: b.x, x1: b.x + b.width, y0: b.y, y1: b.y + b.height}); }));
+  D.nodes.filter(n => n.period === 'contemporary' && LAY.nodes[n.id]).forEach(n => { const ys = (n.works || []).map(w => nowYr(w[2])).filter(Boolean); if (!ys.length) return;
+    const last = Math.min(NOWE.end, Math.max(...ys)), p = LAY.nodes[n.id], top = yOfYear(last); if (top > p.y - 3) return; (cols[p.x] = cols[p.x] || []).push([n, p, top, last]); });
+  Object.values(cols).forEach(list => { list.sort((a, b) => b[1].y - a[1].y); list.forEach(([n, p, top, last], k) => { const dx = list.length > 1 ? (k - (list.length - 1) / 2) * 1.6 : 0, x = p.x + dx, c = FC(p.f) || 'var(--gold)';
+    const cuts = boxes.filter(b => x > b.x0 - .5 && x < b.x1 + .5 && b.y1 > top && b.y0 < p.y - 1.3).sort((a, b) => b.y1 - a.y1);      /* the stem breaks around every lantern name it passes, its own included */
+    let segs = '', from = p.y - 1.3; cuts.forEach(b => { if (b.y1 + .6 < from - 1 && from - Math.max(top, b.y1 + .6) > 1) segs += `<line x1="${x}" y1="${from}" x2="${x}" y2="${Math.max(top, b.y1 + .6)}" stroke="${c}"/>`; from = Math.min(from, b.y0 - .6); }); if (from - top > 1) segs += `<line x1="${x}" y1="${from}" x2="${x}" y2="${top}" stroke="${c}"/>`;
+    const g = document.createElementNS(SVGNS, 'g'); g.dataset.id = n.id; g.innerHTML = `${segs}<circle cx="${x}" cy="${top}" r=".42" fill="${c}"/><title>${n.t}: still growing, latest work here ${last}</title>`;
+    gStems.appendChild(g); STEM[n.id] = {g, x}; }); });
+})();
 const STAR = {};
 (() => {
   const NOWE = LAY.eras.find(e => e.id === 'contemporary'), y0 = NOWE.top + 6, y1 = NOWE.bottom - 1;
@@ -2433,18 +2449,19 @@ const STAR = {};
   document.querySelectorAll('#map .fm:not(.soil)').forEach(g => { const p = LAY.nodes[g.dataset.id]; if (!p || p.y < y0 - 20 || p.y > y1 + 20) return; pts.push([p.x, p.y]);
     g.querySelectorAll('text').forEach(t => { const b = t.getBBox(); boxes.push([b.x - .6, b.y - .5, b.x + b.width + .6, b.y + b.height + .5]); }); });
   const byHome = {}; Object.values(VOICES).forEach(V => { const fs = V.forms.filter(f => N[f.id] && N[f.id].period === 'contemporary' && LAY.nodes[f.id]); if (fs.length) (byHome[fs[0].id] = byHome[fs[0].id] || []).push([V, fs]); });
-  const placed = [];
+  const placed = [], yrW = w => Math.max(NOWE.start, Math.min(NOWE.end, nowYr(w[2]) || NOWE.start));
   const ok = (x, y, F) => x > F.x0 + 1.4 && x < F.x1 - 1.4 && y > y0 && y < y1 && !pts.some(([a, b]) => Math.hypot(a - x, b - y) < 2.6) && !boxes.some(b => x > b[0] - 1 && x < b[2] + 1 && y > b[1] - 1 && y < b[3] + 1) && !placed.some(([a, b]) => Math.hypot(a - x, b - y) < 2.3);
   Object.entries(byHome).forEach(([lid, list]) => { const p = LAY.nodes[lid], F = LAY.fams[p.f] || LAY.fams[famAt(p.x)];
-    list.sort((a, b) => a[0].first - b[0].first).forEach(([V, fs]) => { let spot = null;
-      for (let ring = 0; ring < 9 && !spot; ring++) { const rr = 4 + ring * 1.9, n = Math.max(8, Math.round(2 * Math.PI * rr / 2.4));
-        for (let j = 0; j < n; j++) { const a = (j / n) * 2 * Math.PI + ring * .37, x = p.x + Math.cos(a) * rr, y = p.y + Math.sin(a) * rr * .8; if (ok(x, y, F)) { spot = [x, y]; break; } } }
-      if (!spot) return; placed.push(spot); const [x, y] = spot, g = document.createElementNS(SVGNS, 'g'); g.setAttribute('class', 'st'); g._V = V; g._fs = fs; g.dataset.x = x; g.dataset.y = y;
-      const w = fs[0].works[0][0], d = `M${x},${y - 1.05}L${x + .3},${y - .3}L${x + 1.05},${y}L${x + .3},${y + .3}L${x},${y + 1.05}L${x - .3},${y + .3}L${x - 1.05},${y}L${x - .3},${y - .3}Z`;
+    list.map(([V, fs]) => { const w = fs[0].works.map(x => x[0]).reduce((a, b) => yrW(b) > yrW(a) ? b : a); return [V, fs, w, yrW(w)]; })      /* the work that places the star: their latest here */
+      .sort((a, b) => a[3] - b[3]).forEach(([V, fs, w, yr]) => { let spot = null; const sx = (STEM[lid] || {}).x ?? p.x, sy = yOfYear(yr);
+      for (let ring = 0; ring < 14 && !spot; ring++) for (const sd of ring ? [1, -1] : [1]) { const x = sx + sd * (2.2 + ring * 2.1);      /* step sideways from the stem, at the same year */
+        for (const dy of [0, -.8, .8, -1.6, 1.6]) { if (ok(x, sy + dy, F)) { spot = [x, sy + dy]; break; } } if (spot) break; }
+      if (!spot) return; placed.push(spot); const [x, y] = spot, g = document.createElementNS(SVGNS, 'g'); g.setAttribute('class', 'st'); g._V = V; g._fs = fs; g._w = w; g.dataset.x = x; g.dataset.y = y;
+      const d = `M${x},${y - 1.05}L${x + .3},${y - .3}L${x + 1.05},${y}L${x + .3},${y + .3}L${x},${y + 1.05}L${x - .3},${y + .3}L${x - 1.05},${y}L${x - .3},${y - .3}Z`;
       g.innerHTML = `<circle class="hitc" cx="${x}" cy="${y}" r="1.7"/><path d="${d}"/>`; const t = document.createElementNS(SVGNS, 'text'); t.setAttribute('class', 'stn'); t.setAttribute('x', x + 1.5); t.setAttribute('y', y); t.textContent = V.name; g.appendChild(t);
       gStars.appendChild(g); STAR[V.key] = g; }); });
 })();
-gStars.addEventListener('mousemove', e => { const g = e.target.closest('.st'); if (!g) return; const V = g._V, w = g._fs[0].works[0][0];
+gStars.addEventListener('mousemove', e => { const g = e.target.closest('.st'); if (!g) return; const V = g._V, w = g._w || g._fs[0].works[0][0];
   tip.innerHTML = `<small class="kick">✦ Composer · work since 1980</small><b>${V.name}</b><small>${w[0]}${w[2] ? ', ' + w[2] : ''} · ${N[g._fs[0].id].t}</small><small>Writes in ${V.forms.length} lantern${V.forms.length === 1 ? '' : 's'}, lit now · click to follow their thread</small>`;
   if (starPre !== g) { clearStarPre(); starPre = g; V.forms.forEach(f => NODE[f.id] && NODE[f.id].classList.add('stpre')); }
   tip.style.display = 'block'; tip.style.left = Math.min(innerWidth - 310, e.clientX + 14) + 'px'; tip.style.top = (e.clientY + 16) + 'px'; });
@@ -2710,7 +2727,7 @@ function dancesSheet(sheet, el, rows, openLantern) {
       b.onclick = function () { var was = openRow && openRow.b === b; shut(); if (was) return; b.setAttribute('aria-expanded', 'true'); box.classList.add('open'); d.hidden = false; openRow = {b: b, box: box, d: d}; if (d.scrollIntoView) d.scrollIntoView({block: 'nearest'}); };
     });
   });
-  el('p', 'lnote', sheet, 'Signature rhythms are in Kodály rhythm syllables, by note value: ta = crotchet, ta-a = minim, ti-ti = two quavers, tika = two semiquavers, tim-ri = dotted quaver and semiquaver. A thin line marks the bar. Dances with no single signature rhythm describe their feel instead.');
+  el('p', 'lnote', sheet, 'Signature rhythms are in Kodály rhythm syllables, by note value: ta = crotchet, tum = minim (each extra u holds one more beat: tu-u-m = dotted minim, tu-u-u-m = semibreve), ti-ti = two quavers, tika = two semiquavers, tim-ka = dotted quaver and semiquaver. A thin line marks the bar. Dances with no single signature rhythm describe their feel instead.');
 }
 
 function openSheet(kind, btn) {
