@@ -1006,7 +1006,7 @@ function dancesSheet(sheet, el, rows, openLantern) {
       b.onclick = function () { var was = openRow && openRow.b === b; shut(); if (was) return; b.setAttribute('aria-expanded', 'true'); box.classList.add('open'); d.hidden = false; openRow = {b: b, box: box, d: d}; if (d.scrollIntoView) d.scrollIntoView({block: 'nearest'}); };
     });
   });
-  el('p', 'lnote', sheet, 'Signature rhythms are in Kodály rhythm syllables, by note value: ta = crotchet, tum = minim (each extra u holds one more beat: tu-u-m = dotted minim, tu-u-u-m = semibreve), ti-ti = two quavers, tika = two semiquavers, tim-ka = dotted quaver and semiquaver. A thin line marks the bar. Dances with no single signature rhythm describe their feel instead.');
+  el('p', 'lnote', sheet, 'Signature rhythms are in Kodály rhythm syllables, by note value: ta = crotchet, tum = minim (each extra u holds one more beat: tu-u-m = dotted minim, tu-u-u-m = semibreve), ti-ti = two quavers, tika = two semiquavers, tim-ka = dotted quaver and semiquaver. A thin line marks the bar. In compound time (6/8, 12/8, 6/4) the same syllables follow note values. Dances with no single signature rhythm describe their feel instead.');
 }
 
 function openSheet(kind, btn) {
