@@ -1,0 +1,24 @@
+@font-face{font-family:Outfit;src:url(__F__Outfit-Regular.ttf)}@font-face{font-family:Outfit;font-weight:700;src:url(__F__Outfit-Bold.ttf)}@font-face{font-family:"Poiret One";src:url(__F__PoiretOne-Regular.ttf)}
+:root{--bg:#f7f1e3;--ink:#2a2216;--gold:#a8822e;--key:#876718;--muted:#6f634c;--rule:#d9cdb2;--card:#fffaf0;--me:#8fbf6a;--metx:#4a7434}
+body.night{--bg:#0b0906;--ink:#ece2c8;--gold:#c9a24a;--key:#c9a24a;--muted:#9c927c;--rule:#2a2418;--card:#12100b;--metx:#8fbf6a}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 Outfit,system-ui,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.bar{position:sticky;top:0;display:flex;flex-wrap:wrap;gap:10px;justify-content:center;padding:10px;background:#0d0b07;border-bottom:1px solid #2a2418;z-index:2}.bar button{font:13px Outfit,sans-serif;background:#15120b;color:#ece2c8;border:1px solid #c9a24a;border-radius:16px;padding:6px 14px;cursor:pointer}.bar button:focus-visible{outline:2px solid #f0d48a;outline-offset:2px}
+main{max-width:760px;margin:0 auto;padding:36px 44px 50px}
+.over{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--key)}h1{font:400 40px/1.1 "Poiret One",sans-serif;margin:8px 0 6px;letter-spacing:1px}
+.by{color:var(--muted);margin-bottom:18px}
+.tally{display:flex;flex-wrap:wrap;gap:4px 22px;margin:0 0 26px;padding:9px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);font-size:11px;letter-spacing:1.6px;text-transform:uppercase;color:var(--muted)}.tally b{font-weight:700;color:var(--ink);margin-left:5px;letter-spacing:0}
+dl{margin:0}.e{display:grid;grid-template-columns:196px minmax(0,1fr);column-gap:30px;padding:16px 0 18px;border-top:1px solid var(--rule);break-inside:avoid}.e:first-child{border-top:0;padding-top:0}
+dt{margin:0}dd{margin:0}
+.nm{display:block;font:400 25px/1.15 "Poiret One",sans-serif;letter-spacing:.5px}
+.el{display:block;margin-top:7px;font-size:10.5px;letter-spacing:1.5px;line-height:1.5;text-transform:uppercase;color:var(--key)}
+.fr{display:block;margin-top:5px;font-size:12px;line-height:1.4;color:var(--muted)}
+.mine{display:inline-block;margin-top:8px;font-size:10.5px;letter-spacing:1.2px;text-transform:uppercase;color:var(--ink);border:1px dashed var(--gold);border-radius:9px;padding:1px 9px}
+dd p{margin:0 0 5px}.df{padding-top:5px}.ex{font-style:italic;color:var(--muted);font-size:14px}
+blockquote{margin:10px 0 0;padding:2px 0 3px 14px;border-left:2px solid var(--me);font-size:15.5px}.e.own blockquote{margin-top:6px}
+blockquote small,.lines small{display:block;font-size:10.5px;letter-spacing:1.5px;text-transform:uppercase;color:var(--metx);margin-bottom:1px}
+.lines{display:none;margin:10px 0 0;padding:2px 0 0 14px;border-left:2px solid var(--me)}body.lined .lines{display:block}.lines i{display:block;height:27px;border-bottom:1px solid var(--rule)}
+footer{margin-top:10px;padding-top:14px;border-top:1px solid var(--rule);font-size:12px;color:var(--muted)}footer a{color:var(--key);word-break:break-all}
+footer .legend{margin:0 0 10px}footer .legend i{display:inline-block;height:12px;border-left:2px solid var(--me);margin-right:8px;vertical-align:-1px}
+@media (max-width:600px){main{padding:26px 20px 40px}h1{font-size:32px}.e{display:block}dd{margin-top:8px}.df{padding-top:0}.tally{gap:4px 16px}}
+@media print{.bar{display:none}main{padding:0 6mm;max-width:none}@page{margin:14mm}}
+.nm,dd,.fr,.by,h1{overflow-wrap:anywhere}body.night .lines i{border-bottom-color:#3a3222}

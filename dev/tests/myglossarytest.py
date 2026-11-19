@@ -1,0 +1,157 @@
+"""My glossary (19 Nov 2026): add, remove, undo, notes survive reload, own terms, sort, filter, share link round trip,
+read-only view and keep a copy, copy as text, print sheet (paper, night, lines), phone bar. Prints errors []."""
+import asyncio, subprocess, time
+from playwright.async_api import async_playwright
+PORT = 8939
+async def main():
+    srv = subprocess.Popen(['python3', '/home/claude/tools/serve.py', str(PORT), '/home/claude/gardenofearthlysound'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL); time.sleep(1)
+    errs = []; shots = '/home/claude/shots/mg/'
+    try:
+        async with async_playwright() as p:
+            b = await p.chromium.launch(executable_path='/usr/bin/google-chrome')
+            for vw in [(1280, 900), (390, 844)]:
+                W = vw[0]; ctx = await b.new_context(viewport={'width': W, 'height': vw[1]}, permissions=['clipboard-read', 'clipboard-write']); pg = await ctx.new_page(); pe = []
+                pg.on('pageerror', lambda e: pe.append(str(e)))
+                popups = []; ctx.on('page', lambda np: popups.append(np))
+                E = lambda m: errs.append(f'{W}: {m}')
+                await pg.goto(f'http://localhost:{PORT}/index.html'); await pg.wait_for_timeout(2500)
+                # phone bar: A-Z hidden on phones only; glossary tab present
+                vis = await pg.evaluate("() => { const v = s => { const b = document.querySelector(`.rail button[data-sheet='${s}']`); return !!b && b.offsetParent !== null && getComputedStyle(b).display !== 'none'; }; return [v('glossary'), v('az'), v('guide')]; }")
+                if not vis[0]: E('glossary tab not visible')
+                if (W < 700) == vis[1]: E(f'A-Z visibility wrong: {vis[1]}')
+                if not vis[2]: E('guide tab not visible')
+                if W < 700:
+                    ov = await pg.evaluate("() => { const r = document.querySelector('.rail'); return r.scrollWidth - r.clientWidth; }")
+                    if ov > 2: E(f'phone bar overflows by {ov}px')
+                    cl = await pg.evaluate("() => { const L = [...document.querySelectorAll('.rail button')].filter(b => b.offsetParent).map(b => b.querySelector('small').getBoundingClientRect()); let n = 0; for (let i = 1; i < L.length; i++) if (L[i].left < L[i - 1].right + 1) n++; return n; }")
+                    if cl: E(f'{cl} phone bar labels touch')
+                    await pg.screenshot(path=shots + f'bar_{W}.png', clip={'x': 0, 'y': vw[1] - 70, 'width': W, 'height': 70})
+                # empty state
+                await pg.click('.rail button[data-sheet="glossary"]'); await pg.wait_for_timeout(250)
+                t = (await pg.inner_text('#sheet')).lower()
+                if 'nothing here yet' not in t or 'a place to start' not in t: E('empty state wrong')
+                await pg.screenshot(path=shots + f'empty_{W}.png')
+                await pg.click('.rail button[data-sheet="glossary"]'); await pg.wait_for_timeout(150)
+                # add from the term page
+                await pg.fill('#q', 'sarabande'); await pg.wait_for_timeout(150); await pg.click('#res button.gres'); await pg.wait_for_timeout(250)
+                await pg.click('#sheet button.mg-add'); await pg.wait_for_timeout(150)
+                if await pg.get_attribute('#sheet button.mg-add', 'aria-pressed') != 'true': E('term page add did not toggle')
+                await pg.screenshot(path=shots + f'termadd_{W}.png')
+                # add from a card's definition box: Found in -> Dance suite opens with the box
+                await pg.click('#sheet button.tp-home'); await pg.wait_for_timeout(900)
+                st = await pg.evaluate("() => { const b = document.querySelector('.gdef button.mg-add'); return b && b.getAttribute('aria-pressed'); }")
+                if st != 'true': E(f'card definition box button state {st}')
+                await pg.evaluate("() => { const k = [...document.querySelectorAll('button.kw')].find(x => /^gigue/i.test(x.textContent)); k.click(); }"); await pg.wait_for_timeout(200)
+                await pg.click('.gdef button.mg-add'); await pg.wait_for_timeout(150)
+                await pg.screenshot(path=shots + f'cardadd_{W}.png')
+                await pg.keyboard.press('Escape'); await pg.keyboard.press('Escape'); await pg.wait_for_timeout(200)
+                # add from an open Dances row
+                await pg.fill('#q', 'minuet'); await pg.wait_for_timeout(150); await pg.click('#res button.dres'); await pg.wait_for_timeout(250)
+                await pg.click('.dn.open button.mg-add'); await pg.wait_for_timeout(150)
+                await pg.screenshot(path=shots + f'danceadd_{W}.png')
+                n = await pg.evaluate("() => JSON.parse(localStorage.getItem('garden.glossary')).items.map(e => [e.k, e.from, e.via])")
+                if [x[0] for x in n] != ['sarabande', 'gigue', 'minuet']: E(f'stored items {n}')
+                if n[1][1] != 'suite' or n[1][2] != 'card' or n[2][2] != 'dances': E(f'from/via wrong {n}')
+                # the sheet: own words saved, survive reload
+                await pg.keyboard.press('Escape'); await pg.click('.rail button[data-sheet="glossary"]'); await pg.wait_for_timeout(250)
+                await pg.evaluate("() => [...document.querySelectorAll('#sheet .mg-row')].find(r => r.querySelector('.mg-n').textContent === 'Sarabande').click()"); await pg.wait_for_timeout(200)
+                await pg.fill('#sheet .mg-note', 'Slow dance in 3. Beat 2 feels heavy.'); await pg.wait_for_timeout(600)
+                # typing - and / inside the box must not zoom or search
+                await pg.focus('#sheet .mg-note'); await pg.keyboard.type(' -/'); await pg.wait_for_timeout(500)
+                if await pg.evaluate("() => document.activeElement && document.activeElement.id === 'q'"): E('slash in note jumped to search')
+                # own term
+                await pg.click('#sheet button.mg-new'); await pg.fill('#sheet form.mg-form input.mg-in >> nth=0', 'Lament bass')
+                await pg.fill('#sheet form.mg-form textarea', 'A bass line that walks down step by step.'); await pg.click('#sheet form.mg-form button[type=submit]'); await pg.wait_for_timeout(250)
+                # own term that is already a Garden term opens it instead
+                await pg.click('#sheet button.mg-new'); await pg.fill('#sheet form.mg-form input.mg-in >> nth=0', 'Ritornellos'); await pg.click('#sheet form.mg-form button[type=submit]'); await pg.wait_for_timeout(250)
+                if 'already in the Garden' not in await pg.inner_text('#toast') or await pg.evaluate("() => document.getElementById('sheet').dataset.kind") != 'glossary': E('own term matching a Garden term: no offer, or the form was lost')
+                await pg.click('#toast .undo'); await pg.wait_for_timeout(200)
+                if await pg.evaluate("() => document.getElementById('sheet').dataset.kind") != 'term': E('Open it did not open the term page')
+                await pg.click('#sheet button.tp-x'); await pg.wait_for_timeout(150)
+                # MG-01: Enter in the Term field moves to the definition and never saves
+                await pg.click('.rail button[data-sheet="glossary"]'); await pg.wait_for_timeout(200)
+                await pg.click('#sheet button.mg-new'); await pg.fill('#sheet form.mg-form input.mg-in >> nth=0', 'Wobble'); await pg.press('#sheet form.mg-form input.mg-in >> nth=0', 'Enter'); await pg.wait_for_timeout(200)
+                if await pg.evaluate("() => JSON.parse(localStorage.getItem('garden.glossary')).items.some(e => e.w === 'Wobble')"): E('Enter in Term saved the term')
+                if await pg.evaluate("() => !document.activeElement || document.activeElement.tagName !== 'TEXTAREA'"): E('Enter in Term did not move to What it means')
+                await pg.keyboard.press('Escape'); await pg.wait_for_timeout(150)
+                await pg.click('.rail button[data-sheet="glossary"]'); await pg.wait_for_timeout(150)
+                await pg.reload(); await pg.wait_for_timeout(2500)
+                g = await pg.evaluate("() => JSON.parse(localStorage.getItem('garden.glossary'))")
+                if not g['items'][0]['note'].startswith('Slow dance in 3') or ' -/' not in g['items'][0]['note']: E(f"note not saved: {g['items'][0]['note']!r}")
+                if not any(e.get('own') and e['w'] == 'Lament bass' for e in g['items']): E('own term not saved')
+                await pg.click('.rail button[data-sheet="glossary"]'); await pg.wait_for_timeout(250)
+                t = await pg.inner_text('#sheet')
+                if 'my term' not in t.lower() or 'MY GLOSSARY · 4' not in t.upper(): E('sheet missing own term or count')
+                order = await pg.evaluate("() => [...document.querySelectorAll('#sheet .mg-n')].map(x => x.textContent)")
+                if order != sorted(order, key=str.lower): E(f'A-Z order wrong {order}')
+                await pg.screenshot(path=shots + f'sheet_{W}.png')
+                await pg.click('#sheet .mg-sort button >> nth=1'); await pg.wait_for_timeout(150)
+                order2 = await pg.evaluate("() => [...document.querySelectorAll('#sheet .mg-n')].map(x => x.textContent)")
+                if order2 != ['Sarabande', 'Gigue', 'Minuet', 'Lament bass']: E(f'collected order wrong {order2}')
+                await pg.click('#sheet .mg-sort button >> nth=0'); await pg.wait_for_timeout(150)
+                # remove and undo
+                await pg.click('#sheet .mg-row >> nth=0'); await pg.wait_for_timeout(150)
+                first = await pg.inner_text('#sheet .mg-e.open .mg-n')
+                await pg.click('#sheet .mg-e.open button.mg-rm'); await pg.wait_for_timeout(150)
+                if await pg.evaluate("() => JSON.parse(localStorage.getItem('garden.glossary')).items.length") != 3: E('remove failed')
+                await pg.click('#toast .undo'); await pg.wait_for_timeout(150)
+                if await pg.evaluate("() => JSON.parse(localStorage.getItem('garden.glossary')).items.length") != 4: E(f'undo failed ({first})')
+                # copy as text
+                await pg.fill('#sheet .mg-keep input.mg-in', 'Mia R.'); await pg.wait_for_timeout(100)
+                await pg.click('#sheet .mg-keep button.mg-b >> nth=2'); await pg.wait_for_timeout(300)
+                clip = await pg.evaluate("() => navigator.clipboard.readText().catch(() => '')")
+                if not clip.startswith('Mia R.’s glossary') or 'In my own words: Slow dance' not in clip or 'LAMENT BASS (my term)' not in clip: E('copy as text wrong: ' + clip[:120])
+                # print sheet
+                await pg.click('#sheet .mg-keep button.mg-b.gold'); await pg.wait_for_timeout(1200)
+                html = await pg.evaluate("() => window.__lastSheet || ''")
+                for need in ['Mia R.’s glossary', 'Slow dance in 3', 'My term', 'Writing lines', 'class="tally"', '#g=']:
+                    if need not in html: E('print sheet lacks ' + need)
+                if W > 700 and html:
+                    sp = await ctx.new_page(); await sp.set_content(html.replace('https://shmungfroi.github.io/thegardenofearthlysounds/fonts/', f'http://localhost:{PORT}/fonts/').replace(f'http://localhost:{PORT}/index.html'.replace('index.html', '') + 'fonts/', f'http://localhost:{PORT}/fonts/')); await sp.wait_for_timeout(600)
+                    await sp.screenshot(path=shots + 'print_paper.png', full_page=True)
+                    await sp.click('.bar button >> nth=1'); await sp.click('.bar button >> nth=2'); await sp.wait_for_timeout(200); await sp.screenshot(path=shots + 'print_night_lines.png', full_page=True); await sp.close()
+                for pp in popups:
+                    if pp is not pg: await pp.close()
+                popups.clear()
+                # share link round trip in a fresh browser: read only, then keep a copy
+                await pg.click('#sheet .mg-keep button.mg-b >> nth=1'); await pg.wait_for_timeout(400)
+                link = await pg.evaluate("() => navigator.clipboard.readText().catch(() => '')")
+                if '#g=' not in link: E('share link not copied: ' + link[:80])
+                ctx2 = await b.new_context(viewport={'width': W, 'height': vw[1]}); p2 = await ctx2.new_page(); p2.on('pageerror', lambda e: pe.append('shared: ' + str(e)))
+                await p2.goto(link.replace('https://shmungfroi.github.io/thegardenofearthlysounds/', f'http://localhost:{PORT}/index.html')); await p2.wait_for_timeout(2800)
+                if await p2.evaluate("() => document.getElementById('sheet').dataset.kind") != 'glossary-shared': E('shared link did not open the read-only view')
+                t2 = await p2.inner_text('#sheet')
+                if 'MIA R.’S GLOSSARY · 4' not in t2.upper() or 'their term' not in t2.lower() or await p2.evaluate("() => document.querySelectorAll('#sheet textarea').length") != 0: E('read-only view wrong')
+                if await p2.evaluate("() => localStorage.getItem('garden.glossary')"): E('shared view wrote to storage')
+                await p2.screenshot(path=shots + f'shared_{W}.png')
+                await p2.click('#sheet .mg-shared button.mg-b.gold'); await p2.wait_for_timeout(300)
+                k2 = await p2.evaluate("() => JSON.parse(localStorage.getItem('garden.glossary') || '{\"items\":[]}').items.length")
+                if k2 != 4: E(f'keep a copy kept {k2}')
+                await ctx2.close()
+                # filter field from 12 entries
+                await pg.evaluate("() => { const g = JSON.parse(localStorage.getItem('garden.glossary')); const G = window.GX.ATLAS.glossary; ['canon','tutti','fugue','ostinato','motif','cadence','drone','ornament','tempo','sequence','pedal point'].filter(k => G[k]).forEach(k => g.items.push({k, note:'', from:null, via:'search', at:Date.now()})); localStorage.setItem('garden.glossary', JSON.stringify(g)); }")
+                await pg.reload(); await pg.wait_for_timeout(2500); await pg.click('.rail button[data-sheet="glossary"]'); await pg.wait_for_timeout(250)
+                if not await pg.query_selector('#sheet .mg-find'): E('filter field missing at 12+')
+                else:
+                    await pg.fill('#sheet .mg-find', 'lament'); await pg.wait_for_timeout(150)
+                    if await pg.evaluate("() => document.querySelectorAll('#sheet .mg-e').length") != 1: E('filter did not narrow to one')
+                # robustness: prototype names, wrong types, duplicates; one entry can be closed
+                await pg.evaluate("() => localStorage.setItem('garden.glossary', JSON.stringify({by: 7, sort: 'az', items: [{k:'constructor'},{k:'__proto__'},{k:'toString'},{k:'gigue', note: 5},{k:'gigue'},{own:1, w: 7},{own:1, w:{}},null,'x']}))")
+                await pg.reload(); await pg.wait_for_timeout(2500); await pg.click('.rail button[data-sheet="glossary"]'); await pg.wait_for_timeout(250)
+                names = await pg.evaluate("() => [...document.querySelectorAll('#sheet .mg-n')].map(x => x.textContent)")
+                if names != ['7', 'Gigue']: E(f'cleaned store shows {names}')
+                await pg.evaluate("() => localStorage.setItem('garden.glossary', JSON.stringify({items: [{k:'gigue'}]}))")
+                await pg.reload(); await pg.wait_for_timeout(2500); await pg.click('.rail button[data-sheet="glossary"]'); await pg.wait_for_timeout(250)
+                await pg.click('#sheet .mg-row'); await pg.wait_for_timeout(150)
+                if await pg.get_attribute('#sheet .mg-row', 'aria-expanded') != 'false': E('single entry cannot be closed')
+                # a shared link whose terms are all gone is reported, not shown empty
+                bad = await pg.evaluate("async () => { const o = {v:1, b:'', d:'', s:'az', i:[[0,'constructor','x','','card'],[0,'nosuchterm','','','card']]}; const raw = new TextEncoder().encode(JSON.stringify(o)); return '0' + btoa(String.fromCharCode(...raw)).replace(/\\+/g,'-').replace(/\\//g,'_').replace(/=+$/,''); }")
+                p3 = await ctx.new_page(); await p3.goto(f'http://localhost:{PORT}/index.html#g=' + bad); await p3.wait_for_timeout(2600)
+                if 'could not be read' not in await p3.inner_text('#toast') or await p3.evaluate("() => document.getElementById('sheet').classList.contains('open')"): E('empty shared link not reported')
+                await p3.close()
+                errs += [f'{W}: pageerror {e}' for e in pe]
+                await ctx.close()
+            await b.close()
+    finally: srv.terminate()
+    print('errors', errs)
+asyncio.run(main())

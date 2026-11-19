@@ -1,0 +1,132 @@
+/* ---- My glossary: the add button, the rail sheet, the shared view ---- */
+/* rail tab: the label takes two lines on the side rail, one in the phone bar */
+.rail button[data-sheet="glossary"] small{white-space:normal;text-align:center;line-height:1.3;max-width:58px}
+.rail button[data-sheet="glossary"]{font-size:21px;line-height:1}
+.rail button[data-sheet="glossary"] small b{font-weight:400;display:block}
+@media (max-height:860px) and (min-width:761px){.rail{padding-top:60px} .rail button{padding:9px 0}}
+
+/* the add button: term page, the card's definition box, open Dances rows */
+.mg-addrow{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;margin:10px 6px 2px}
+aside .gdef .mg-addrow{margin:10px -20px 0 0;padding-top:9px;border-top:1px solid #2a2418}
+.sheet .dn-d .mg-addrow{margin:9px 0 0}
+button.mg-add,.sheet button.mg-add{all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;gap:7px;width:auto;min-height:28px;padding:2px 13px 2px 10px;border:1px solid #4a4030;border-radius:14px;font-size:12.5px;line-height:1.2;color:var(--ivory);white-space:nowrap}
+button.mg-add i{font-style:normal;width:11px;text-align:center;font-size:13px;color:var(--gold)}
+button.mg-add:hover,.sheet button.mg-add:hover{background:none;border-color:var(--gold);color:var(--goldhi)}
+button.mg-add[aria-pressed=true],.sheet button.mg-add[aria-pressed=true]{border-color:var(--gold);background:#1f1a10;color:var(--goldhi)}
+button.mg-add[aria-pressed=true] i{color:var(--goldhi)}
+button.mg-add:focus-visible,.sheet button.mg-add:focus-visible{outline:2px solid var(--goldhi);outline-offset:2px}
+button.mg-go,.sheet button.mg-go{all:unset;cursor:pointer;display:inline;width:auto;padding:0;font-size:12.5px;color:var(--goldhi);border-bottom:1px solid #5d5546}
+button.mg-go:hover,.sheet button.mg-go:hover{background:none;color:var(--ivory);border-color:var(--gold)}
+button.mg-go::after{content:"\00a0›";color:var(--gold)}
+button.mg-go:focus-visible,.sheet button.mg-go:focus-visible{outline:2px solid var(--goldhi);outline-offset:3px}
+
+/* the sheet: wider than the other rail sheets, because it is read and written in */
+.sheet[data-kind^="glossary"]{width:388px;padding:12px 12px 16px}
+.sheet .mg-k{display:block;font-size:10.5px;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold);margin:12px 0 3px}
+.sheet .mg-k.me{color:var(--green)}
+.sheet .mg-tools{display:flex;align-items:baseline;gap:14px;margin:14px 6px 2px}
+.sheet .mg-tools .mg-k{margin:0}
+.sheet .mg-sort{display:flex;flex-wrap:wrap;gap:0 16px}
+.sheet .mg-sort button{display:inline;width:auto;padding:3px 0;border-radius:0;font-size:12.5px;color:var(--muted)}
+.sheet .mg-sort button:hover{background:none;color:var(--ivory)}
+.sheet .mg-sort button[aria-pressed=true]{color:var(--goldhi);text-decoration:underline;text-underline-offset:5px;text-decoration-color:#6b5f45}
+.sheet .mg-find{margin:10px 0 0}
+
+/* entries: a hanging initial (A–Z) or number (as collected), then the word */
+.sheet .mg-list{list-style:none;margin:8px 0 0;padding:0}
+.sheet .mg-e{border-radius:8px}
+.sheet .mg-e.first{border-top:1px solid #2a2418;border-radius:0}
+.sheet .mg-e.open{background:#1a160e;border-top-color:transparent;border-radius:8px}
+.sheet .mg-e.open+.mg-e{border-top-color:transparent}
+.sheet .mg-row{box-sizing:border-box;display:grid;grid-template-columns:30px minmax(0,1fr);column-gap:8px;align-items:baseline;padding:10px 8px 11px;border-radius:8px}
+.sheet .mg-e.open .mg-row:hover,.sheet .mg-list.ro .mg-row:hover{background:none;color:inherit}
+.sheet .mg-i{grid-row:1/4;align-self:start;text-align:center;color:var(--gold);font:400 22px/1 "Poiret One",Outfit,sans-serif}
+.sheet .mg-i.n{font:400 17px/1.25 "Poiret One",Outfit,sans-serif}
+.sheet .mg-hd{grid-column:2;display:flex;flex-wrap:wrap;align-items:baseline;gap:3px 8px}
+.sheet .mg-n{font-size:15px;color:var(--ivory)}
+.sheet .mg-row[aria-expanded=true] .mg-n{color:var(--goldhi)}
+.sheet .mg-el{display:inline-flex;flex-wrap:wrap;gap:4px}
+.sheet .mg-el i{font-style:normal;font-size:10.5px;line-height:1.5;color:var(--green);border:1px solid #3d5a2c;border-radius:8px;padding:0 6px;white-space:nowrap}
+.sheet .mg-mine{font-size:10.5px;line-height:1.5;color:var(--ivory);border:1px dashed var(--gold);border-radius:8px;padding:0 7px;white-space:nowrap}
+.sheet .mg-def,.sheet .mg-own{grid-column:2;display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden;font-size:12.5px;line-height:1.45;white-space:normal}
+.sheet .mg-def{-webkit-line-clamp:2;color:var(--muted);margin-top:3px}
+.sheet .mg-own{-webkit-line-clamp:2;color:var(--ivory);margin-top:6px;padding-left:9px;border-left:2px solid var(--green)}
+.sheet .mg-row[aria-expanded=true] .mg-def,.sheet .mg-row[aria-expanded=true] .mg-own{display:none}
+
+/* an open entry */
+.sheet .mg-d{padding:0 12px 12px 46px}
+.sheet .mg-d p{margin:0 0 4px;font-size:13px;line-height:1.5}
+.sheet .mg-d .mg-ex{font-style:italic;color:var(--muted)}
+.sheet .mg-d .mg-src{font-size:12.5px;color:var(--muted)}
+.sheet label.mg-f{display:block;margin:0}
+.sheet .mg-note,.sheet .mg-in{box-sizing:border-box;display:block;width:100%;border:1px solid #3a3222;border-radius:8px;background:#14110b;color:var(--ivory);outline:none}
+.sheet .mg-note{font:13.5px/1.45 Outfit,sans-serif;padding:7px 9px;min-height:74px;resize:vertical;border-left:2px solid var(--green);border-radius:2px 8px 8px 2px}
+.sheet .mg-in{height:36px;font:15px Outfit,sans-serif;padding:0 10px}
+.sheet .mg-note:focus,.sheet .mg-in:focus{border-color:var(--gold)} .sheet .mg-note:focus{border-left-color:var(--green)}
+.sheet .mg-note::placeholder,.sheet .mg-in::placeholder{color:#8a806b}
+.sheet .mg-cnt{font-size:11px;color:var(--muted);text-align:right;margin-top:2px}
+.sheet .mg-foot{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-top:12px;padding-top:9px;border-top:1px solid #2a2418}
+.sheet button.mg-rm{display:inline;width:auto;padding:2px 2px;font-size:12.5px;color:#d07a6e}
+.sheet button.mg-rm:hover{background:none;color:#e3796d;text-decoration:underline}
+
+/* a term of my own: a dashed row that opens into a small form */
+.sheet .mg-new{box-sizing:border-box;border:1px dashed var(--gold);margin:10px 0 0;color:var(--ivory)}
+.sheet .mg-form{border:1px dashed var(--gold);border-radius:8px;padding:10px 12px 12px;margin:10px 0 0}
+.sheet .mg-form .mg-k{margin:0 0 2px}
+.sheet .mg-l{display:block;font-size:12px;color:var(--muted);margin:9px 0 4px} .sheet .mg-l em{font-style:normal;color:#8a806b;margin-left:6px}
+.sheet .mg-form .mg-act{margin:12px 0 0}
+.sheet .mg-form small.mg-hint{display:block;font-size:12px;line-height:1.45;color:var(--muted);margin:8px 0 0}
+
+/* keep and share */
+.sheet .mg-keep{border-top:1px solid #2a2418;margin-top:16px;padding:2px 6px 0}
+.sheet .mg-act{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 4px}
+.sheet button.mg-b{box-sizing:border-box;display:inline-block;width:auto;font-size:13px;border:1px solid #3a3222;border-radius:16px;padding:6px 14px}
+.sheet button.mg-b:hover{background:none;border-color:var(--gold);color:var(--goldhi)}
+.sheet button.mg-b.gold{background:var(--gold);border-color:var(--gold);color:#111}
+.sheet button.mg-b.gold:hover{background:var(--goldhi);color:#111}
+.sheet .mg-keep .lnote{margin:10px 0 0}
+
+/* nothing collected yet */
+.sheet .mg-empty{padding:6px 6px 0}
+.sheet .mg-empty .mg-lead{font:400 21px/1.25 "Poiret One",Outfit,sans-serif;letter-spacing:.6px;color:var(--ivory);margin:10px 0 8px}
+.sheet .mg-empty p{margin:0 0 12px;line-height:1.9;color:var(--muted)}
+.sheet .mg-empty .mg-spec{display:inline-flex;align-items:center;gap:6px;padding:1px 11px 1px 8px;border:1px solid #4a4030;border-radius:14px;font-size:12.5px;color:var(--ivory);white-space:nowrap;margin:0 2px;vertical-align:1px}
+.sheet .mg-empty .mg-spec i{font-style:normal;color:var(--gold)}
+.sheet .mg-empty .mg-start{display:flex;flex-wrap:wrap;gap:6px 18px;margin:2px 0 6px}
+
+/* someone else's glossary, opened from a link: read only */
+.sheet .mg-shared{background:#1a160e;border-left:2px solid var(--gold);border-radius:0 8px 8px 0;padding:9px 12px 11px;margin:4px 0 6px}
+.sheet .mg-shared .mg-k{margin:0 0 3px}
+.sheet .mg-shared p{margin:0;font-size:13px;line-height:1.5}
+.sheet .mg-shared .mg-act{margin:10px 0 0}
+.sheet .mg-list.ro .mg-row{cursor:default}
+.sheet .mg-list.ro .mg-def{display:block;color:var(--ivory)}
+.sheet .mg-list.ro .mg-own{display:block}
+.sheet .mg-list.ro .mg-src{grid-column:2;font-size:11.5px;color:var(--muted);margin-top:6px}
+
+@media (max-width:760px){
+  .rail button[data-sheet="glossary"]{font-size:15px;line-height:normal} .rail button[data-sheet="glossary"] small{max-width:none} .rail button[data-sheet="glossary"] small b{display:none}
+  .rail button[data-sheet="az"]{display:none} .rail button{flex:1 1 auto;padding-left:1px;padding-right:1px}   /* phones: A–Z leaves the bar (search finds every lantern); desktop keeps it (Justin, 19 Nov); each tab sized to its label so JOURNEYS and GLOSSARY never touch */
+  .sheet[data-kind^="glossary"]{width:auto;max-height:calc(100dvh - var(--top) - var(--bar) - 10px);padding:14px 12px 20px}
+  button.mg-add,.sheet button.mg-add{min-height:36px;padding:2px 15px 2px 12px;font-size:13px}
+  .sheet .mg-row{padding:12px 8px 13px}
+  .sheet .mg-sort button{padding:8px 0}
+  .sheet .mg-note,.sheet .mg-in{font-size:16px}
+  .sheet button.mg-b{padding:9px 16px}
+  .sheet button.mg-rm{padding:8px 2px}
+  .sheet .mg-d{padding:0 10px 12px 46px}
+}
+
+.sheet .mg-none{list-style:none;margin:10px 6px}
+/* fixes from the independent check (19 Nov) */
+.sheet .mg-n,.sheet .mg-own,.sheet .mg-def,.sheet .mg-d p,.sheet .mg-src,.sheet .mg-note,.sheet .mg-shared p{overflow-wrap:anywhere}
+.sheet .mg-row .mg-ownk{grid-column:2;margin:8px 0 -3px;font-size:10px}
+.sheet .mg-list.ro .mg-def{color:var(--muted)}
+.sheet .mg-shared .mg-lost{margin-top:6px;color:var(--muted);font-size:12.5px}
+.sheet .mg-note:focus-visible,.sheet .mg-in:focus-visible{outline:2px solid var(--goldhi);outline-offset:1px}
+.sheet .mg-empty .lnote{margin-top:14px}
+@media (max-width:760px){
+  button.mg-go,.sheet button.mg-go{display:inline-block;padding:9px 0;line-height:18px;border-bottom:0;text-decoration:underline;text-decoration-color:#5d5546;text-underline-offset:4px}
+  .sheet .mg-sort button{min-width:36px;min-height:36px}
+  .sheet .mg-new{min-height:42px}
+}
