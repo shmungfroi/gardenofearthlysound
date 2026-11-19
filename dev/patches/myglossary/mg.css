@@ -46,7 +46,7 @@ button.mg-go:focus-visible,.sheet button.mg-go:focus-visible{outline:2px solid v
 .sheet .mg-n{font-size:15px;color:var(--ivory)}
 .sheet .mg-row[aria-expanded=true] .mg-n{color:var(--goldhi)}
 .sheet .mg-el{display:inline-flex;flex-wrap:wrap;gap:4px}
-.sheet .mg-el i{font-style:normal;font-size:10.5px;line-height:1.5;color:var(--green);border:1px solid #3d5a2c;border-radius:8px;padding:0 6px;white-space:nowrap}
+.sheet .mg-el i{font-style:normal;font-size:10.5px;line-height:1.5;color:var(--gold);border:1px solid #5d5546;border-radius:8px;padding:0 6px;white-space:nowrap}
 .sheet .mg-mine{font-size:10.5px;line-height:1.5;color:var(--ivory);border:1px dashed var(--gold);border-radius:8px;padding:0 7px;white-space:nowrap}
 .sheet .mg-def,.sheet .mg-own{grid-column:2;display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden;font-size:12.5px;line-height:1.45;white-space:normal}
 .sheet .mg-def{-webkit-line-clamp:2;color:var(--muted);margin-top:3px}
@@ -130,3 +130,5 @@ button.mg-go:focus-visible,.sheet button.mg-go:focus-visible{outline:2px solid v
   .sheet .mg-sort button{min-width:36px;min-height:36px}
   .sheet .mg-new{min-height:42px}
 }
+.sheet .mg-keep .mg-clear{margin:14px 0 2px}
+.sheet .mg-keep .mg-namenote{margin:4px 0 10px;font-size:12px}

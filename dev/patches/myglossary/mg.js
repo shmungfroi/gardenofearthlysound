@@ -47,8 +47,8 @@ function mgOrdered(items, sort) { const L = items.map((e, i) => ({e, i})); if (s
 function mgSrc(p, e, ro) { if (ro) el('small', '', p, 'Found in ');
   if (e.own) p.append(e.met ? e.met : (ro ? 'Added by them' : 'Added by me'));
   else if (e.from && N[e.from]) { const b = el('button', 'mg-go', p, N[e.from].t); b.type = 'button'; b.setAttribute('aria-label', 'Open ' + N[e.from].t); b.onclick = () => mgOpenIn(e.from, e.k); if (N[e.from].d) p.append(' ' + N[e.from].d); }
-  else if (e.via === 'dances') { const dn = DNC.find(x => gk(x.dance) === e.k); const b = el('button', 'mg-go', p, 'Dances guide'); b.type = 'button'; b.onclick = () => dn && openDance(dn.dance); }
-  else p.append('Search');
+  else if (e.via === 'dances') { const dn = DNC.find(x => gk(x.dance) === e.k); p.append('the '); const b = el('button', 'mg-go', p, 'Dances guide'); b.type = 'button'; b.onclick = () => dn && openDance(dn.dance); }
+  else p.append('a search');
   if (!ro && e.at) p.append(' · collected ' + shortDate(e.at)); }
 function mgEntry(ul, e, first, ro, num) {
   const id = mgId(e), open = !ro && mgOpen === id, dom = 'mgd-' + id.replace(/[^\w-]/g, '_'), li = el('li', 'mg-e' + (first ? ' first' : '') + (open ? ' open' : ''), ul);
@@ -121,9 +121,11 @@ function glossarySheet(keep) { const st = keep ? sheet.scrollTop : 0; sheet.inne
   ul = el('ul', 'mg-list', sheet); draw();
   const kp = el('div', 'mg-keep', sheet); el('h4', '', kp, 'Keep and share');
   const nl = el('label', 'mg-l', kp, 'Your name (optional)'), nm = quiet(el('input', 'mg-in', nl)); nm.maxLength = 40; nm.placeholder = 'A first name is enough'; nm.value = MG.by; nm.oninput = () => { MG.by = nm.value.trim().slice(0, 40); saveMG(); };
+  el('p', 'lnote mg-namenote', kp, 'Your name goes into links and sheets you share.');
   const act = el('div', 'mg-act', kp), pr = el('button', 'mg-b gold', act, '▤ Print sheet'), sh = el('button', 'mg-b', act, '⧉ Share link'), cp = el('button', 'mg-b', act, 'Copy as text');
   pr.onclick = () => glossarySheetPage(MG, false); sh.onclick = async () => shareLink(await mgLink(MG), 'Anyone who opens it can read your glossary.'); cp.onclick = () => mgCopy(MG, false);
   el('p', 'lnote', kp, 'Your glossary lives in this browser only. To keep it, share a link or print it.');
+  const clr = el('button', 'mg-rm mg-clear', kp, 'Clear my glossary'); clr.type = 'button'; clr.setAttribute('aria-label', 'Clear my glossary from this browser'); clr.onclick = mgClear;
   sheet.scrollTop = st;
   const o = sheet.querySelector('.mg-e.open'); if (o && !keep) setTimeout(() => o.scrollIntoView({block: 'nearest'}), 30);
   const F = mgFocus; mgFocus = null; let fx = null;
@@ -132,6 +134,11 @@ function glossarySheet(keep) { const st = keep ? sheet.scrollTop : 0; sheet.inne
   else if (F && F.near != null) { const rs = sheet.querySelectorAll('.mg-row'); fx = rs.length ? rs[Math.max(0, Math.min(F.near, rs.length - 1))] : sheet.querySelector('.mg-new'); }
   else if (!keep) fx = sheet.querySelector('.mg-e.open .mg-row') || sheet.querySelector('.mg-new');
   if (fx) fx.focus({preventScroll: true}); }
+
+/* clear everything from this browser (for shared school computers), with Undo */
+function mgClear() { const was = {by: MG.by, sort: MG.sort, items: MG.items.slice()}; MG.items = []; MG.by = ''; mgOpen = null; mgQ = ''; saveMG(); mgFocus = {near: 0}; mgSync();
+  toast('Glossary cleared from this browser <button class="undo" aria-label="Undo clear">Undo</button>', 8000); say('Glossary cleared. Undo is available.');
+  const u = $('#toast .undo'); if (u) u.onclick = () => { MG.by = was.by; MG.sort = was.sort; MG.items = was.items; saveMG(); mgSync(); toast('Glossary restored'); say('Glossary restored'); }; }
 
 /* links, text and the print sheet */
 const mgPack = g => ({v: 1, b: g.by || '', d: today(), s: g.sort, i: g.items.map(e => e.own ? [1, e.w, e.def || '', e.met || ''] : [0, e.k, e.note || '', e.from || '', e.via || ''])});
@@ -142,7 +149,7 @@ function mgFromPack(o) { if (!o || typeof o !== 'object' || !Array.isArray(o.i))
 function mgText(g, ro) { const items = mgOrdered(g.items, g.sort).map(x => x.e), L = [];
   L.push(g.by ? `${g.by}’s glossary` : (ro ? 'A shared glossary' : 'My glossary'), `The Garden of Earthly Sounds · ${g.d || today()} · ${items.length} term${items.length === 1 ? '' : 's'}`, '');
   items.forEach(e => { if (e.own) { L.push(`${e.w.toUpperCase()} (${ro ? 'their' : 'my'} term)`); if (e.def) L.push((ro ? 'Their definition: ' : 'What it means: ') + e.def); if (e.met) L.push('Found in: ' + e.met); }
-    else { const els = mgEls(e.k).map(elLabel); L.push(e.k.toUpperCase() + (els.length ? ` (${els.join(', ')})` : ''), GLO[e.k]); if (e.note && e.note.trim()) L.push((ro ? 'In their own words: ' : 'In my own words: ') + e.note.trim()); if (e.from && N[e.from]) L.push(`Found in: ${N[e.from].t}${N[e.from].d ? ' (' + N[e.from].d + ')' : ''}`); }
+    else { const els = mgEls(e.k).map(elLabel); L.push(e.k.toUpperCase() + (els.length ? ` (${els.join(', ')})` : ''), GLO[e.k]); if (e.note && e.note.trim()) L.push((ro ? 'In their own words: ' : 'In my own words: ') + e.note.trim()); L.push('Found in: ' + (e.from && N[e.from] ? `${N[e.from].t}${N[e.from].d ? ' (' + N[e.from].d + ')' : ''}` : (e.via === 'dances' ? 'the Dances guide' : 'a search'))); }
     L.push(''); });
   return L.join('\n').trim() + '\n'; }
 async function mgCopy(g, ro) { const t = mgText(g, ro); try { await navigator.clipboard.writeText(t); toast('Glossary copied as text'); say('Glossary copied as text'); }
@@ -152,7 +159,7 @@ async function glossarySheetPage(g, ro) {
   const T = {}; items.forEach(e => { if (e.own) T['My own'] = (T['My own'] || 0) + 1; else mgEls(e.k).forEach(c => { const l = elLabel(c); T[l] = (T[l] || 0) + 1; }); });
   const tally = Object.keys(T).sort((a, b) => (a === 'My own') - (b === 'My own') || T[b] - T[a]).map(k => `<span>${esc(k)}<b>${T[k]}</b></span>`).join('');
   const rows = items.map(e => { if (e.own) return `<div class="e own"><dt><span class="nm">${esc(e.w)}</span><span class="mine">${ro ? 'Their term' : 'My term'}</span>${e.met ? `<span class="fr">Found in ${esc(e.met)}</span>` : ''}</dt><dd>${e.def ? `<blockquote><small>${ro ? 'Their definition' : 'My definition'}</small>${esc(e.def)}</blockquote>` : `<div class="lines"><small>${ro ? 'Their definition' : 'My definition'}</small><i></i><i></i><i></i></div>`}</dd></div>`;
-    const M = GMT[e.k] || {}, els = mgEls(e.k).map(elLabel), fr = e.from && N[e.from] ? `Found in ${N[e.from].t}${N[e.from].d ? ', ' + N[e.from].d : ''}` : (e.via === 'dances' ? 'Found in the Dances guide' : 'Found by searching');
+    const M = GMT[e.k] || {}, els = mgEls(e.k).map(elLabel), fr = e.from && N[e.from] ? `Found in ${N[e.from].t}${N[e.from].d ? ', ' + N[e.from].d : ''}` : (e.via === 'dances' ? 'Found in the Dances guide' : 'Found in a search');
     const mine = e.note && e.note.trim() ? `<blockquote><small>${IW}</small>${esc(e.note.trim())}</blockquote>` : `<div class="lines"><small>${IW}</small><i></i><i></i><i></i></div>`;
     return `<div class="e"><dt><span class="nm">${esc(capT(e.k))}</span>${els.length ? `<span class="el">${esc(els.join(' · '))}</span>` : ''}<span class="fr">${esc(fr)}</span></dt><dd><p class="df">${esc(GLO[e.k])}</p>${M.ex ? `<p class="ex">${esc(M.ex)}</p>` : ''}${mine}</dd></div>`; }).join('');
   const date = today(), F = HOME.replace(/[^/]*$/, '') + 'fonts/';
