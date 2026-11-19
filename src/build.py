@@ -152,7 +152,7 @@ for p in PER:
     o.append(f'<text x="150" y="{(p["y0"]+p["y1"])/2:.1f}" fill="{GOLD}" font-size="11.5" text-anchor="end" letter-spacing="1.6" class="disp">{name}</text>')
     o.append(f'<text x="150" y="{(p["y0"]+p["y1"])/2+13:.1f}" fill="{IVORY}" fill-opacity=".45" font-size="9" text-anchor="end">{p["start"]}</text>')
 o.append('</g>')
-o.append(f'<line x1="150" x2="{W-90}" y1="{GROUND}" y2="{GROUND}" stroke="#6fbf5a" stroke-opacity=".5" stroke-width="1.2"/>')
+# ground line removed 19 Nov 2026 (Justin: "lose it"); the seed, grass and stems still show where the ground is
 o.append(f'<ellipse cx="{CX}" cy="{GROUND + 150}" rx="420" ry="140" fill="url(#glow)"/>')
 # stems and bars
 for f, name, c in FAMS:
